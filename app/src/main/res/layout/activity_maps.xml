@@ -33,7 +33,8 @@
             android:padding="5dp"
             android:focusable="true"
             android:clickable="true"
-            android:background="?android:attr/selectableItemBackground">
+            android:background="?android:attr/selectableItemBackground"
+            android:onClick="getLocation">
             <ImageView
                 android:id="@+id/pickup_icon"
                 android:layout_width="40dp"
@@ -70,7 +71,8 @@
             android:padding="5dp"
             android:focusable="true"
             android:clickable="true"
-            android:background="?android:attr/selectableItemBackground">
+            android:background="?android:attr/selectableItemBackground"
+            android:onClick="getLocation">
             <ImageView
                 android:id="@+id/destination_icon"
                 android:layout_width="40dp"

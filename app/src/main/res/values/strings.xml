@@ -3,4 +3,9 @@
     <string name="title_activity_maps">UbClone</string>
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
+    <string name="title_activity_location_picker">LocationPicker</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Google Places API</string>
+    <string name="hello_second_fragment">Second Fragment</string>
 </resources>

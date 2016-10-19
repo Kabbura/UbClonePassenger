@@ -1,54 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="20dp"
-    android:layout_marginLeft="20dp"
-    android:layout_marginEnd="20dp"
-    android:layout_marginRight="20dp"
-    android:layout_marginTop="10dp">
-    <ImageView
-        android:padding="5dp"
-        android:id="@+id/places_image"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@android:drawable/ic_dialog_map"
-        android:tint="@color/colorPrimary"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_centerVertical="true"
-        />
-    <TextView
-        android:id="@+id/places_name"
+    android:orientation="vertical"
+    android:focusable="true"
+    android:clickable="true"
+    android:background="?android:attr/selectableItemBackground">
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/places_image"
-        android:layout_toRightOf="@+id/places_image"
-        android:text="Place Name"
-        android:textColor="#555"
-        android:textSize="16sp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        />
-    <TextView
-        android:id="@+id/places_vicinity"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/places_image"
-        android:layout_toRightOf="@+id/places_image"
-        android:text="Place Vicinity"
-        android:textColor="#888"
-        android:textSize="14sp"
-        android:layout_below="@id/places_name"
-        android:layout_marginBottom="10dp"
-        />
+        android:layout_marginStart="14dp"
+        android:layout_marginLeft="14dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginTop="4dp">
+        <ImageView
+            android:padding="5dp"
+            android:id="@+id/places_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@android:drawable/ic_dialog_map"
+            android:tint="@color/colorPrimary"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_centerVertical="true"
+            />
+        <TextView
+            android:id="@+id/places_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/places_image"
+            android:layout_toRightOf="@+id/places_image"
+            android:text="Place Name"
+            android:textColor="#555"
+            android:textSize="16sp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="4dp"
+            />
+        <TextView
+            android:id="@+id/places_vicinity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/places_image"
+            android:layout_toRightOf="@+id/places_image"
+            android:text="Place Vicinity"
+            android:textColor="#888"
+            android:textSize="14sp"
+            android:layout_below="@id/places_name"
+            android:layout_marginBottom="10dp"
+            />
+
+
+    </RelativeLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/sepGray"
         android:layout_below="@id/places_vicinity"/>
-
-
-</RelativeLayout>
+</LinearLayout>

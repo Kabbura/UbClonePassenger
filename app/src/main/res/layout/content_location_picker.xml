@@ -8,7 +8,6 @@
     android:layout_width="match_parent"
     android:id="@+id/viewpager"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:showIn="@layout/app_bar_main"
     tools:context="com.example.islam.ubclone.LocationPicker"
     />
 

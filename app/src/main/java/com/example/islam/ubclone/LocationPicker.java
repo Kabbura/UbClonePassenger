@@ -23,6 +23,8 @@ public class LocationPicker extends AppCompatActivity {
         setContentView(R.layout.activity_location_picker);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        setTitle("Please choose a location");
+
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -48,8 +50,8 @@ public class LocationPicker extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new PlacesFragment(), "Events");
-        adapter.addFragment(new MapViewFragment(), "My Tickets");
+        adapter.addFragment(new PlacesFragment(), "Places");
+        adapter.addFragment(new MapViewFragment(), "Map");
         viewPager.setAdapter(adapter);
     }
 

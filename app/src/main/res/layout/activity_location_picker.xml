@@ -30,6 +30,7 @@
             app:tabSelectedTextColor="#555"
             app:tabIndicatorColor="@color/colorPrimary"
             app:tabIndicatorHeight="3dp"
+
             />
 
     </android.support.design.widget.AppBarLayout>

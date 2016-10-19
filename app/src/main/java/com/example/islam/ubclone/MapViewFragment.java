@@ -27,6 +27,7 @@ public class MapViewFragment extends Fragment {
 
     MapView mMapView;
     private GoogleMap googleMap;
+    private final static String PLACES_API_KEY = "AIzaSyDjUStZ4XtLcS2PIqYcu5fdggnbweYUvtY";
 
     public MapViewFragment() {
         // Required empty public constructor

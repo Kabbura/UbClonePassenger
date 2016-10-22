@@ -36,7 +36,7 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         final MapPlace place = placesList.get(position);
@@ -49,6 +49,7 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.ViewHolder
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("lat", 23.2342343);
                 resultIntent.putExtra("ltd", 53.5353212);
+                resultIntent.putExtra("name", holder.placeName.getText().toString());
                 activity.setResult(Activity.RESULT_OK, resultIntent);
                 activity.finish();
 

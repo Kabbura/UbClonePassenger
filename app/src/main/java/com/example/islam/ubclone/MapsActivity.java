@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -314,6 +315,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case GET_PICKUP_POINT:
                 if (resultCode == RESULT_OK){
                     pickupSelected = true;
+                    TextView textView = (TextView) findViewById(R.id.pickup_value);
+                    if (textView != null) {
+                        textView.setText(data.getStringExtra("name"));
+                    }
                     Log.d(TAG, "onActivityResult: Lat: "+ data.getDoubleExtra("lat",0));
                     Log.d(TAG, "onActivityResult: Ltd: "+ data.getDoubleExtra("ltd",0));
                 }

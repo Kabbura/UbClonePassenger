@@ -63,7 +63,7 @@ public class PlacesFragment extends Fragment {
         placesRecyclerView.setLayoutManager(placesLayoutManager);
 
         // specify an adapter (See also next example)
-        placesAdapter = new PlacesAdapter(PlacesList);
+        placesAdapter = new PlacesAdapter(getActivity(), PlacesList);
         placesRecyclerView.setAdapter(placesAdapter);
     }
 }

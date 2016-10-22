@@ -50,6 +50,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
+    private static final int GET_PICKUP_POINT = 0;
     private GoogleMap mMap;
     private LatLng KhartoumCords;
 
@@ -59,6 +60,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Location mCurrentLocation;
     private String mLastUpdateTime;
     public String TAG = "UbClone";
+
+    private Boolean pickupSelected;
+    private Boolean destinationSelected;
 
     @Override
     protected void onStop() {
@@ -77,6 +81,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        pickupSelected = false;
+        destinationSelected = false;
 
         // Nav drawer
 
@@ -287,7 +294,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(null!= mCurrentLocation)
         Toast.makeText(this, "Updated: "+mCurrentLocation.getLatitude()+" "+mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
 
-
     }
 
     @Override
@@ -298,6 +304,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void getLocation(View view) {
         Log.d(TAG, "getLocation: Called");
         Intent intent = new Intent(this, LocationPicker.class);
-        startActivity(intent);
+        startActivityForResult(intent, GET_PICKUP_POINT);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case GET_PICKUP_POINT:
+                if (resultCode == RESULT_OK){
+                    pickupSelected = true;
+                    Log.d(TAG, "onActivityResult: Lat: "+ data.getDoubleExtra("lat",0));
+                    Log.d(TAG, "onActivityResult: Ltd: "+ data.getDoubleExtra("ltd",0));
+                }
+                break;
+        }
+
     }
 }

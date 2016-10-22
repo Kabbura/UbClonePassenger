@@ -6,7 +6,8 @@
     android:orientation="vertical"
     android:focusable="true"
     android:clickable="true"
-    android:background="?android:attr/selectableItemBackground">
+    android:background="?android:attr/selectableItemBackground"
+    android:id="@+id/place_layout_root">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

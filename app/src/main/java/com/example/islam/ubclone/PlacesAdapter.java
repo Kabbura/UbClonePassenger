@@ -39,6 +39,7 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.ViewHolder
         holder.PlaceVicinity.setText(place.getVicinity());
 
 
+
     }
 
     @Override

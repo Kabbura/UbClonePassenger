@@ -34,6 +34,7 @@ public class PlacesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        new WebDownloaderTask(this, WebDownloaderTask.NEARBY).execute(new String[] { "http://www.test.com/index.html" });
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_places, container, false);
     }

@@ -1,6 +1,9 @@
 package com.example.islam.ubclone;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -14,13 +17,21 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -41,7 +52,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.sql.Time;
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -52,6 +65,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LocationListener {
 
     private static final int GET_PICKUP_POINT = 0;
+    private static final int GET_DESTINATION_POINT = 1;
+
+    private static final String DRIVER_INCOMING = "Incoming";
+//    private static final String DRIVER_INCOMING = "Incoming";
+//    private static final String DRIVER_INCOMING = "Incoming";
+//    private static final String DRIVER_INCOMING = "Incoming";
+
     private GoogleMap mMap;
     private LatLng KhartoumCords;
 
@@ -64,6 +84,66 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Boolean pickupSelected;
     private Boolean destinationSelected;
+
+    private LatLng pickupPoint;
+    private LatLng destinationPoint;
+
+    // ============ Time ====================//
+    private Date requestDate;
+    private Time requestTime;
+    private Boolean dateSet;
+
+    // =========== UI Elements ============== //
+    private CardView locationsCard;
+    private CardView detailsCard;
+    private CardView statusCard;
+    private LinearLayout bookLayout;
+    private LinearLayout statusLayout;
+    private Button cancelButton;
+
+
+    public enum UI_STATE{
+        SIMPLE,
+        DETAILED,
+        STATUS_MESSAGE
+    }
+
+    public void setUI(UI_STATE state, String message){
+        setUI(state);
+        TextView driverStatus = (TextView) findViewById(R.id.driver_status);
+        if (driverStatus != null) {
+            driverStatus.setText(message);
+        }
+    }
+
+    public void setUI(UI_STATE state){
+        switch (state){
+            case SIMPLE:
+                locationsCard.setVisibility(View.VISIBLE);
+                detailsCard.setVisibility(View.INVISIBLE);
+                statusCard.setVisibility(View.INVISIBLE);
+                cancelButton.setVisibility(View.INVISIBLE);
+
+                break;
+            case DETAILED:
+                locationsCard.setVisibility(View.VISIBLE);
+                detailsCard.setVisibility(View.VISIBLE);
+                statusCard.setVisibility(View.VISIBLE);
+                bookLayout.setVisibility(View.VISIBLE);
+                statusLayout.setVisibility(View.INVISIBLE);
+                cancelButton.setVisibility(View.INVISIBLE);
+                break;
+
+            case STATUS_MESSAGE:
+                locationsCard.setVisibility(View.INVISIBLE);
+                detailsCard.setVisibility(View.INVISIBLE);
+                statusCard.setVisibility(View.VISIBLE);
+                bookLayout.setVisibility(View.INVISIBLE);
+                statusLayout.setVisibility(View.VISIBLE);
+                cancelButton.setVisibility(View.VISIBLE);
+                break;
+        }
+    }
 
     @Override
     protected void onStop() {
@@ -85,7 +165,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         pickupSelected = false;
         destinationSelected = false;
+        dateSet = false;
 
+        pickupPoint = new LatLng(0,0);
+        destinationPoint = new LatLng(0,0);
+
+        locationsCard = (CardView) findViewById(R.id.locations_card);
+        detailsCard = (CardView) findViewById(R.id.details_card);
+        statusCard = (CardView) findViewById(R.id.status_card);
+        bookLayout = (LinearLayout) findViewById(R.id.book_layout);
+        statusLayout = (LinearLayout) findViewById(R.id.status_layout);
+        cancelButton = (Button) findViewById(R.id.cancel_btn);
         // Nav drawer
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -165,6 +255,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        setUI(UI_STATE.DETAILED);
     }
 
     @Override
@@ -305,7 +396,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void getLocation(View view) {
         Log.d(TAG, "getLocation: Called");
         Intent intent = new Intent(this, LocationPicker.class);
-        startActivityForResult(intent, GET_PICKUP_POINT);
+
+        if (view.getId() == R.id.pickup_layout){
+            startActivityForResult(intent, GET_PICKUP_POINT);
+        } else {
+            startActivityForResult(intent, GET_DESTINATION_POINT);
+        }
     }
 
     @Override
@@ -315,15 +411,141 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case GET_PICKUP_POINT:
                 if (resultCode == RESULT_OK){
                     pickupSelected = true;
+                    pickupPoint =  new LatLng(data.getDoubleExtra("lat",0),data.getDoubleExtra("ltd",0) );
                     TextView textView = (TextView) findViewById(R.id.pickup_value);
                     if (textView != null) {
                         textView.setText(data.getStringExtra("name"));
                     }
-                    Log.d(TAG, "onActivityResult: Lat: "+ data.getDoubleExtra("lat",0));
-                    Log.d(TAG, "onActivityResult: Ltd: "+ data.getDoubleExtra("ltd",0));
+                    Log.d(TAG, "onActivityResult: Pickup: "+ pickupPoint.toString());
+
+                    // Check destination to update the UI
+
+                    if (destinationSelected) setUI(UI_STATE.DETAILED);
+                    else setUI(UI_STATE.SIMPLE);
+                }
+                break;
+            case GET_DESTINATION_POINT:
+                if (resultCode == RESULT_OK){
+                    destinationSelected = true;
+                    destinationPoint =  new LatLng(data.getDoubleExtra("lat",0),data.getDoubleExtra("ltd",0) );
+                    TextView textView = (TextView) findViewById(R.id.destination_value);
+                    if (textView != null) {
+                        textView.setText(data.getStringExtra("name"));
+                    }
+                    Log.d(TAG, "onActivityResult: Destination: "+ destinationPoint.toString());
+
+
+                    // Check destination to update the UI
+
+                    if (pickupSelected) setUI(UI_STATE.DETAILED);
+                    else setUI(UI_STATE.SIMPLE);
+
                 }
                 break;
         }
 
     }
+
+
+    public void bookDriver(View view) {
+        setUI(UI_STATE.STATUS_MESSAGE, DRIVER_INCOMING);
+    }
+
+    public void cancelRequest(View view) {
+        setUI(UI_STATE.SIMPLE);
+        pickupSelected = false;
+        ((TextView) findViewById(R.id.pickup_value)).setText("Click to choose");
+
+        destinationSelected = false;
+        ((TextView) findViewById(R.id.destination_value)).setText("Click to choose");
+
+
+    }
+
+    public void getTime(View view) {
+        dateSet = false;
+        final TextView timeTextView = (TextView) findViewById(R.id.time_value);
+
+        final Dialog dialog = new Dialog(this);
+
+        dialog.setContentView(R.layout.time_picker);
+        dialog.setTitle("Select date");
+        final DatePicker datePicker = (DatePicker) dialog.findViewById(R.id.datePicker);
+        final TimePicker timePicker = (TimePicker) dialog.findViewById(R.id.timePicker);
+
+        assert datePicker != null;
+        datePicker.setVisibility(View.VISIBLE);
+        timePicker.setVisibility(View.GONE);
+
+        timePicker.setIs24HourView(true);
+
+        final Button pickButton = (Button)  dialog.findViewById(R.id.pick_btn);
+        if (pickButton != null) {
+            pickButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!dateSet){
+                        dateSet = true;
+                        timePicker.setVisibility(View.VISIBLE);
+                        datePicker.setVisibility(View.GONE);
+                        pickButton.setText("Pick Time");
+                        requestDate = new Date(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+                    } else {
+                        timeTextView.setText( requestDate.toString());
+                        dialog.dismiss();
+                    }
+                }
+            });
+        }
+
+        Button cancelButton = (Button)  dialog.findViewById(R.id.cancel_btn);
+        if (cancelButton != null) {
+            cancelButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+        }
+        dialog.show();
+    }
+
+
+    public void writeNote(View view) {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        final EditText input = new EditText(this);
+        final View dialogView;
+        LayoutInflater inflater = getLayoutInflater();
+        final TextView noteTextView = (TextView) findViewById(R.id.note_value);
+
+
+        alertDialogBuilder.setMessage("Note to driver");
+        dialogView = inflater.inflate(R.layout.update_dialog, null);
+        EditText driverNoteInput = (EditText)dialogView.findViewById(R.id.dialog_input);
+        driverNoteInput.setHint("Any note or incentive for the driver");
+        assert noteTextView != null;
+
+        if (!noteTextView.getText().equals(getString(R.string.note_place_holder))) driverNoteInput.setText(noteTextView.getText());
+        driverNoteInput.setSingleLine(false);
+        alertDialogBuilder.setView(dialogView);
+        alertDialogBuilder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                noteTextView.setText(((EditText)dialogView.findViewById(R.id.dialog_input)).getText().toString());
+            }
+        });
+
+        alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+    alertDialogBuilder.show();
+
+    }
+
+
+
 }

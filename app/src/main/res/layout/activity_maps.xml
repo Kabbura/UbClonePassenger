@@ -1,6 +1,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
@@ -10,98 +11,318 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.example.islam.ubclone.MapsActivity" />
-
-    <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    <Button
+        android:id="@+id/cancel_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        app:cardElevation="2dp"
         android:layout_marginTop="68dp"
         android:layout_alignParentTop="true"
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp">
-    <LinearLayout
+        android:layout_marginRight="10dp"
+        android:text="Cancel request"
+        android:background="@android:color/holo_red_dark"
+        android:textColor="@android:color/white"
+        android:onClick="cancelRequest">
+    </Button>
+    <android.support.v7.widget.CardView
+        android:id="@+id/locations_card"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        app:cardElevation="3dp"
+        android:layout_marginTop="68dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:visibility="invisible">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:id="@+id/pickup_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="0dp"
+                android:padding="5dp"
+                android:focusable="true"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="getLocation">
+                <ImageView
+                    android:id="@+id/pickup_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:src="@drawable/start_loc_small"
+                    android:padding="2dp"/>
+                <TextView
+                    android:id="@+id/pickup_text"
+                    android:layout_toEndOf="@+id/pickup_icon"
+                    android:layout_toRightOf="@+id/pickup_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pick up" />
+                <TextView
+                    android:id="@+id/pickup_value"
+                    android:layout_toRightOf="@+id/pickup_icon"
+                    android:layout_toEndOf="@+id/pickup_icon"
+                    android:layout_below="@+id/pickup_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Click to choose"
+                    android:textSize="18sp" />
+            </RelativeLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/sepGray"/>
+
+            <RelativeLayout
+                android:id="@+id/destination_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:focusable="true"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="getLocation">
+                <ImageView
+                    android:id="@+id/destination_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:src="@drawable/stop_loc_small"
+                    android:padding="2dp"/>
+                <TextView
+                    android:id="@+id/destination_text"
+                    android:layout_toEndOf="@+id/destination_icon"
+                    android:layout_toRightOf="@+id/destination_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Destination"
+                    />
+                <TextView
+                    android:id="@+id/destination_value"
+                    android:layout_toRightOf="@+id/destination_icon"
+                    android:layout_toEndOf="@+id/destination_icon"
+                    android:layout_below="@+id/destination_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Click to choose"
+                    android:textSize="18sp"
+                    />
+            </RelativeLayout>
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/details_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="2dp"
+        android:layout_below="@id/locations_card"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#f9f9f9"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:id="@+id/time_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="0dp"
+                android:padding="5dp"
+                android:focusable="true"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="getTime">
+                <ImageView
+                    android:id="@+id/time_icon"
+                    android:layout_width="27dp"
+                    android:layout_height="27dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:src="@drawable/ic_time"
+                    android:padding="3dp"/>
+                <TextView
+                    android:id="@+id/time_value"
+                    android:layout_toRightOf="@+id/time_icon"
+                    android:layout_toEndOf="@+id/time_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="Now"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="12dp"
+                    android:maxLines="1"/>
+            </RelativeLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/sepGray"/>
+
+            <RelativeLayout
+                android:id="@+id/note_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:focusable="true"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="writeNote">
+                <ImageView
+                    android:id="@+id/note_icon"
+                    android:layout_width="27dp"
+                    android:layout_height="27dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:src="@drawable/ic_vote_for_projects"
+                    android:padding="2dp"/>
+                <TextView
+                    android:id="@+id/note_value"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/note_icon"
+                    android:layout_toEndOf="@+id/note_icon"
+                    android:layout_width="match_parent"
+                    android:layout_centerVertical="true"
+                    android:text="@string/note_place_holder"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="12dp"
+                    android:maxLines="1"
+                    />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/sepGray"
+                />
+            <CheckBox
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Female driver only"
+                android:textSize="16sp"
+                android:textColor="@android:color/tab_indicator_text"/>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/status_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="2dp"
+        android:layout_marginTop="68dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_alignParentBottom="true"
+        >
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="0dp"
-            android:padding="5dp"
-            android:focusable="true"
-            android:clickable="true"
-            android:background="?android:attr/selectableItemBackground"
-            android:onClick="getLocation">
-            <ImageView
-                android:id="@+id/pickup_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:src="@drawable/start_loc_small"
-                android:padding="2dp"/>
-            <TextView
-                android:id="@+id/pickup_text"
-                android:layout_toEndOf="@+id/pickup_icon"
-                android:layout_toRightOf="@+id/pickup_icon"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary">
+            <LinearLayout
+                android:id="@+id/book_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Pick up" />
-            <TextView
-                android:id="@+id/pickup_value"
-                android:layout_toRightOf="@+id/pickup_icon"
-                android:layout_toEndOf="@+id/pickup_icon"
-                android:layout_below="@+id/pickup_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Click to choose"
-                android:textSize="18sp" />
-        </RelativeLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/sepGray"/>
+                android:orientation="vertical"
+                android:layout_alignParentTop="true"
+                android:visibility="invisible">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingBottom="4dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Price:"
+                        android:textSize="16sp"
+                        android:textColor="@android:color/white"
+                        />
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="match_parent" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="65"
+                        android:textSize="18sp"
+                        android:textColor="@color/colorAccent"
+                        />
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="match_parent" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SDG"
+                        android:textSize="12sp"
+                        android:textColor="@color/colorAccent"
+                        />
+                </LinearLayout>
+                <Button
+                    android:id="@+id/book_btn"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Book"
+                    android:onClick="bookDriver"
+                    android:background="@color/colorAccent"
+                    android:textColor="@android:color/white"/>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:focusable="true"
-            android:clickable="true"
-            android:background="?android:attr/selectableItemBackground"
-            android:onClick="getLocation">
-            <ImageView
-                android:id="@+id/destination_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:src="@drawable/stop_loc_small"
-                android:padding="2dp"/>
-            <TextView
-                android:id="@+id/destination_text"
-                android:layout_toEndOf="@+id/destination_icon"
-                android:layout_toRightOf="@+id/destination_icon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Destination"
-                />
-            <TextView
-                android:id="@+id/destination_value"
-                android:layout_toRightOf="@+id/destination_icon"
-                android:layout_toEndOf="@+id/destination_icon"
-                android:layout_below="@+id/destination_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Click to choose"
-                android:textSize="18sp"
-                />
-        </RelativeLayout>
+            </LinearLayout>
 
-    </LinearLayout>
-</android.support.v7.widget.CardView>
+            <LinearLayout
+                android:id="@+id/status_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_alignParentTop="true"
+                android:visibility="visible">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingBottom="4dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="4dp">
+                    <TextView
+                        android:id="@+id/driver_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Incoming"
+                        android:textSize="32sp"
+                        android:textColor="@color/colorAccent"
+                        android:gravity="center_horizontal"
+                        />
+                </LinearLayout>
+
+
+
+            </LinearLayout>
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
 
 </RelativeLayout>

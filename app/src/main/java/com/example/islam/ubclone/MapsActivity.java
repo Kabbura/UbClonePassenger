@@ -67,7 +67,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int GET_PICKUP_POINT = 0;
     private static final int GET_DESTINATION_POINT = 1;
 
-    private static final String DRIVER_INCOMING = "Incoming";
+//    private static final String DRIVER_INCOMING = G
 //    private static final String DRIVER_INCOMING = "Incoming";
 //    private static final String DRIVER_INCOMING = "Incoming";
 //    private static final String DRIVER_INCOMING = "Incoming";
@@ -255,7 +255,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        setUI(UI_STATE.DETAILED);
+        setUI(UI_STATE.SIMPLE);
     }
 
     @Override
@@ -269,36 +269,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_profile) {
             // Handle the camera action
+        } else if (id == R.id.nav_about){
+
+        } else if (id == R.id.nav_logout){
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -448,7 +430,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     public void bookDriver(View view) {
-        setUI(UI_STATE.STATUS_MESSAGE, DRIVER_INCOMING);
+        setUI(UI_STATE.STATUS_MESSAGE, getString(R.string.finding_a_driver));
     }
 
     public void cancelRequest(View view) {

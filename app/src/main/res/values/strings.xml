@@ -9,4 +9,5 @@
     <string name="hello_blank_fragment">Google Places API</string>
     <string name="hello_second_fragment">Second Fragment</string>
     <string name="note_place_holder">Note to driver</string>
+    <string name="finding_a_driver">Finding a driver</string>
 </resources>

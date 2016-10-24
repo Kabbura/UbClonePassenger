@@ -302,7 +302,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:paddingBottom="4dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
@@ -311,11 +311,60 @@
                         android:id="@+id/driver_status"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Incoming"
-                        android:textSize="32sp"
+                        android:text="@string/finding_a_driver"
+                        android:textSize="24sp"
                         android:textColor="@color/colorAccent"
                         android:gravity="center_horizontal"
+                        android:layout_marginBottom="10dp"
                         />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        >
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Driver name"
+                            android:textSize="14sp"
+                            android:textColor="@color/colorAccent"
+                            />
+
+                        <TextView
+                            android:layout_marginLeft="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Driver Placeholder Name"
+                            android:textSize="14sp"
+                            android:textColor="@android:color/white"
+                            />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        >
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vehicle NO. "
+                            android:textSize="14sp"
+                            android:textColor="@color/colorAccent"
+                            />
+
+                        <TextView
+                            android:layout_marginLeft="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="KH00000"
+                            android:textSize="14sp"
+                            android:textColor="@android:color/white"
+                            />
+
+                    </LinearLayout>
+
                 </LinearLayout>
 
 

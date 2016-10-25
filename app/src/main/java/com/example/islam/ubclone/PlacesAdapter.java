@@ -81,4 +81,22 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.ViewHolder
 
     }
 
+
+    // Provide a data updater function
+    public void updateDataSet(ArrayList<MapPlace> inPlacesList) {
+        placesList = inPlacesList;
+    }
+
+    public void clearPlaces(){
+        int listSize = placesList.size();
+        if (listSize > 0) {
+            for (int i = 0; i < listSize; i++) {
+                placesList.remove(0);
+            }
+
+            this.notifyItemRangeRemoved(0, listSize);
+        }
+
+    }
+
 }

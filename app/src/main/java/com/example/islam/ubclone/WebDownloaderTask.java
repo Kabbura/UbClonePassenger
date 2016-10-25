@@ -5,7 +5,14 @@ import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -87,9 +94,59 @@ public class WebDownloaderTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String s) {
-        Log.i("IEC", "onPostExecute: " + s);
         super.onPostExecute(s);
-        //TODO: parse response
+        Log.d("UbClone", "onPostExecute: " + s);
+        JSONObject response = null;
+        try {
+            response = new JSONObject(s);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        switch (action){
+            case NEARBY:
+
+                PlacesFragment fragment = (PlacesFragment) fragmentWeakReference.get();
+                if (fragment != null) {
+                    try {
+                        if (response != null && 0 == response.optInt("status")) {
+                            fragment.clearPlaces();
+                            JSONArray placesJSONArray = response.optJSONArray("results");
+                            ArrayList<MapPlace> placesList = new ArrayList<>();
+                            placesList = parsePlaces(placesJSONArray, placesList);
+
+//                            Gson gson = new Gson();
+//                            String json = gson.toJson(placesList);
+//                            PrefManager prefManager = new PrefManager(fragment.getContext());
+//                            prefManager.setEventsList(json);
+//                            Log.d(TAG, "onPostExecute: Setting EventList: " + json);
+
+
+                            fragment.setPlaces(placesList);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+        }
+
+
+    }
+
+    private ArrayList<MapPlace> parsePlaces(JSONArray placesJSONArray, ArrayList<MapPlace> placesList)  throws JSONException {
+
+        for (int index = 0; index < placesJSONArray.length(); index++) {
+            JSONObject place = placesJSONArray.getJSONObject(index);
+            JSONObject geometry = place.optJSONObject("geometry");
+            JSONObject location = geometry.optJSONObject("location");
+            placesList.add(new MapPlace(
+                    location.optDouble("lat"),
+                    location.optDouble("lng"),
+                    place.optString("name"),
+                    place.optString("vicinity")
+            ));
+        }
+        return placesList;
 
     }
 

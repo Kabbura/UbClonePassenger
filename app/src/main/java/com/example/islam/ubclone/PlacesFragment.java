@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import com.google.android.gms.location.places.Place;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 
 /**
@@ -44,17 +46,8 @@ public class PlacesFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         placesRecyclerView = (RecyclerView) getActivity().findViewById(R.id.places_rec_view);
+
         PlacesList = new ArrayList<MapPlace>();
-        PlacesList.add(new MapPlace(23.32323, 31.3233, "Khartoum", "Such a nice place"));
-        PlacesList.add(new MapPlace(23.32323, 31.3233, "Stadium", "Let's play"));
-        PlacesList.add(new MapPlace(23.32323, 31.3233, "The ATM next door", "Wanna get some money?"));
-        PlacesList.add(new MapPlace(23.32323, 31.3233, "The ATM next door", "Wanna get some money?"));
-        PlacesList.add(new MapPlace(23.32323, 31.3233, "The ATM next door", "Wanna get some money?"));
-        PlacesList.add(new MapPlace(23.32323, 31.3233, "The ATM next door", "Wanna get some money?"));
-        PlacesList.add(new MapPlace(23.32323, 31.3233, "The ATM next door", "Wanna get some money?"));
-        PlacesList.add(new MapPlace(23.32323, 31.3233, "The ATM next door", "Wanna get some money?"));
-        PlacesList.add(new MapPlace(23.32323, 31.3233, "The ATM next door", "Wanna get some money?"));
-        PlacesList.add(new MapPlace(23.32323, 31.3233, "The ATM next door", "Wanna get some money?"));
 
         placesRecyclerView.setHasFixedSize(true);
 
@@ -65,5 +58,18 @@ public class PlacesFragment extends Fragment {
         // specify an adapter (See also next example)
         placesAdapter = new PlacesAdapter(getActivity(), PlacesList);
         placesRecyclerView.setAdapter(placesAdapter);
+    }
+
+
+    public void setPlaces(ArrayList<MapPlace> latestEvents) {
+        Log.i("UbClone", "setPlaces: Set");
+        placesAdapter.updateDataSet(latestEvents);
+        placesAdapter.notifyDataSetChanged();
+
+    }
+
+    public void clearPlaces(){
+        Log.i("UbClone", "setPlaces: Cleared first called");
+        placesAdapter.clearPlaces();
     }
 }

@@ -47,8 +47,8 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.ViewHolder
             @Override
             public void onClick(View v) {
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("lat", 23.2342343);
-                resultIntent.putExtra("ltd", 53.5353212);
+                resultIntent.putExtra("lat", place.getLat());
+                resultIntent.putExtra("ltd", place.getLng());
                 resultIntent.putExtra("name", holder.placeName.getText().toString());
                 activity.setResult(Activity.RESULT_OK, resultIntent);
                 activity.finish();

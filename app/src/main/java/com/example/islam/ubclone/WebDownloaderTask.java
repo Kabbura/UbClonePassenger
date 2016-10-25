@@ -62,8 +62,10 @@ public class WebDownloaderTask extends AsyncTask<String, Void, String> {
 
         switch (action) {
             case NEARBY:
+                PlacesFragment placesFragment = (PlacesFragment) fragmentWeakReference.get();
+                LocationPicker locationPicker = (LocationPicker) placesFragment.getActivity();
                 String requestURL = PLACES_BASE_URL + "?" + "key" + "=" + PLACES_API_KEY
-                        + "&" + "location" + "=" + "15.592791,32.534134"
+                        + "&" + "location" + "=" + Double.toString(locationPicker.mLastLocation.latitude) +","+Double.toString(locationPicker.mLastLocation.longitude)
                         + "&" + "rankby" + "=" + "distance";
 
                 request = new Request.Builder()
@@ -114,16 +116,16 @@ public class WebDownloaderTask extends AsyncTask<String, Void, String> {
                             ArrayList<MapPlace> placesList = new ArrayList<>();
                             placesList = parsePlaces(placesJSONArray, placesList);
 
-//                            Gson gson = new Gson();
-//                            String json = gson.toJson(placesList);
-//                            PrefManager prefManager = new PrefManager(fragment.getContext());
-//                            prefManager.setEventsList(json);
-//                            Log.d(TAG, "onPostExecute: Setting EventList: " + json);
+                            Gson gson = new Gson();
+                            String json = gson.toJson(placesList);
+                            PrefManager prefManager = new PrefManager(fragment.getContext());
+                            prefManager.setPlacesList(json);
+                            Log.d("UbClone", "onPostExecute: Setting EventList: " + json);
 
 
                             fragment.setPlaces(placesList);
                         }
-                    } catch (JSONException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }

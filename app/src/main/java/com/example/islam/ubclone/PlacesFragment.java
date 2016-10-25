@@ -1,6 +1,7 @@
 package com.example.islam.ubclone;
 
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.location.places.Place;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -26,6 +29,7 @@ public class PlacesFragment extends Fragment {
     private PlacesAdapter placesAdapter;
     private RecyclerView.LayoutManager placesLayoutManager;
     ArrayList<MapPlace> PlacesList;
+    private PrefManager prefManager;
 
     public PlacesFragment() {
         // Required empty public constructor
@@ -48,6 +52,15 @@ public class PlacesFragment extends Fragment {
         placesRecyclerView = (RecyclerView) getActivity().findViewById(R.id.places_rec_view);
 
         PlacesList = new ArrayList<MapPlace>();
+
+
+        prefManager = new PrefManager(getContext());
+
+        Gson gson = new Gson();
+        String json = prefManager.getPlacesList();
+        PlacesList = gson.fromJson(json, new TypeToken<ArrayList<MapPlace>>(){}.getType());
+
+
 
         placesRecyclerView.setHasFixedSize(true);
 

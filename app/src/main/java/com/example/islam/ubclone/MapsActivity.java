@@ -50,7 +50,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.sql.Time;
 import java.text.DateFormat;
@@ -77,7 +80,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
+    public Location mLastLocation;
     private Location mCurrentLocation;
     private String mLastUpdateTime;
     public String TAG = "UbClone";
@@ -378,6 +381,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void getLocation(View view) {
         Log.d(TAG, "getLocation: Called");
         Intent intent = new Intent(this, LocationPicker.class);
+        intent.putExtra("lat",mCurrentLocation.getLatitude());
+        intent.putExtra("ltd",mCurrentLocation.getLongitude());
 
         if (view.getId() == R.id.pickup_layout){
             startActivityForResult(intent, GET_PICKUP_POINT);
@@ -400,6 +405,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                     Log.d(TAG, "onActivityResult: Pickup: "+ pickupPoint.toString());
 
+                    // Setting marker
+
+                    mMap.addMarker(new MarkerOptions()
+                            .position(pickupPoint)
+                            .title(data.getStringExtra("name"))
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.start_loc_smaller))
+                    );
+
+                    // For zooming automatically to the location of the marker
+                    CameraPosition cameraPosition = new CameraPosition.Builder().target(pickupPoint).zoom(12).build();
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
+
                     // Check destination to update the UI
 
                     if (destinationSelected) setUI(UI_STATE.DETAILED);
@@ -415,6 +434,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         textView.setText(data.getStringExtra("name"));
                     }
                     Log.d(TAG, "onActivityResult: Destination: "+ destinationPoint.toString());
+
+                    // Setting marker
+
+                    mMap.addMarker(new MarkerOptions()
+                            .position(destinationPoint)
+                            .title(data.getStringExtra("name"))
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.stop_loc_smaller))
+                    );
+
+                    // For zooming automatically to the location of the marker
+                    CameraPosition cameraPosition = new CameraPosition.Builder().target(destinationPoint).zoom(12).build();
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 
                     // Check destination to update the UI

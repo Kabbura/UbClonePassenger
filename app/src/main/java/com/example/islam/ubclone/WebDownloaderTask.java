@@ -62,15 +62,20 @@ public class WebDownloaderTask extends AsyncTask<String, Void, String> {
 
         switch (action) {
             case NEARBY:
-                PlacesFragment placesFragment = (PlacesFragment) fragmentWeakReference.get();
-                LocationPicker locationPicker = (LocationPicker) placesFragment.getActivity();
-                String requestURL = PLACES_BASE_URL + "?" + "key" + "=" + PLACES_API_KEY
-                        + "&" + "location" + "=" + Double.toString(locationPicker.mLastLocation.latitude) +","+Double.toString(locationPicker.mLastLocation.longitude)
-                        + "&" + "rankby" + "=" + "distance";
+                try {
+                    PlacesFragment placesFragment = (PlacesFragment) fragmentWeakReference.get();
 
-                request = new Request.Builder()
-                        .url(requestURL)
-                        .build();
+                    LocationPicker locationPicker = (LocationPicker) placesFragment.getActivity();
+                    String requestURL = PLACES_BASE_URL + "?" + "key" + "=" + PLACES_API_KEY
+                            + "&" + "location" + "=" + Double.toString(locationPicker.mLastLocation.latitude) +","+Double.toString(locationPicker.mLastLocation.longitude)
+                            + "&" + "rankby" + "=" + "distance";
+
+                    request = new Request.Builder()
+                            .url(requestURL)
+                            .build();
+                } catch (Exception e){
+                        e.printStackTrace();
+                }
 
                 break;
             default:
@@ -111,10 +116,12 @@ public class WebDownloaderTask extends AsyncTask<String, Void, String> {
                 if (fragment != null) {
                     try {
                         if (response != null && 0 == response.optInt("status")) {
+
+                            LocationPicker locationPicker = (LocationPicker) fragment.getActivity();
                             fragment.clearPlaces();
                             JSONArray placesJSONArray = response.optJSONArray("results");
                             ArrayList<MapPlace> placesList = new ArrayList<>();
-                            placesList = parsePlaces(placesJSONArray, placesList);
+                            placesList = parsePlaces(placesJSONArray, placesList, locationPicker.mLastLocation.latitude, locationPicker.mLastLocation.longitude);
 
                             Gson gson = new Gson();
                             String json = gson.toJson(placesList);
@@ -135,8 +142,14 @@ public class WebDownloaderTask extends AsyncTask<String, Void, String> {
 
     }
 
-    private ArrayList<MapPlace> parsePlaces(JSONArray placesJSONArray, ArrayList<MapPlace> placesList)  throws JSONException {
+    private ArrayList<MapPlace> parsePlaces(JSONArray placesJSONArray, ArrayList<MapPlace> placesList, Double lat, Double ltd)  throws JSONException {
 
+        placesList.add(new MapPlace(
+                    lat,
+                    ltd,
+                    "My current location",
+                    ""
+            ));
         for (int index = 0; index < placesJSONArray.length(); index++) {
             JSONObject place = placesJSONArray.getJSONObject(index);
             JSONObject geometry = place.optJSONObject("geometry");

@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -34,6 +35,14 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.akexorcist.googledirection.DirectionCallback;
+import com.akexorcist.googledirection.GoogleDirection;
+import com.akexorcist.googledirection.model.Direction;
+import com.akexorcist.googledirection.model.Info;
+import com.akexorcist.googledirection.model.Leg;
+import com.akexorcist.googledirection.model.Route;
+import com.akexorcist.googledirection.model.Step;
+import com.akexorcist.googledirection.util.DirectionConverter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -53,12 +62,17 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.sql.Time;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -66,7 +80,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-
+    private static final String GOOGLE_DIRECTIONS_API = "AIzaSyDpJmpRN0BxJ76X27K0NLTGs-gDHQtoxXQ";
     private static final int GET_PICKUP_POINT = 0;
     private static final int GET_DESTINATION_POINT = 1;
 
@@ -85,11 +99,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String mLastUpdateTime;
     public String TAG = "UbClone";
 
+    // ====== pickup and destination points === //
     private Boolean pickupSelected;
     private Boolean destinationSelected;
 
     private LatLng pickupPoint;
+    private Marker pickupMarker;
     private LatLng destinationPoint;
+    private Marker destinationMarker;
+    private Polyline routePolyline;
 
     // ============ Time ====================//
     private Date requestDate;
@@ -368,8 +386,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mCurrentLocation = location;
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        if(null!= mCurrentLocation)
-        Toast.makeText(this, "Updated: "+mCurrentLocation.getLatitude()+" "+mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+//        if(null!= mCurrentLocation)
+//        Toast.makeText(this, "Updated: "+mCurrentLocation.getLatitude()+" "+mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
 
     }
 
@@ -394,6 +412,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        // Always remove the route on the map
         switch (requestCode) {
             case GET_PICKUP_POINT:
                 if (resultCode == RESULT_OK){
@@ -406,8 +426,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.d(TAG, "onActivityResult: Pickup: "+ pickupPoint.toString());
 
                     // Setting marker
-
-                    mMap.addMarker(new MarkerOptions()
+                    if (pickupMarker != null) {
+                        pickupMarker.remove();
+                    }
+                    pickupMarker = mMap.addMarker(new MarkerOptions()
                             .position(pickupPoint)
                             .title(data.getStringExtra("name"))
                             .icon(BitmapDescriptorFactory.fromResource(R.mipmap.start_loc_smaller))
@@ -421,7 +443,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     // Check destination to update the UI
 
-                    if (destinationSelected) setUI(UI_STATE.DETAILED);
+                    if (destinationSelected) {
+                        setUI(UI_STATE.DETAILED);
+                        showRoute();
+                    }
                     else setUI(UI_STATE.SIMPLE);
                 }
                 break;
@@ -436,8 +461,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.d(TAG, "onActivityResult: Destination: "+ destinationPoint.toString());
 
                     // Setting marker
+                    if (destinationMarker != null) {
+                        destinationMarker.remove();
+                    }
 
-                    mMap.addMarker(new MarkerOptions()
+                    destinationMarker = mMap.addMarker(new MarkerOptions()
                             .position(destinationPoint)
                             .title(data.getStringExtra("name"))
                             .icon(BitmapDescriptorFactory.fromResource(R.mipmap.stop_loc_smaller))
@@ -450,13 +478,64 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     // Check destination to update the UI
 
-                    if (pickupSelected) setUI(UI_STATE.DETAILED);
+                    if (pickupSelected) {
+                        setUI(UI_STATE.DETAILED);
+                        showRoute();
+                    }
                     else setUI(UI_STATE.SIMPLE);
 
                 }
                 break;
         }
 
+    }
+
+    private void showRoute() {
+        Log.d(TAG, "showRoute: Called");
+
+//        if (routePolyline != null) {
+//            routePolyline.remove();
+//        }
+
+        GoogleDirection.withServerKey(GOOGLE_DIRECTIONS_API)
+                .from(pickupPoint)
+                .to(destinationPoint)
+                .execute(new DirectionCallback() {
+                    @Override
+                    public void onDirectionSuccess(Direction direction, String rawBody) {
+                        // Do something here
+                        Toast.makeText(MapsActivity.this, "Route successfully computed ", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "showRoute: Route successfully computed ");
+
+                        if(direction.isOK()) {
+                            // Do
+                            Route route = direction.getRouteList().get(0);
+                            Leg leg = route.getLegList().get(0);
+
+                            // Distance info
+                            Info distanceInfo = leg.getDistance();
+                            Info durationInfo = leg.getDuration();
+                            String distance = distanceInfo.getText();
+                            String duration = durationInfo.getText();
+
+                            ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
+                            PolylineOptions polylineOptions = DirectionConverter.createPolyline(MapsActivity.this, directionPositionList, 5, getResources().getColor(R.color.colorPrimary));
+                            if (routePolyline != null) {
+                                routePolyline.remove();
+                            }
+                            routePolyline = mMap.addPolyline(polylineOptions);
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onDirectionFailure(Throwable t) {
+                        // Do something here
+                        Toast.makeText(MapsActivity.this, "Route Failed ", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "showRoute: Route Failed ");
+                    }
+                });
     }
 
 

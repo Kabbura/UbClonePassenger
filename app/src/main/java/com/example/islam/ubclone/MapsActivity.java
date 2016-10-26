@@ -301,6 +301,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else if (id == R.id.nav_about){
 
         } else if (id == R.id.nav_logout){
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
 
         }
 
@@ -546,10 +549,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void cancelRequest(View view) {
         setUI(UI_STATE.SIMPLE);
         pickupSelected = false;
+        if (pickupMarker != null) {
+            pickupMarker.remove();
+        }
         ((TextView) findViewById(R.id.pickup_value)).setText("Click to choose");
 
         destinationSelected = false;
+        if (destinationMarker != null) {
+            destinationMarker.remove();
+        }
         ((TextView) findViewById(R.id.destination_value)).setText("Click to choose");
+
+        // remove route
+        if (routePolyline != null) {
+            routePolyline.remove();
+        }
 
 
     }

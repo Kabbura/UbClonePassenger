@@ -5,4 +5,7 @@
     <color name="colorAccent">#ffb82d</color>
 
     <color name="sepGray">#ddd</color>
+    <color name="bgGray">#f2f2f2</color>
+    <color name="textGray">#aaa</color>
+    <color name="darkText">#444</color>
 </resources>

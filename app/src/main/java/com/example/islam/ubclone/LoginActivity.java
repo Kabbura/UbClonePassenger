@@ -50,7 +50,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
+            "foo@example.com:hello", "bar@example.com:world", "a@a:aaaaa"
     };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -67,6 +67,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Open maps!
+        Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+        startActivity(intent);
+//                showProgress(false);
+        finish();
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -335,7 +342,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             if (success) {
                 Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
                 startActivity(intent);
-                showProgress(false);
+//                showProgress(false);
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));

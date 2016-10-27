@@ -6,20 +6,25 @@
     <item android:title="" >
         <menu>
             <group android:checkableBehavior="single" >
-            <item
-                android:id="@+id/nav_profile"
-                android:title="Profile"
-                android:icon="@drawable/ic_menu_profile"
-                />
-            <item
-                android:id="@+id/nav_about"
-                android:title="About"
-                android:icon="@drawable/ic_menu_about"/>
-            <item
-                android:id="@+id/nav_logout"
-                android:title="Logout"
-                android:icon="@drawable/ic_menu_logout"/>
-        </group>
+                <item
+                    android:id="@+id/nav_profile"
+                    android:title="Profile"
+                    android:icon="@drawable/ic_menu_profile"
+                    />
+                <item
+                    android:id="@+id/nav_history"
+                    android:title="History"
+                    android:icon="@android:drawable/ic_dialog_dialer"
+                    />
+                <item
+                    android:id="@+id/nav_about"
+                    android:title="About"
+                    android:icon="@drawable/ic_menu_about"/>
+                <item
+                    android:id="@+id/nav_logout"
+                    android:title="Logout"
+                    android:icon="@drawable/ic_menu_logout"/>
+            </group>
         </menu>
     </item>
 

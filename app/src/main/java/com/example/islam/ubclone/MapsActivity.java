@@ -298,9 +298,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (id == R.id.nav_profile) {
             // Handle the camera action
+        } else if (id == R.id.nav_history){
+            Intent intent = new Intent(this, HistoryActivity.class);
+            startActivity(intent);
+
         } else if (id == R.id.nav_about){
 
-        } else if (id == R.id.nav_logout){
+        }else if (id == R.id.nav_logout){
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -402,6 +406,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void getLocation(View view) {
         Log.d(TAG, "getLocation: Called");
         Intent intent = new Intent(this, LocationPicker.class);
+        // TODO: get latitude and longitude crashes the system when the GPS is off
         intent.putExtra("lat",mCurrentLocation.getLatitude());
         intent.putExtra("ltd",mCurrentLocation.getLongitude());
 

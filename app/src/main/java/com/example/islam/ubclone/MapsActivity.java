@@ -68,6 +68,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -477,12 +478,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 //        intent.putExtra("lat",mCurrentLocation.getLatitude());
 //        intent.putExtra("ltd",mCurrentLocation.getLongitude());
 
+
+
         try {
+            LatLngBounds bounds = new LatLngBounds(new LatLng(12.951125, 35.404134), new LatLng(20.486998, 25.769819));
             Intent intent =
                     new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                            .setBoundsBias(bounds)
                            // .setFilter(typeFilter)
                             .build(this);
-            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+            if (view.getId() == R.id.pickup_layout){
+                startActivityForResult(intent, GET_PICKUP_POINT);
+            } else {
+                startActivityForResult(intent, GET_DESTINATION_POINT);
+            }
+
         } catch (GooglePlayServicesRepairableException e) {
             // TODO: Handle the error.
         } catch (GooglePlayServicesNotAvailableException e) {
@@ -491,64 +501,43 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         // Always remove the route on the map
-        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Place place = PlaceAutocomplete.getPlace(this, data);
-                Log.i(TAG, "Place: " + place.getName());
-            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                Status status = PlaceAutocomplete.getStatus(this, data);
-                // TODO: Handle the error.
-                Log.i(TAG, status.getStatusMessage());
 
-            } else if (resultCode == RESULT_CANCELED) {
-                // The user canceled the operation.
-            }
-        }
 
 
         switch (requestCode) {
             case GET_PICKUP_POINT:
-                if (resultCode == RESULT_OK){
-                    TextView textView = (TextView) findViewById(R.id.pickup_value);
-                    if (textView != null) {
-                        textView.setText(data.getStringExtra("name"));
-                    }
+                if (resultCode == RESULT_OK) {
+                    Place place = PlaceAutocomplete.getPlace(this, data);
+                    setPickupPointUI(place);
+                    Log.i(TAG, "Place: " + place.getName());
+                } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                    Status status = PlaceAutocomplete.getStatus(this, data);
+                    // TODO: Handle the error.
+                    Log.i(TAG, status.getStatusMessage());
 
-                    // For zooming automatically to the location of the marker
-                    CameraPosition cameraPosition = new CameraPosition.Builder().target(pickupPoint).zoom(12).build();
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
+                } else if (resultCode == RESULT_CANCELED) {
+                    // The user canceled the operation.
                 }
                 break;
             case GET_DESTINATION_POINT:
-                if (resultCode == RESULT_OK){
-                    TextView textView = (TextView) findViewById(R.id.destination_value);
-                    if (textView != null) {
-                        textView.setText(data.getStringExtra("name"));
-                    }
-                    Log.d(TAG, "onActivityResult: Destination: "+ destinationPoint.toString());
+                if (resultCode == RESULT_OK) {
+                    Place place = PlaceAutocomplete.getPlace(this, data);
+                    setDestinationPointUI(place);
+                    Log.i(TAG, "Place: " + place.getName());
+                } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                    Status status = PlaceAutocomplete.getStatus(this, data);
+                    // TODO: Handle the error.
+                    Log.i(TAG, status.getStatusMessage());
 
-                    // Setting marker
-
-
-                    // For zooming automatically to the location of the marker
-                    CameraPosition cameraPosition = new CameraPosition.Builder().target(destinationPoint).zoom(12).build();
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-
-                    // Check destination to update the UI
-
-                    if (pickupSelected) {
-                        setUI(UI_STATE.DETAILED);
-                        showRoute();
-                    }
-                    else setUI(UI_STATE.SIMPLE);
-
+                } else if (resultCode == RESULT_CANCELED) {
+                    // The user canceled the operation.
                 }
                 break;
         }
@@ -603,32 +592,50 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 });
     }
 
+    private void setPickupPointUI(Place place) {
+        TextView textView = (TextView) findViewById(R.id.pickup_value);
+        if (textView != null) {
+            textView.setText(place.getName());
+        }
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(place.getLatLng()).zoom(14).build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+
+    private void setDestinationPointUI(Place place) {
+        TextView textView = (TextView) findViewById(R.id.destination_value);
+        if (textView != null) {
+            textView.setText(place.getName());
+        }
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(place.getLatLng()).zoom(14).build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+    private void setPickupPoint(LatLng point){
+
+        // Setting marker
+
+        if (pickupMarker != null) {
+            pickupMarker.remove();
+        }
+        pickupSelected = true;
+        pickupPoint = point;
+        pickupMarker = mMap.addMarker(new MarkerOptions()
+                        .position(point)
+//                    .title(data.getStringExtra("name"))
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.start_loc_smaller))
+                        .draggable(true)
+        );
+
+        // For zooming automatically to the location of the marker
+        LatLng newCameraLocation = new LatLng(pickupPoint.latitude+0.01, pickupPoint.longitude+0.01);
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLocation).zoom(14).build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
 
     public void getNextAction(View view) {
         if (UIState == UI_STATE.CONFIRM_PICKUP){
-
-//            Log.d(TAG, "onActivityResult: Pickup: "+ pickupPoint.toString());
-
-            // Setting marker
-
-            if (pickupMarker != null) {
-                pickupMarker.remove();
-            }
-            pickupSelected = true;
-            pickupPoint = mMap.getCameraPosition().target;
-            pickupMarker = mMap.addMarker(new MarkerOptions()
-                    .position(mMap.getCameraPosition().target)
-//                    .title(data.getStringExtra("name"))
-                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.start_loc_smaller))
-                    .draggable(true)
-            );
-
-            // For zooming automatically to the location of the marker
-            LatLng newCameraLoaction = new LatLng(pickupPoint.latitude+0.01, pickupPoint.longitude+0.01);
-            CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLoaction).zoom(12).build();
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
+            setPickupPoint(mMap.getCameraPosition().target);
             setUI(UI_STATE.CONFIRM_DESTINATION);
+
         } else if (UIState == UI_STATE.CONFIRM_DESTINATION) {
 
             if (destinationMarker != null) {

@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "480937278063",
+    "project_id": "wise-karma-145712"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:480937278063:android:1e41c8c0aa0428b5",
+        "android_client_info": {
+          "package_name": "com.example.islam.ubclone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2UXPcyWkK_vM8UI83MPTxhB4f5dwTLkk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

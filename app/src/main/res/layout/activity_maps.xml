@@ -296,7 +296,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/confirm_pickup"
-                    android:onClick="nextAction"
+                    android:onClick="getNextAction"
                     android:background="@color/colorAccent"
                     android:textColor="@android:color/white"/>
 
@@ -383,5 +383,26 @@
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 
+    <View
+        android:id="@+id/center_in_parent"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        />
+    <ImageView
+        android:id="@+id/const_start_icon"
+        android:layout_width="40dp"
+        android:layout_height="49dp"
+        android:layout_above="@id/center_in_parent"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/start_loc_small"/>
+    <ImageView
+        android:id="@+id/const_stop_icon"
+        android:layout_width="40dp"
+        android:layout_height="49dp"
+        android:layout_above="@id/center_in_parent"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/stop_loc_small"/>
 
 </RelativeLayout>

@@ -30,6 +30,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -45,6 +46,8 @@ import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.model.Step;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -56,6 +59,8 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -82,8 +87,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
     private static final String GOOGLE_DIRECTIONS_API = "AIzaSyDpJmpRN0BxJ76X27K0NLTGs-gDHQtoxXQ";
-    private static final int GET_PICKUP_POINT = 0;
-    private static final int GET_DESTINATION_POINT = 1;
+    private static final int GET_PICKUP_POINT = 0, GET_DESTINATION_POINT = 1, PLACE_AUTOCOMPLETE_REQUEST_CODE = 2;
 
 //    private static final String DRIVER_INCOMING = G
 //    private static final String DRIVER_INCOMING = "Incoming";
@@ -125,6 +129,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Button bookButton;
     private RelativeLayout destinationLayout;
     private RelativeLayout pickupLayout;
+    private ImageView constStartIcon;
+    private ImageView constStopIcon;
 
     private UI_STATE UIState;
 
@@ -166,6 +172,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 statusLayout.setVisibility(View.INVISIBLE);
                 cancelButton.setVisibility(View.INVISIBLE);
                 bookButton.setText(R.string.confirm_pickup);
+
+                constStartIcon.setVisibility(View.VISIBLE);
+                constStopIcon.setVisibility(View.INVISIBLE);
                 break;
             case CONFIRM_DESTINATION:
                 locationsCard.setVisibility(View.VISIBLE);
@@ -177,6 +186,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 statusLayout.setVisibility(View.INVISIBLE);
                 cancelButton.setVisibility(View.VISIBLE);
                 bookButton.setText(R.string.confirm_destination);
+
+                constStartIcon.setVisibility(View.INVISIBLE);
+                constStopIcon.setVisibility(View.VISIBLE);
                 break;
             case ADD_DETAILS:
                 locationsCard.setVisibility(View.GONE);
@@ -194,6 +206,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 bookButton.setText(R.string.book);
                 statusLayout.setVisibility(View.INVISIBLE);
                 cancelButton.setVisibility(View.VISIBLE);
+
+                constStartIcon.setVisibility(View.INVISIBLE);
+                constStopIcon.setVisibility(View.INVISIBLE);
                 break;
 
             case STATUS_MESSAGE:
@@ -203,6 +218,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 bookLayout.setVisibility(View.INVISIBLE);
                 statusLayout.setVisibility(View.VISIBLE);
                 cancelButton.setVisibility(View.VISIBLE);
+
+                constStartIcon.setVisibility(View.INVISIBLE);
+                constStopIcon.setVisibility(View.INVISIBLE);
                 break;
         }
     }
@@ -241,6 +259,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         bookButton = (Button) findViewById(R.id.book_btn);
         destinationLayout = (RelativeLayout) findViewById(R.id.destination_layout);
         pickupLayout = (RelativeLayout) findViewById(R.id.pickup_layout);
+        constStartIcon = (ImageView) findViewById(R.id.const_start_icon);
+        constStopIcon = (ImageView) findViewById(R.id.const_stop_icon);
 
         UIState = UI_STATE.CONFIRM_PICKUP;
 
@@ -452,16 +472,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void getLocation(View view) {
         Log.d(TAG, "getLocation: Called");
-        Intent intent = new Intent(this, LocationPicker.class);
+//        Intent intent = new Intent(this, LocationPicker.class);
         // TODO: get latitude and longitude crashes the system when the GPS is off
-        intent.putExtra("lat",mCurrentLocation.getLatitude());
-        intent.putExtra("ltd",mCurrentLocation.getLongitude());
+//        intent.putExtra("lat",mCurrentLocation.getLatitude());
+//        intent.putExtra("ltd",mCurrentLocation.getLongitude());
 
-        if (view.getId() == R.id.pickup_layout){
-            startActivityForResult(intent, GET_PICKUP_POINT);
-        } else {
-            startActivityForResult(intent, GET_DESTINATION_POINT);
+        try {
+            Intent intent =
+                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                           // .setFilter(typeFilter)
+                            .build(this);
+            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+        } catch (GooglePlayServicesRepairableException e) {
+            // TODO: Handle the error.
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // TODO: Handle the error.
         }
+
     }
 
     @Override
@@ -469,47 +496,37 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onActivityResult(requestCode, resultCode, data);
 
         // Always remove the route on the map
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(this, data);
+                Log.i(TAG, "Place: " + place.getName());
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(this, data);
+                // TODO: Handle the error.
+                Log.i(TAG, status.getStatusMessage());
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
+
+
         switch (requestCode) {
             case GET_PICKUP_POINT:
                 if (resultCode == RESULT_OK){
-                    pickupSelected = true;
-                    pickupPoint =  new LatLng(data.getDoubleExtra("lat",0),data.getDoubleExtra("ltd",0) );
                     TextView textView = (TextView) findViewById(R.id.pickup_value);
                     if (textView != null) {
                         textView.setText(data.getStringExtra("name"));
                     }
-                    Log.d(TAG, "onActivityResult: Pickup: "+ pickupPoint.toString());
-
-                    // Setting marker
-                    if (pickupMarker != null) {
-                        pickupMarker.remove();
-                    }
-                    pickupMarker = mMap.addMarker(new MarkerOptions()
-                            .position(pickupPoint)
-                            .title(data.getStringExtra("name"))
-                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.start_loc_smaller))
-                            .draggable(true)
-                    );
 
                     // For zooming automatically to the location of the marker
                     CameraPosition cameraPosition = new CameraPosition.Builder().target(pickupPoint).zoom(12).build();
                     mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-
-
-                    // Check destination to update the UI
-
-                    if (destinationSelected) {
-                        setUI(UI_STATE.DETAILED);
-                        showRoute();
-                    }
-                    else setUI(UI_STATE.SIMPLE);
                 }
                 break;
             case GET_DESTINATION_POINT:
                 if (resultCode == RESULT_OK){
-                    destinationSelected = true;
-                    destinationPoint =  new LatLng(data.getDoubleExtra("lat",0),data.getDoubleExtra("ltd",0) );
                     TextView textView = (TextView) findViewById(R.id.destination_value);
                     if (textView != null) {
                         textView.setText(data.getStringExtra("name"));
@@ -517,16 +534,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.d(TAG, "onActivityResult: Destination: "+ destinationPoint.toString());
 
                     // Setting marker
-                    if (destinationMarker != null) {
-                        destinationMarker.remove();
-                    }
 
-                    destinationMarker = mMap.addMarker(new MarkerOptions()
-                            .position(destinationPoint)
-                            .title(data.getStringExtra("name"))
-                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.stop_loc_smaller))
-                            .draggable(true)
-                    );
 
                     // For zooming automatically to the location of the marker
                     CameraPosition cameraPosition = new CameraPosition.Builder().target(destinationPoint).zoom(12).build();
@@ -596,10 +604,45 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    public void nextAction(View view) {
+    public void getNextAction(View view) {
         if (UIState == UI_STATE.CONFIRM_PICKUP){
+
+//            Log.d(TAG, "onActivityResult: Pickup: "+ pickupPoint.toString());
+
+            // Setting marker
+
+            if (pickupMarker != null) {
+                pickupMarker.remove();
+            }
+            pickupSelected = true;
+            pickupPoint = mMap.getCameraPosition().target;
+            pickupMarker = mMap.addMarker(new MarkerOptions()
+                    .position(mMap.getCameraPosition().target)
+//                    .title(data.getStringExtra("name"))
+                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.start_loc_smaller))
+                    .draggable(true)
+            );
+
+            // For zooming automatically to the location of the marker
+            LatLng newCameraLoaction = new LatLng(pickupPoint.latitude+0.01, pickupPoint.longitude+0.01);
+            CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLoaction).zoom(12).build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
             setUI(UI_STATE.CONFIRM_DESTINATION);
         } else if (UIState == UI_STATE.CONFIRM_DESTINATION) {
+
+            if (destinationMarker != null) {
+                destinationMarker.remove();
+            }
+            destinationSelected = true;
+            destinationPoint = mMap.getCameraPosition().target;
+            destinationMarker = mMap.addMarker(new MarkerOptions()
+                    .position(destinationPoint)
+//                    .title(data.getStringExtra("name"))
+                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.stop_loc_smaller))
+                    .draggable(true)
+            );
+            showRoute();
             setUI(UI_STATE.DETAILED);
         } else if (UIState == UI_STATE.DETAILED)
         {

@@ -24,4 +24,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="confirm_pickup">Confirm pickup</string>
+    <string name="confirm_destination">Confirm destination</string>
+    <string name="book">Book</string>
 </resources>

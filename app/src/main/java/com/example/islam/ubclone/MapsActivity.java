@@ -31,6 +31,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -121,9 +122,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LinearLayout bookLayout;
     private LinearLayout statusLayout;
     private Button cancelButton;
+    private Button bookButton;
+    private RelativeLayout destinationLayout;
+    private RelativeLayout pickupLayout;
+
+    private UI_STATE UIState;
 
 
     public enum UI_STATE{
+        CONFIRM_PICKUP,
+        CONFIRM_DESTINATION,
+        ADD_DETAILS,
         SIMPLE,
         DETAILED,
         STATUS_MESSAGE
@@ -138,6 +147,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void setUI(UI_STATE state){
+        UIState = state;
         switch (state){
             case SIMPLE:
                 locationsCard.setVisibility(View.VISIBLE);
@@ -146,18 +156,49 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 cancelButton.setVisibility(View.INVISIBLE);
 
                 break;
-            case DETAILED:
+            case CONFIRM_PICKUP:
                 locationsCard.setVisibility(View.VISIBLE);
-                detailsCard.setVisibility(View.VISIBLE);
+                pickupLayout.setVisibility(View.VISIBLE);
+                destinationLayout.setVisibility(View.GONE);
+                detailsCard.setVisibility(View.GONE);
                 statusCard.setVisibility(View.VISIBLE);
                 bookLayout.setVisibility(View.VISIBLE);
                 statusLayout.setVisibility(View.INVISIBLE);
                 cancelButton.setVisibility(View.INVISIBLE);
+                bookButton.setText(R.string.confirm_pickup);
+                break;
+            case CONFIRM_DESTINATION:
+                locationsCard.setVisibility(View.VISIBLE);
+                pickupLayout.setVisibility(View.GONE);
+                destinationLayout.setVisibility(View.VISIBLE);
+                detailsCard.setVisibility(View.GONE);
+                statusCard.setVisibility(View.VISIBLE);
+                bookLayout.setVisibility(View.VISIBLE);
+                statusLayout.setVisibility(View.INVISIBLE);
+                cancelButton.setVisibility(View.VISIBLE);
+                bookButton.setText(R.string.confirm_destination);
+                break;
+            case ADD_DETAILS:
+                locationsCard.setVisibility(View.GONE);
+                pickupLayout.setVisibility(View.GONE);
+                destinationLayout.setVisibility(View.GONE);
+                detailsCard.setVisibility(View.INVISIBLE);
+                statusCard.setVisibility(View.INVISIBLE);
+                cancelButton.setVisibility(View.VISIBLE);
+                break;
+            case DETAILED:
+                locationsCard.setVisibility(View.GONE);
+                detailsCard.setVisibility(View.VISIBLE);
+                statusCard.setVisibility(View.VISIBLE);
+                bookLayout.setVisibility(View.VISIBLE);
+                bookButton.setText(R.string.book);
+                statusLayout.setVisibility(View.INVISIBLE);
+                cancelButton.setVisibility(View.VISIBLE);
                 break;
 
             case STATUS_MESSAGE:
-                locationsCard.setVisibility(View.INVISIBLE);
-                detailsCard.setVisibility(View.INVISIBLE);
+                locationsCard.setVisibility(View.GONE);
+                detailsCard.setVisibility(View.GONE);
                 statusCard.setVisibility(View.VISIBLE);
                 bookLayout.setVisibility(View.INVISIBLE);
                 statusLayout.setVisibility(View.VISIBLE);
@@ -197,6 +238,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         bookLayout = (LinearLayout) findViewById(R.id.book_layout);
         statusLayout = (LinearLayout) findViewById(R.id.status_layout);
         cancelButton = (Button) findViewById(R.id.cancel_btn);
+        bookButton = (Button) findViewById(R.id.book_btn);
+        destinationLayout = (RelativeLayout) findViewById(R.id.destination_layout);
+        pickupLayout = (RelativeLayout) findViewById(R.id.pickup_layout);
+
+        UIState = UI_STATE.CONFIRM_PICKUP;
+
         // Nav drawer
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -276,7 +323,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        setUI(UI_STATE.SIMPLE);
+        setUI(UI_STATE.CONFIRM_PICKUP);
     }
 
     @Override
@@ -441,6 +488,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .position(pickupPoint)
                             .title(data.getStringExtra("name"))
                             .icon(BitmapDescriptorFactory.fromResource(R.mipmap.start_loc_smaller))
+                            .draggable(true)
                     );
 
                     // For zooming automatically to the location of the marker
@@ -477,6 +525,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .position(destinationPoint)
                             .title(data.getStringExtra("name"))
                             .icon(BitmapDescriptorFactory.fromResource(R.mipmap.stop_loc_smaller))
+                            .draggable(true)
                     );
 
                     // For zooming automatically to the location of the marker
@@ -547,12 +596,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    public void bookDriver(View view) {
-        setUI(UI_STATE.STATUS_MESSAGE, getString(R.string.finding_a_driver));
+    public void nextAction(View view) {
+        if (UIState == UI_STATE.CONFIRM_PICKUP){
+            setUI(UI_STATE.CONFIRM_DESTINATION);
+        } else if (UIState == UI_STATE.CONFIRM_DESTINATION) {
+            setUI(UI_STATE.DETAILED);
+        } else if (UIState == UI_STATE.DETAILED)
+        {
+            setUI(UI_STATE.STATUS_MESSAGE, getString(R.string.finding_a_driver));
+        }
     }
 
     public void cancelRequest(View view) {
-        setUI(UI_STATE.SIMPLE);
+        setUI(UI_STATE.CONFIRM_PICKUP);
         pickupSelected = false;
         if (pickupMarker != null) {
             pickupMarker.remove();

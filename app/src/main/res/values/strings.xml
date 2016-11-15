@@ -27,4 +27,6 @@
     <string name="confirm_pickup">Confirm pickup</string>
     <string name="confirm_destination">Confirm destination</string>
     <string name="book">Book</string>
+    <string name="price">Price:</string>
+    <string name="calculating_price">Calculating..</string>
 </resources>

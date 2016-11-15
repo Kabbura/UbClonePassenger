@@ -2,12 +2,10 @@ package com.example.islam.ubclone;
 
 import android.Manifest;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -24,7 +22,6 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -43,8 +40,8 @@ import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Info;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
-import com.akexorcist.googledirection.model.Step;
 import com.akexorcist.googledirection.util.DirectionConverter;
+import com.example.islam.POJO.DriversResponse;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -57,7 +54,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
@@ -77,10 +73,13 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
         NavigationView.OnNavigationItemSelectedListener,
@@ -109,6 +108,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Boolean pickupSelected;
     private Boolean destinationSelected;
 
+
     private LatLng pickupPoint;
     private Marker pickupMarker;
     private LatLng destinationPoint;
@@ -119,6 +119,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Date requestDate;
     private Time requestTime;
     private Boolean dateSet;
+
+    // ============ Price ====================//
+    public String price;
+    private Boolean priceSet;
 
     // =========== UI Elements ============== //
     private CardView locationsCard;
@@ -247,6 +251,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         pickupSelected = false;
         destinationSelected = false;
         dateSet = false;
+        priceSet = false;
 
         pickupPoint = new LatLng(0,0);
         destinationPoint = new LatLng(0,0);
@@ -344,7 +349,38 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        // Set UI
         setUI(UI_STATE.CONFIRM_PICKUP);
+
+    }
+
+    private void getDrivers() {
+        //Creating Rest Services
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(RestServiceConstants.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        RestService service = retrofit.create(RestService.class);
+        String location = mLastLocation.getLatitude() +","+mLastLocation.getLongitude();
+        Call<DriversResponse> call = service.getDrivers(location);
+        call.enqueue(new Callback<DriversResponse>() {
+            @Override
+            public void onResponse(Call<DriversResponse> call, Response<DriversResponse> response) {
+                Log.d(TAG, "onResponse: Retrofit response success");
+
+            }
+
+            @Override
+            public void onFailure(Call<DriversResponse> call, Throwable t) {
+
+                Log.d(TAG, "onResponse: Retrofit response failed: "+ t.getLocalizedMessage());
+//                Log.d(TAG, "onResponse: Retrofit response failed: "+ call.request().toString());
+//                call.clone().enqueue(this);
+
+            }
+        });
+
     }
 
     @Override
@@ -443,6 +479,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (mLastLocation != null) {
             mCurrentLocation = mLastLocation;
             Toast.makeText(this, "Connected GPlServices "+mLastLocation.getLatitude()+" "+mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+            // Get drivers
+            getDrivers();
         }
         else {
             Toast.makeText(this, "Sorry, it's null", Toast.LENGTH_SHORT).show();
@@ -485,7 +523,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Intent intent =
                     new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
                             .setBoundsBias(bounds)
-                           // .setFilter(typeFilter)
+                            // .setFilter(typeFilter)
                             .build(this);
             if (view.getId() == R.id.pickup_layout){
                 startActivityForResult(intent, GET_PICKUP_POINT);
@@ -544,6 +582,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    private void setPrice(Boolean set, String priceString){
+        TextView priceValue = (TextView) findViewById(R.id.price_value);
+        if (set) {
+            priceSet = true;
+            priceValue.setText(priceString + " SDG");
+        } else {
+            priceSet = false;
+            priceValue.setText(R.string.calculating_price);
+        }
+
+    }
     private void showRoute() {
         Log.d(TAG, "showRoute: Called");
 
@@ -569,15 +618,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             // Distance info
                             Info distanceInfo = leg.getDistance();
                             Info durationInfo = leg.getDuration();
-                            String distance = distanceInfo.getText();
-                            String duration = durationInfo.getText();
+                            String distance = distanceInfo.getValue();
+                            String duration = durationInfo.getValue();
 
+                            Double priceValue = (double) (Integer.valueOf(distance) *  Integer.valueOf(duration) / 3/60/1000);
+                            price = String.format("%s", priceValue) ;
                             ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
                             PolylineOptions polylineOptions = DirectionConverter.createPolyline(MapsActivity.this, directionPositionList, 5, getResources().getColor(R.color.colorPrimary));
                             if (routePolyline != null) {
                                 routePolyline.remove();
                             }
                             routePolyline = mMap.addPolyline(polylineOptions);
+                            setPrice(true, price);
 
                         }
 
@@ -587,6 +639,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onDirectionFailure(Throwable t) {
                         // Do something here
                         Toast.makeText(MapsActivity.this, "Route Failed ", Toast.LENGTH_SHORT).show();
+                        setPrice(false, "0.0");
                         Log.d(TAG, "showRoute: Route Failed ");
                     }
                 });
@@ -644,10 +697,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             destinationSelected = true;
             destinationPoint = mMap.getCameraPosition().target;
             destinationMarker = mMap.addMarker(new MarkerOptions()
-                    .position(destinationPoint)
+                            .position(destinationPoint)
 //                    .title(data.getStringExtra("name"))
-                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.stop_loc_smaller))
-                    .draggable(true)
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.stop_loc_smaller))
+                            .draggable(true)
             );
             showRoute();
             setUI(UI_STATE.DETAILED);
@@ -759,7 +812,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-    alertDialogBuilder.show();
+        alertDialogBuilder.show();
 
     }
 

@@ -24,7 +24,7 @@ public class DriversResponse {
     }
 
 
-    class DriverLocation{
+    public class DriverLocation{
 
         public Double lat;
         public Double lng;

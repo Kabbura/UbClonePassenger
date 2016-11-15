@@ -74,6 +74,7 @@ import java.sql.Time;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -95,7 +96,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 //    private static final String DRIVER_INCOMING = "Incoming";
 
     private GoogleMap mMap;
-    private LatLng KhartoumCords;
+    static final private LatLng KHARTOUM_CORDS = new LatLng(15.592791, 32.534134) ;
 
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
@@ -103,6 +104,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Location mCurrentLocation;
     private String mLastUpdateTime;
     public String TAG = "UbClone";
+
+    // ====== Drivers markers ================= //
+    private List<Marker> driversMarkers;
 
     // ====== pickup and destination points === //
     private Boolean pickupSelected;
@@ -256,6 +260,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         pickupPoint = new LatLng(0,0);
         destinationPoint = new LatLng(0,0);
 
+        driversMarkers = new ArrayList<>();
+
         locationsCard = (CardView) findViewById(R.id.locations_card);
         detailsCard = (CardView) findViewById(R.id.details_card);
         statusCard = (CardView) findViewById(R.id.status_card);
@@ -352,9 +358,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Set UI
         setUI(UI_STATE.CONFIRM_PICKUP);
 
+        // getDrivers
+        getDrivers(KHARTOUM_CORDS);
+
     }
 
-    private void getDrivers() {
+    private void getDrivers(LatLng latLng) {
         //Creating Rest Services
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(RestServiceConstants.BASE_URL)
@@ -362,12 +371,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .build();
 
         RestService service = retrofit.create(RestService.class);
-        String location = mLastLocation.getLatitude() +","+mLastLocation.getLongitude();
+        String location = latLng.latitude +","+latLng.longitude;
         Call<DriversResponse> call = service.getDrivers(location);
         call.enqueue(new Callback<DriversResponse>() {
             @Override
             public void onResponse(Call<DriversResponse> call, Response<DriversResponse> response) {
-                Log.d(TAG, "onResponse: Retrofit response success");
+                Log.d(TAG, "onResponse: Retrofit response success: Got "+ response.body().drivers.size());
+                clearDriversMarkers();
+                setDriversMarkers(response.body().drivers);
 
             }
 
@@ -381,6 +392,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+    }
+
+    private void setDriversMarkers(List<DriversResponse.DriverLocation> drivers) {
+        for (int index = 0; index < drivers.size(); index++) {
+            Marker driver = mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(drivers.get(index).lat, drivers.get(index).lng))
+                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.driver_icon_smaller))
+                    .draggable(true)
+            );
+            driversMarkers.add(driver);
+        }
     }
 
     @Override
@@ -444,10 +466,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return;
         }
         mMap.setMyLocationEnabled(true);
-        // Add a marker in Sydney and move the camera
-        KhartoumCords = new LatLng(15.592791, 32.534134);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(KhartoumCords, 12.0f));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(KHARTOUM_CORDS, 12.0f));
     }
 
 
@@ -478,14 +498,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mGoogleApiClient);
         if (mLastLocation != null) {
             mCurrentLocation = mLastLocation;
-            Toast.makeText(this, "Connected GPlServices "+mLastLocation.getLatitude()+" "+mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Connected GPlServices "+mLastLocation.getLatitude()+" "+mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
             // Get drivers
-            getDrivers();
+            getDrivers(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
         }
-        else {
-            Toast.makeText(this, "Sorry, it's null", Toast.LENGTH_SHORT).show();
-
-        }
+//        else {
+//            Toast.makeText(this, "Sorry, it's null", Toast.LENGTH_SHORT).show();
+//
+//        }
 
     }
 
@@ -816,6 +836,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+
+    private void clearDriversMarkers(){
+        for (int index = 0; index < driversMarkers.size(); index++) {
+            Marker driver = driversMarkers.get(index);
+            if (driver != null) {
+                driver.remove();
+            }
+            driversMarkers.remove(index);
+        }
+    }
 
 
 }

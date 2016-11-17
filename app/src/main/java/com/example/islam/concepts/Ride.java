@@ -45,8 +45,6 @@ public class Ride {
         details.notes = "";
         details.time = "Now";
         details.requestID="-1";
-        //TODO: remove initializing price
-        details.price = "price";
 
     }
 
@@ -74,6 +72,8 @@ public class Ride {
     }
 
     public void requestDriver(final MapsActivity mapsActivity){
+
+        //TODO: remove initializing price
         details.price = "price";
         if(details.isSet()){
 

@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -43,6 +44,7 @@ import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.example.islam.POJO.DriversResponse;
 import com.example.islam.concepts.Ride;
+import com.example.islam.concepts.RideLocation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -141,6 +143,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private RelativeLayout pickupLayout;
     private ImageView constStartIcon;
     private ImageView constStopIcon;
+    private CheckBox femaleOnlyBox;
 
     private UI_STATE UIState;
 
@@ -276,6 +279,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         pickupLayout = (RelativeLayout) findViewById(R.id.pickup_layout);
         constStartIcon = (ImageView) findViewById(R.id.const_start_icon);
         constStopIcon = (ImageView) findViewById(R.id.const_stop_icon);
+        femaleOnlyBox = (CheckBox) findViewById(R.id.female_only);
 
         UIState = UI_STATE.CONFIRM_PICKUP;
 
@@ -368,7 +372,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    public void setDriversMarkers(List<DriversResponse.DriverLocation> drivers) {
+    public void setDriversMarkers(List<RideLocation> drivers) {
         for (int index = 0; index < drivers.size(); index++) {
             Marker driver = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(drivers.get(index).lat, drivers.get(index).lng))
@@ -562,7 +566,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (resultCode == RESULT_OK) {
                     Place place = PlaceAutocomplete.getPlace(this, data);
                     setDestinationPointUI(place);
-                    Log.i(TAG, "Place: " + place.getName());
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                     Status status = PlaceAutocomplete.getStatus(this, data);
                     // TODO: Handle the error.
@@ -581,9 +584,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (set) {
             priceSet = true;
             priceValue.setText(priceString + " SDG");
+            ride.details.price = priceString;
         } else {
             priceSet = false;
             priceValue.setText(R.string.calculating_price);
+            ride.details.price = null;
         }
 
     }
@@ -638,7 +643,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 });
     }
-
     private void setPickupPointUI(Place place) {
         if (place == null) {
             return;
@@ -650,7 +654,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         CameraPosition cameraPosition = new CameraPosition.Builder().target(place.getLatLng()).zoom(14).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
-
     private void setDestinationPointUI(Place place) {
         if (place == null) {
             return;
@@ -665,12 +668,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void setPickupPoint(LatLng point){
 
         // Setting marker
-
         if (pickupMarker != null) {
             pickupMarker.remove();
         }
         pickupSelected = true;
         pickupPoint = point;
+        ride.details.pickup = new RideLocation(point);
+
         pickupMarker = mMap.addMarker(new MarkerOptions()
                         .position(point)
 //                    .title(data.getStringExtra("name"))
@@ -683,7 +687,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLocation).zoom(14).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
-
     public void getNextAction(View view) {
         if (UIState == UI_STATE.CONFIRM_PICKUP){
             setPickupPoint(mMap.getCameraPosition().target);
@@ -696,6 +699,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             destinationSelected = true;
             destinationPoint = mMap.getCameraPosition().target;
+            ride.details.dest = new RideLocation(destinationPoint);
             destinationMarker = mMap.addMarker(new MarkerOptions()
                             .position(destinationPoint)
 //                    .title(data.getStringExtra("name"))
@@ -706,7 +710,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             setUI(UI_STATE.DETAILED);
         } else if (UIState == UI_STATE.DETAILED)
         {
-            setUI(UI_STATE.STATUS_MESSAGE, getString(R.string.finding_a_driver));
+            ride.details.femaleOnly = femaleOnlyBox.isChecked();
+            ride.requestDriver(MapsActivity.this);
         }
     }
 

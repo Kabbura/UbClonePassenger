@@ -29,4 +29,5 @@
     <string name="book">Book</string>
     <string name="price">Price:</string>
     <string name="calculating_price">Calculating..</string>
+    <string name="female_driver_only">Female driver only</string>
 </resources>

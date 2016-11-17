@@ -1,5 +1,6 @@
 package com.example.islam.POJO;
 
+import com.example.islam.concepts.RideLocation;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.annotations.SerializedName;
 
@@ -15,14 +16,14 @@ public class DriversResponse {
     public int status;
 
     @SerializedName(value = "drivers")
-    public List<DriverLocation> drivers;
+    public List<RideLocation> drivers;
 
 
-    public List<DriverLocation> getDrivers() {
+    public List<RideLocation> getDrivers() {
         return drivers;
     }
 
-    public void setDrivers(List<DriverLocation> drivers) {
+    public void setDrivers(List<RideLocation> drivers) {
         this.drivers = drivers;
     }
 
@@ -33,17 +34,5 @@ public class DriversResponse {
     public void setStatus(int status) {
         this.status = status;
     }
-
-    public class DriverLocation{
-
-        public Double lat;
-        public Double lng;
-
-        @Override
-        public String toString() {
-            return lat.toString()+','+lng.toString();
-        }
-    }
-
 
 }

@@ -11,6 +11,9 @@ import java.util.List;
 public class DriversResponse {
 
 
+    @SerializedName(value = "status")
+    public int status;
+
     @SerializedName(value = "drivers")
     public List<DriverLocation> drivers;
 
@@ -23,6 +26,13 @@ public class DriversResponse {
         this.drivers = drivers;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
     public class DriverLocation{
 

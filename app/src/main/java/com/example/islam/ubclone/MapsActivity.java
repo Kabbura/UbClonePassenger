@@ -42,6 +42,7 @@ import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.example.islam.POJO.DriversResponse;
+import com.example.islam.concepts.Ride;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -142,6 +143,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ImageView constStopIcon;
 
     private UI_STATE UIState;
+
+    private Ride ride;
 
 
     public enum UI_STATE{
@@ -358,43 +361,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Set UI
         setUI(UI_STATE.CONFIRM_PICKUP);
 
+        ride = new Ride();
         // getDrivers
-        getDrivers(KHARTOUM_CORDS);
+        ride.getDrivers(this, KHARTOUM_CORDS);
 
     }
 
-    private void getDrivers(LatLng latLng) {
-        //Creating Rest Services
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(RestServiceConstants.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
 
-        RestService service = retrofit.create(RestService.class);
-        String location = latLng.latitude +","+latLng.longitude;
-        Call<DriversResponse> call = service.getDrivers(location);
-        call.enqueue(new Callback<DriversResponse>() {
-            @Override
-            public void onResponse(Call<DriversResponse> call, Response<DriversResponse> response) {
-                Log.d(TAG, "onResponse: Retrofit response success: Got "+ response.body().drivers.size());
-                clearDriversMarkers();
-                setDriversMarkers(response.body().drivers);
-
-            }
-
-            @Override
-            public void onFailure(Call<DriversResponse> call, Throwable t) {
-
-                Log.d(TAG, "onResponse: Retrofit response failed: "+ t.getLocalizedMessage());
-//                Log.d(TAG, "onResponse: Retrofit response failed: "+ call.request().toString());
-//                call.clone().enqueue(this);
-
-            }
-        });
-
-    }
-
-    private void setDriversMarkers(List<DriversResponse.DriverLocation> drivers) {
+    public void setDriversMarkers(List<DriversResponse.DriverLocation> drivers) {
         for (int index = 0; index < drivers.size(); index++) {
             Marker driver = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(drivers.get(index).lat, drivers.get(index).lng))
@@ -500,7 +474,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mCurrentLocation = mLastLocation;
 //            Toast.makeText(this, "Connected GPlServices "+mLastLocation.getLatitude()+" "+mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
             // Get drivers
-            getDrivers(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+            ride.getDrivers(MapsActivity.this, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
         }
 //        else {
 //            Toast.makeText(this, "Sorry, it's null", Toast.LENGTH_SHORT).show();
@@ -666,6 +640,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void setPickupPointUI(Place place) {
+        if (place == null) {
+            return;
+        }
         TextView textView = (TextView) findViewById(R.id.pickup_value);
         if (textView != null) {
             textView.setText(place.getName());
@@ -675,6 +652,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void setDestinationPointUI(Place place) {
+        if (place == null) {
+            return;
+        }
         TextView textView = (TextView) findViewById(R.id.destination_value);
         if (textView != null) {
             textView.setText(place.getName());
@@ -837,7 +817,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    private void clearDriversMarkers(){
+    public void clearDriversMarkers(){
         for (int index = 0; index < driversMarkers.size(); index++) {
             Marker driver = driversMarkers.get(index);
             if (driver != null) {

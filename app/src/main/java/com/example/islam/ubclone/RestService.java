@@ -1,5 +1,6 @@
 package com.example.islam.ubclone;
 
+import com.example.islam.POJO.DriverResponse;
 import com.example.islam.POJO.DriversResponse;
 
 import java.util.List;
@@ -15,5 +16,18 @@ import retrofit2.http.Query;
 public interface RestService {
     @GET("passenger_api/get_drivers")
     Call<DriversResponse> getDrivers(@Query("location") String location);
+
+
+    @GET("passenger_api/get_drivers")
+    Call<DriverResponse> getDriver(
+            @Query("pickup") String pickup,
+            @Query("dest") String dest,
+            @Query("time") String time,
+            @Query("female_driver") Boolean female_driver,
+            @Query("notes") String notes,
+            @Query("price") String price,
+            @Query("request_id") String request_id
+
+            );
 }
 

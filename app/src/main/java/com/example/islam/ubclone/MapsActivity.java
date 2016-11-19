@@ -107,6 +107,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Location mCurrentLocation;
     private String mLastUpdateTime;
     public String TAG = "UbClone";
+    private PrefManager prefManager;
 
     // ====== Drivers markers ================= //
     private List<Marker> driversMarkers;
@@ -283,6 +284,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         UIState = UI_STATE.CONFIRM_PICKUP;
 
+        prefManager = new PrefManager(this);
         // Nav drawer
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -409,15 +411,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else if (id == R.id.nav_about){
 
         }else if (id == R.id.nav_logout){
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
+            logout();
 
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void logout() {
+        prefManager.setIsLoggedIn(false);
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+
     }
 
     /**

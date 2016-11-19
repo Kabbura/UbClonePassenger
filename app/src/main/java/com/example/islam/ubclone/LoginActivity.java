@@ -20,6 +20,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,9 +31,20 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.islam.POJO.DriversResponse;
+import com.example.islam.POJO.LoginResponse;
+import com.example.islam.POJO.User;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -52,6 +65,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world", "a@a:aaaaa"
     };
+    private static final String TAG = "LoginActivity";
+    private PrefManager prefManager;
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -68,11 +83,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        prefManager = new PrefManager(this);
         // Open maps!
-        Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
-        startActivity(intent);
-//                showProgress(false);
-        finish();
+//        Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+//        startActivity(intent);
+//        finish();
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -192,19 +207,65 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            loginRequest(email, password);
+
+//            mAuthTask = new UserLoginTask(email, password);
+//            mAuthTask.execute((Void) null);
         }
     }
 
+    private void loginRequest(final String email, final String password) {
+        showProgress(true);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(RestServiceConstants.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        RestService service = retrofit.create(RestService.class);
+        Call<LoginResponse> call = service.login("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP));
+        call.enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                Log.d(TAG, "onResponse: raw: " + response.body());
+                if (response.isSuccessful()){
+                    User user = response.body().getUser();
+                    user.setPassword(password);
+                    user.setEmail(email);
+                    prefManager.setIsLoggedIn(true);
+                    prefManager.setUser(user);
+
+                    Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+                    startActivity(intent);
+//                showProgress(false);
+                    finish();
+                } else if (response.code() == 401){
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                    Toast.makeText(LoginActivity.this, "Authentication failure", Toast.LENGTH_SHORT).show();
+                showProgress(false);
+                } else {
+                    Toast.makeText(LoginActivity.this, "Unknown error occurred", Toast.LENGTH_SHORT).show();
+                    showProgress(false);
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+
+                Toast.makeText(LoginActivity.this, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
+                showProgress(false);
+            }
+        });
+
+    }
+
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 4;
     }
 

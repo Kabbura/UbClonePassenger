@@ -14,4 +14,16 @@ public class LoginResponse {
 
     @SerializedName(value = "error_msg")
     private String errorMessage;
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public User getUser() {
+        return user;
+    }
 }

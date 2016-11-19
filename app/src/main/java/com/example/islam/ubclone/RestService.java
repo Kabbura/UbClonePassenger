@@ -19,6 +19,11 @@ public interface RestService {
     @GET("passenger_api/login")
     Call<LoginResponse> login(@Header("Authorization") String authorization );
 
+    @GET("passenger_api/register")
+    Call<RegisterResponse> register(
+            @Query("email") String email
+    );
+
     @GET("passenger_api/get_drivers")
     Call<DriversResponse> getDrivers(@Query("location") String location);
 

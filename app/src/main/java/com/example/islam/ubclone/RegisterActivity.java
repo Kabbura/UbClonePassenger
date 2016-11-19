@@ -111,6 +111,7 @@ public class RegisterActivity extends AppCompatActivity {
                 phone == null ||
                 password == null ||
                 confirmPassword == null) {
+
             Log.e("IEC", "register: Views not found." );
             return false;
         }

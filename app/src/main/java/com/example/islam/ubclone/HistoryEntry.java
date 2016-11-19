@@ -1,15 +1,29 @@
 package com.example.islam.ubclone;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by islam on 10/27/16.
  */
 public class HistoryEntry {
+    @SerializedName(value = "pickup")
     private String pickupPoint;
+
+    @SerializedName(value = "dest")
     private String destinationPoint;
+
+    @SerializedName(value = "time")
     private String time;
+
+    @SerializedName(value = "price")
     private String price;
+
+    @SerializedName(value = "request_id")
     private String id;
+
+    @SerializedName(value = "status")
     private String status;
+
     private String driverName;
     private String driverVehicle;
 

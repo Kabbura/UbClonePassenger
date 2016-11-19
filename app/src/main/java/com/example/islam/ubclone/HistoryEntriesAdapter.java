@@ -2,6 +2,7 @@ package com.example.islam.ubclone;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
  * Created by islam on 10/27/16.
  */
 public class HistoryEntriesAdapter extends RecyclerView.Adapter<HistoryEntriesAdapter.ViewHolder> {
+    private static final String TAG = "HistoryEntriesAdapter";
     private Context context;
     private ArrayList<HistoryEntry> entriesList;
 
@@ -45,6 +47,24 @@ public class HistoryEntriesAdapter extends RecyclerView.Adapter<HistoryEntriesAd
     @Override
     public int getItemCount() {
         return entriesList.size();
+    }
+
+    public void updateDataSet(ArrayList<HistoryEntry> historyEntries) {
+
+        this.entriesList = historyEntries;
+    }
+
+    public void clearDataSet() {
+        Log.i(TAG, "clearEvents: Cleared!");
+        int listSize = entriesList.size();
+        if (listSize > 0) {
+            for (int i = 0; i < listSize; i++) {
+                entriesList.remove(0);
+            }
+
+            this.notifyItemRangeRemoved(0, listSize);
+        }
+
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

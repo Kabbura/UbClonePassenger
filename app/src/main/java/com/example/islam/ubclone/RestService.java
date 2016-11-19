@@ -3,6 +3,7 @@ package com.example.islam.ubclone;
 import com.example.islam.POJO.DriverResponse;
 import com.example.islam.POJO.DriversResponse;
 import com.example.islam.POJO.LoginResponse;
+import com.example.islam.POJO.RequestsResponse;
 import com.example.islam.POJO.SimpleResponse;
 
 import java.util.List;
@@ -44,5 +45,8 @@ public interface RestService {
             @Query("request_id") String request_id
 
             );
+
+    @GET("passenger_api/requests")
+    Call<RequestsResponse> getRequests(@Header("Authorization") String authorization );
 }
 

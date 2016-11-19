@@ -602,6 +602,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     private void showRoute() {
         Log.d(TAG, "showRoute: Called");
+        setPrice(false, "0.0");
 
 //        if (routePolyline != null) {
 //            routePolyline.remove();
@@ -618,6 +619,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Log.d(TAG, "showRoute: Route successfully computed ");
 
                         if(direction.isOK()) {
+                            // Check if user hasn't cancelled:
+                            if (UIState != UI_STATE.DETAILED){
+                                return;
+                            }
+
                             // Do
                             Route route = direction.getRouteList().get(0);
                             Leg leg = route.getLegList().get(0);
@@ -718,8 +724,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             setUI(UI_STATE.DETAILED);
         } else if (UIState == UI_STATE.DETAILED)
         {
-            ride.details.femaleOnly = femaleOnlyBox.isChecked();
-            ride.requestDriver(MapsActivity.this);
+            //Check if request is ready:
+            if (priceSet){
+                ride.details.femaleOnly = femaleOnlyBox.isChecked();
+                ride.requestDriver(MapsActivity.this);
+            } else {
+                Toast.makeText(this, "Waiting until price is calculated", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

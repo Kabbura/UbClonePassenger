@@ -3,6 +3,7 @@ package com.example.islam.ubclone;
 import com.example.islam.POJO.DriverResponse;
 import com.example.islam.POJO.DriversResponse;
 import com.example.islam.POJO.LoginResponse;
+import com.example.islam.POJO.SimpleResponse;
 
 import java.util.List;
 
@@ -20,8 +21,12 @@ public interface RestService {
     Call<LoginResponse> login(@Header("Authorization") String authorization );
 
     @GET("passenger_api/register")
-    Call<RegisterResponse> register(
-            @Query("email") String email
+    Call<SimpleResponse> register(
+            @Query("email") String email,
+            @Query("fullname") String fullname,
+            @Query("password") String password,
+            @Query("phone") String phone,
+            @Query("gender") String gender
     );
 
     @GET("passenger_api/get_drivers")

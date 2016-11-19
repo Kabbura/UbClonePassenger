@@ -31,4 +31,10 @@
     <string name="calculating_price">Calculating..</string>
     <string name="female_driver_only">Female driver only</string>
     <string name="register">Register</string>
+
+
+    <string-array name="gender_array">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
 </resources>

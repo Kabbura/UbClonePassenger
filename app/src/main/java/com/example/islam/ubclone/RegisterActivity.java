@@ -8,6 +8,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.islam.POJO.LoginResponse;
@@ -27,6 +28,7 @@ public class RegisterActivity extends AppCompatActivity {
     EditText phone;
     EditText password ;
     EditText confirmPassword;
+    Spinner genderSpinner;
     private static final String TAG = "RegisterActivity";
     private ProgressDialog progressDialog;
 
@@ -43,6 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
         phone = (EditText) findViewById(R.id.phone_input);
         password = (EditText) findViewById(R.id.password_input);
         confirmPassword = (EditText) findViewById(R.id.confirm_password_input);
+        genderSpinner = (Spinner) findViewById(R.id.gender_spinner);
 
         if(checkFields()){
             showProgress(true);
@@ -57,7 +60,7 @@ public class RegisterActivity extends AppCompatActivity {
                     fullname.getText().toString(),
                     password.getText().toString(),
                     phone.getText().toString(),
-                    "male" // TODO: Dynamically setting gender
+                    (genderSpinner.getSelectedItem().toString().equals("Male")?"male":"female")
             );
             call.enqueue(new Callback<SimpleResponse>() {
                 @Override
@@ -66,7 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
                     if (response.isSuccessful() && response.body() != null && response.body().getStatus() == 0){
                         User user = new User(email.getText().toString(),
                                 fullname.getText().toString(),
-                                "male",
+                                genderSpinner.getSelectedItem().toString(),
                                 password.getText().toString(),
                                 phone.getText().toString());
                         prefManager.setIsLoggedIn(true);
@@ -82,13 +85,11 @@ public class RegisterActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(RegisterActivity.this, "Unknown error occurred", Toast.LENGTH_SHORT).show();
                         showProgress(false);
-
                     }
                 }
 
                 @Override
                 public void onFailure(Call<SimpleResponse> call, Throwable t) {
-
                     Toast.makeText(RegisterActivity.this, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
                     showProgress(false);
                 }

@@ -5,6 +5,7 @@ import com.example.islam.POJO.DriversResponse;
 import com.example.islam.POJO.LoginResponse;
 import com.example.islam.POJO.RequestsResponse;
 import com.example.islam.POJO.SimpleResponse;
+import com.example.islam.POJO.TimeResponse;
 
 import java.util.List;
 
@@ -48,5 +49,8 @@ public interface RestService {
 
     @GET("passenger_api/requests")
     Call<RequestsResponse> getRequests(@Header("Authorization") String authorization );
+
+    @GET("time")
+    Call<TimeResponse> getTime( );
 }
 

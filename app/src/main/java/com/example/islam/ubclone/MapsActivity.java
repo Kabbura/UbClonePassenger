@@ -42,7 +42,6 @@ import com.akexorcist.googledirection.model.Info;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
-import com.example.islam.POJO.DriversResponse;
 import com.example.islam.concepts.Ride;
 import com.example.islam.concepts.RideLocation;
 import com.google.android.gms.common.ConnectionResult;
@@ -75,15 +74,12 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.sql.Time;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import java.util.TimeZone;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
         NavigationView.OnNavigationItemSelectedListener,
@@ -124,7 +120,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Polyline routePolyline;
 
     // ============ Time ====================//
-    private Date requestDate;
+    private Calendar requestDate;
     private Time requestTime;
     private Boolean dateSet;
 
@@ -145,10 +141,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ImageView constStartIcon;
     private ImageView constStopIcon;
     private CheckBox femaleOnlyBox;
+    private TextView timeTextView;
+    private TextView noteTextView;
 
     private UI_STATE UIState;
 
     private Ride ride;
+    private Boolean firstMove;
 
 
     public enum UI_STATE{
@@ -188,6 +187,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 statusLayout.setVisibility(View.INVISIBLE);
                 cancelButton.setVisibility(View.INVISIBLE);
                 bookButton.setText(R.string.confirm_pickup);
+
+//                locationsCard.setVisibility(View.GONE);
+//                pickupLayout.setVisibility(View.GONE);
+//                destinationLayout.setVisibility(View.GONE);
+//                detailsCard.setVisibility(View.GONE);
+//                statusCard.setVisibility(View.GONE);
+//                bookLayout.setVisibility(View.GONE);
+//                statusLayout.setVisibility(View.GONE);
+//                cancelButton.setVisibility(View.GONE);
+//                bookButton.setText(R.string.confirm_pickup);
 
                 constStartIcon.setVisibility(View.VISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
@@ -263,6 +272,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         destinationSelected = false;
         dateSet = false;
         priceSet = false;
+        firstMove = true;
 
         pickupPoint = new LatLng(0,0);
         destinationPoint = new LatLng(0,0);
@@ -281,6 +291,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         constStartIcon = (ImageView) findViewById(R.id.const_start_icon);
         constStopIcon = (ImageView) findViewById(R.id.const_stop_icon);
         femaleOnlyBox = (CheckBox) findViewById(R.id.female_only);
+        timeTextView = (TextView) findViewById(R.id.time_value);
+        noteTextView = (TextView) findViewById(R.id.note_value);
 
         UIState = UI_STATE.CONFIRM_PICKUP;
 
@@ -482,6 +494,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
+        Log.d(TAG, "onConnected: Connected");
         if (mLastLocation != null) {
             mCurrentLocation = mLastLocation;
 //            Toast.makeText(this, "Connected GPlServices "+mLastLocation.getLatitude()+" "+mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
@@ -505,6 +518,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mCurrentLocation = location;
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+        if (firstMove){
+            Log.d(TAG, "onConnected: Moving cam");
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), 12.0f));
+            firstMove = false;
+        }
 //        if(null!= mCurrentLocation)
 //        Toast.makeText(this, "Updated: "+mCurrentLocation.getLatitude()+" "+mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
 
@@ -727,43 +745,60 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             //Check if request is ready:
             if (priceSet){
                 ride.details.femaleOnly = femaleOnlyBox.isChecked();
-                ride.requestDriver(MapsActivity.this);
+                ride.makeRequest(MapsActivity.this);
             } else {
-                Toast.makeText(this, "Waiting until price is calculated", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Wait until price is calculated", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     public void cancelRequest(View view) {
+        //TODO: call cancel
+        resetRequest();
+    }
+    public void resetRequest(){
         setUI(UI_STATE.CONFIRM_PICKUP);
         pickupSelected = false;
         if (pickupMarker != null) {
             pickupMarker.remove();
         }
-        ((TextView) findViewById(R.id.pickup_value)).setText("Click to choose");
+        ((TextView) findViewById(R.id.pickup_value)).setText("Click to search");
 
         destinationSelected = false;
         if (destinationMarker != null) {
             destinationMarker.remove();
         }
-        ((TextView) findViewById(R.id.destination_value)).setText("Click to choose");
+        ((TextView) findViewById(R.id.destination_value)).setText("Click to search");
 
         // remove route
         if (routePolyline != null) {
             routePolyline.remove();
         }
 
+        ride.details.reset();
+        setPrice(false,"0.0");
+        timeTextView.setText(R.string.now);
+        noteTextView.setText(R.string.note_place_holder);
+
+        //Moving cam
+        LatLng newCameraLocation;
+        if (mCurrentLocation != null) {
+            newCameraLocation = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+        } else {
+            newCameraLocation = KHARTOUM_CORDS;
+        }
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLocation).zoom(14).build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
 
     }
 
     public void getTime(View view) {
         dateSet = false;
-        final TextView timeTextView = (TextView) findViewById(R.id.time_value);
 
         final Dialog dialog = new Dialog(this);
-
         dialog.setContentView(R.layout.time_picker);
-        dialog.setTitle("Select date");
+        dialog.setTitle(R.string.select_date);
         final DatePicker datePicker = (DatePicker) dialog.findViewById(R.id.datePicker);
         final TimePicker timePicker = (TimePicker) dialog.findViewById(R.id.timePicker);
 
@@ -783,9 +818,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         timePicker.setVisibility(View.VISIBLE);
                         datePicker.setVisibility(View.GONE);
                         pickButton.setText("Pick Time");
-                        requestDate = new Date(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+                        requestDate =  Calendar.getInstance(TimeZone.getTimeZone("Africa/Khartoum"));
+                                //new Date(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
                     } else {
-                        timeTextView.setText( requestDate.toString());
+                        int hour = 0;
+                        int min = 0;
+
+                        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.LOLLIPOP_MR1){
+                            hour = timePicker.getHour();
+                            min = timePicker.getMinute();
+                        } else {
+                            hour = timePicker.getCurrentHour();
+                            min = timePicker.getCurrentMinute();
+                        }
+                        requestDate.set(datePicker.getYear(),datePicker.getMonth(), datePicker.getDayOfMonth(),hour,min);
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                        format.setTimeZone(TimeZone.getTimeZone("Africa/Khartoum"));
+                        String formatted = format.format(requestDate.getTime());
+                        timeTextView.setText(formatted);
+//                        timeTextView.setText(String.valueOf(requestDate.getTime().getTime()/1000));
+
+                        ride.details.now = false;
+                        ride.details.time = requestDate;
                         dialog.dismiss();
                     }
                 }
@@ -810,7 +864,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         final EditText input = new EditText(this);
         final View dialogView;
         LayoutInflater inflater = getLayoutInflater();
-        final TextView noteTextView = (TextView) findViewById(R.id.note_value);
 
 
         alertDialogBuilder.setMessage("Note to driver");

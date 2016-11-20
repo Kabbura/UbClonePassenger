@@ -31,6 +31,8 @@
     <string name="calculating_price">Calculating..</string>
     <string name="female_driver_only">Female driver only</string>
     <string name="register">Register</string>
+    <string name="now">Now</string>
+    <string name="select_date">Select date</string>
 
 
     <string-array name="gender_array">

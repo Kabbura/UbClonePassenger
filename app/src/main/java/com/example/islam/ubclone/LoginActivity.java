@@ -85,9 +85,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         prefManager = new PrefManager(this);
         // Open maps!
-//        Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
-//        startActivity(intent);
-//        finish();
+        if (prefManager.isLoggedIn()){
+        Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+        startActivity(intent);
+        finish();
+
+        }
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);

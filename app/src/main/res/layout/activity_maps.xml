@@ -66,7 +66,7 @@
                     android:layout_below="@+id/pickup_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Click to choose"
+                    android:text="Click to search"
                     android:textSize="18sp"
                     android:lines="1"/>
             </RelativeLayout>
@@ -109,7 +109,7 @@
                     android:layout_below="@+id/destination_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Click to choose"
+                    android:text="Click to search"
                     android:textSize="18sp"
                     android:lines="1"
                     />
@@ -202,7 +202,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="Now"
+                    android:text="@string/now"
                     android:textSize="16sp"
                     android:layout_marginLeft="12dp"
                     android:maxLines="1"/>
@@ -359,7 +359,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
-                    android:paddingBottom="0dp"
+                    android:paddingBottom="10dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
                     android:paddingTop="2dp">
@@ -368,7 +368,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/finding_a_driver"
-                        android:textSize="24sp"
+                        android:textSize="20sp"
                         android:textColor="@color/colorAccent"
                         android:gravity="center_horizontal"
                         android:layout_marginBottom="4dp"

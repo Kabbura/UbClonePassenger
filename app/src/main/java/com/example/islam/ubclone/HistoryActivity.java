@@ -30,7 +30,7 @@ public class HistoryActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager historyEntriesLayoutManager;
     private ArrayList<HistoryEntry> historyEntriesList;
     private PrefManager prefManager;
-    
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,35 +40,6 @@ public class HistoryActivity extends AppCompatActivity {
         
         historyEntriesRecyclerView = (RecyclerView) findViewById(R.id.history_rec_view);
         ArrayList<HistoryEntry> historyEntries = new ArrayList<HistoryEntry>();
-        historyEntries.add(new HistoryEntry("Khartoum 2, Khartoum, Sudan",
-                                             "","","3242",
-                                            "Omdurman, Khartoum, Sudan","48","Completed","24/10/16-16:02"
-                                            ));
-        historyEntries.add(new HistoryEntry("Alsalha, Omdurman, Sudan",
-                                             "","","3242",
-                                            "Shambat, Khartoum North, Sudan","70","Completed","22/10/16-5:22"
-                                            ));
-
-        historyEntries.add(new HistoryEntry("Burri, Khartoum, Sudan",
-                "","","3242",
-                "Elthawra, Omdurman, Sudan","82","Canceled","22/10/16-5:22"
-        ));
-        historyEntries.add(new HistoryEntry("Burri, Khartoum, Sudan",
-                "","","3242",
-                "Elthawra, Omdurman, Sudan","90","Canceled","22/10/16-5:22"
-        ));
-
-        historyEntries.add(new HistoryEntry("Burri, Khartoum, Sudan",
-                "","","3242",
-                "Elthawra, Omdurman, Sudan","72","Canceled","22/10/16-5:22"
-        ));
-
-        historyEntries.add(new HistoryEntry("Burri, Khartoum, Sudan",
-                "","","3242",
-                "Elthawra, Omdurman, Sudan","54","Canceled","22/10/16-5:22"
-        ));
-
-
 
         historyEntriesRecyclerView.setHasFixedSize(true);
 

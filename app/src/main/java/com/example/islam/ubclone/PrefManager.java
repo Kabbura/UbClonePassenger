@@ -1,14 +1,11 @@
 package com.example.islam.ubclone;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.example.islam.POJO.User;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.Stack;
 
 /**
  * Created by islam on 9/27/16.
@@ -27,6 +24,7 @@ public class PrefManager {
     private static final String IS_FIRST_TIME_LAUNCHED = "IsFirstTimeLaunch";
     private static final String IS_LOGGED_IN = "IsLoggedIn";
     private static final String REGISTRATION_TOKEN = "registrationToken";
+    private static final String RIDE_STATUS = "RideStatus";
 
     // User data
     private static final String USER_FULLNAME = "UserName";
@@ -35,9 +33,16 @@ public class PrefManager {
     private static final String USER_PHONE = "UserPhone";
     private static final String USER_GENDER = "UserGender";
 
-    private static final String PLACES_LIST = "PlacesList";
-//    private static final String TICKETS_LIST = "TicketsList";
+    public static final Integer NO_RIDE = 0,
+        FINDING_DRIVER = 1,
+        ON_THE_WAY = 2,
+        ARRIVED_AT_PICKUP = 3,
+        PASSENGER_PICKED_UP = 4,
+        ARRIVED_AT_DEST = 5,
+        COMPLETED = 6,
+        ON_GOING_RIDE = 7;
 
+    @SuppressLint("CommitPrefEdits")
     public PrefManager(Context context) {
         if (context != null){
             this._context = context;
@@ -81,17 +86,6 @@ public class PrefManager {
                         pref.getString(USER_PHONE, "No data")
                         );
     }
-    public void setPlacesList(String placesList){
-        editor.putString(PLACES_LIST, placesList);
-        editor.apply();
-    }
-
-    public String getPlacesList(){
-        ArrayList<MapPlace> placesList = new ArrayList<>();
-        Gson gson = new Gson();
-        String json = gson.toJson(placesList);
-        return pref.getString(PLACES_LIST,json);
-    }
 
 
     public void setRegistrationToken(String registrationToken) {
@@ -101,6 +95,14 @@ public class PrefManager {
 
     public String getRegistrationToken() {
         return pref.getString(REGISTRATION_TOKEN, FirebaseInstanceId.getInstance().getToken());
+    }
+
+    public void setRideStatus(Integer status){
+        editor.putInt(RIDE_STATUS, status);
+        editor.apply();
+    }
+    public Integer getRideStatus(){
+        return pref.getInt(RIDE_STATUS, NO_RIDE);
     }
 
 //    public void setTicketsList(String ticketsList){
@@ -116,5 +118,16 @@ public class PrefManager {
 //    }
 
 
+//    public void setPlacesList(String placesList){
+//        editor.putString(PLACES_LIST, placesList);
+//        editor.apply();
+//    }
+//
+//    public String getPlacesList(){
+//        ArrayList<MapPlace> placesList = new ArrayList<>();
+//        Gson gson = new Gson();
+//        String json = gson.toJson(placesList);
+//        return pref.getString(PLACES_LIST,json);
+//    }
 
 }

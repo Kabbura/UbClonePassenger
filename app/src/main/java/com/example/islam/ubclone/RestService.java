@@ -36,7 +36,7 @@ public interface RestService {
     Call<DriversResponse> getDrivers(@Query("location") String location);
 
 
-    @GET("passenger_api/get_drivers")
+    @GET("passenger_api/driver")
     Call<DriverResponse> getDriver(@Header("Authorization") String authorization,
             @Query("pickup") String pickup,
             @Query("dest") String dest,

@@ -1,6 +1,7 @@
 package com.example.islam.concepts;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -13,6 +14,7 @@ import com.example.islam.ubclone.PrefManager;
 import com.example.islam.ubclone.R;
 import com.example.islam.ubclone.RestService;
 import com.example.islam.ubclone.RestServiceConstants;
+import com.example.islam.ubclone.RideRequestService;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.sql.Time;
@@ -83,7 +85,6 @@ public class Ride {
             progressDialog.show();
 
             // Validate time
-
             validateTime(mapsActivity);
 
 
@@ -143,7 +144,7 @@ public class Ride {
     }
 
     private void requestDriver(final MapsActivity mapsActivity) {
-        PrefManager prefManager = new PrefManager(mapsActivity);
+        final PrefManager prefManager = new PrefManager(mapsActivity);
         String email = prefManager.getUser().getEmail();
         String password = prefManager.getUser().getPassword();
         Call<DriverResponse> call = service.getDriver("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP) ,
@@ -162,7 +163,30 @@ public class Ride {
                 if (progressDialog.isShowing())
                     progressDialog.dismiss();
                 if (response.isSuccessful()){
-                    mapsActivity.setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, mapsActivity.getString(R.string.finding_a_driver));
+                            Log.d(TAG, "onResponse: is successful");
+                    // There are 4 situations here:
+                    // Status 0: When request is pending. request_id is returned.
+                    // Status 1: No driver found
+                    // Status 5: When this request has a non pending status. Return status in the error_msg
+                    // Status 6: When a request is already accepted. Return request id in the error_msg
+                    switch (response.body().getStatus()){
+                        case 0:
+                            Intent intent = new Intent(mapsActivity, RideRequestService.class);
+                            intent.putExtra("request_id", String.valueOf(response.body().getRequestID()));
+                            Log.d(TAG, "onResponse: requestID = "+ response.body().getRequestID());
+                            mapsActivity.startService(intent);
+                            Log.d(TAG, "onResponse: status 0");
+                            prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
+                            mapsActivity.setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, mapsActivity.getString(R.string.finding_a_driver));
+                            break;
+                        case 1:
+                            Toast.makeText(mapsActivity, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
+                            break;
+                        case 5:
+                        case 6:
+                            //TODO: check the status.
+
+                    }
                     //TODO: try in 30 seconds
 
                 } else {

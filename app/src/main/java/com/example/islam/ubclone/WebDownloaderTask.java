@@ -126,7 +126,7 @@ public class WebDownloaderTask extends AsyncTask<String, Void, String> {
                             Gson gson = new Gson();
                             String json = gson.toJson(placesList);
                             PrefManager prefManager = new PrefManager(fragment.getContext());
-                            prefManager.setPlacesList(json);
+//                            prefManager.setPlacesList(json);
                             Log.d("UbClone", "onPostExecute: Setting EventList: " + json);
 
 

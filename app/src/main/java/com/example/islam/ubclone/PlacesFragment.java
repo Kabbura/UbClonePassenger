@@ -55,10 +55,10 @@ public class PlacesFragment extends Fragment {
 
 
         prefManager = new PrefManager(getContext());
-
-        Gson gson = new Gson();
-        String json = prefManager.getPlacesList();
-        PlacesList = gson.fromJson(json, new TypeToken<ArrayList<MapPlace>>(){}.getType());
+//
+//        Gson gson = new Gson();
+//        String json = prefManager.getPlacesList();
+//        PlacesList = gson.fromJson(json, new TypeToken<ArrayList<MapPlace>>(){}.getType());
 
 
 

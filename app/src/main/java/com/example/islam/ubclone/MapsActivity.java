@@ -744,7 +744,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else if (UIState == UI_STATE.DETAILED)
         {
             //Check if request is ready:
-            if (priceSet){
+            if (/*priceSet*/ true){
+                ride.details.price="4";
                 ride.details.femaleOnly = femaleOnlyBox.isChecked();
                 ride.makeRequest(MapsActivity.this);
             } else {
@@ -754,7 +755,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void cancelRequest(View view) {
-        //TODO: call cancel
+        //TODO: call server to cancel
         resetRequest();
     }
     public void resetRequest(){

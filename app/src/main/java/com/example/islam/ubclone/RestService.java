@@ -20,7 +20,8 @@ import retrofit2.http.Query;
  */
 public interface RestService {
     @GET("passenger_api/login")
-    Call<LoginResponse> login(@Header("Authorization") String authorization );
+    Call<LoginResponse> login(@Header("Authorization") String authorization,
+                              @Query("registration_token") String registrationToken );
 
     @GET("passenger_api/register")
     Call<SimpleResponse> register(
@@ -36,7 +37,7 @@ public interface RestService {
 
 
     @GET("passenger_api/get_drivers")
-    Call<DriverResponse> getDriver(
+    Call<DriverResponse> getDriver(@Header("Authorization") String authorization,
             @Query("pickup") String pickup,
             @Query("dest") String dest,
             @Query("time") String time,
@@ -52,5 +53,8 @@ public interface RestService {
 
     @GET("time")
     Call<TimeResponse> getTime( );
+
+    Call<SimpleResponse> updateToken(@Header("Authorization") String authorization,
+                                     @Query("registration_token") String registrationToken);
 }
 

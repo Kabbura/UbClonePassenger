@@ -108,6 +108,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // ====== Drivers markers ================= //
     private List<Marker> driversMarkers;
 
+
     // ====== pickup and destination points === //
     private Boolean pickupSelected;
     private Boolean destinationSelected;
@@ -904,5 +905,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume: Called");
+        super.onResume();
+    }
 
 }

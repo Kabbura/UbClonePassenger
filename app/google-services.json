@@ -1,20 +1,27 @@
 {
   "project_info": {
-    "project_number": "480937278063",
-    "project_id": "wise-karma-145712"
+    "project_number": "183475895745",
+    "firebase_url": "https://ubclone-c8584.firebaseio.com",
+    "project_id": "ubclone-c8584",
+    "storage_bucket": "ubclone-c8584.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:480937278063:android:1e41c8c0aa0428b5",
+        "mobilesdk_app_id": "1:183475895745:android:1e41c8c0aa0428b5",
         "android_client_info": {
           "package_name": "com.example.islam.ubclone"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "183475895745-7akt4dsdv2b8vk8enkrskbqiba8s2fr7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyB2UXPcyWkK_vM8UI83MPTxhB4f5dwTLkk"
+          "current_key": "AIzaSyCkWtAzsHwXpp4LoUIyZY421_hV9QY6CKo"
         }
       ],
       "services": {
@@ -26,7 +33,7 @@
           "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }

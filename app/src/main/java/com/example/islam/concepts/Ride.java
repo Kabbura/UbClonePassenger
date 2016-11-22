@@ -1,6 +1,7 @@
 package com.example.islam.concepts;
 
 import android.app.ProgressDialog;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -8,6 +9,7 @@ import com.example.islam.POJO.DriverResponse;
 import com.example.islam.POJO.DriversResponse;
 import com.example.islam.POJO.TimeResponse;
 import com.example.islam.ubclone.MapsActivity;
+import com.example.islam.ubclone.PrefManager;
 import com.example.islam.ubclone.R;
 import com.example.islam.ubclone.RestService;
 import com.example.islam.ubclone.RestServiceConstants;
@@ -141,7 +143,11 @@ public class Ride {
     }
 
     private void requestDriver(final MapsActivity mapsActivity) {
-        Call<DriverResponse> call = service.getDriver(details.pickup.toString(),
+        PrefManager prefManager = new PrefManager(mapsActivity);
+        String email = prefManager.getUser().getEmail();
+        String password = prefManager.getUser().getPassword();
+        Call<DriverResponse> call = service.getDriver("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP) ,
+                details.pickup.toString(),
                 details.dest.toString(),
                 (details.now)?"now":String.valueOf(details.time.getTime().getTime()),
                 details.femaleOnly,

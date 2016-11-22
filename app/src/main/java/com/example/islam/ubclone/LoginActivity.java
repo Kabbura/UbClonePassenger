@@ -217,6 +217,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume: Called");
+        super.onResume();
+    }
+
     private void loginRequest(final String email, final String password) {
         showProgress(true);
 
@@ -226,7 +232,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 .build();
 
         RestService service = retrofit.create(RestService.class);
-        Call<LoginResponse> call = service.login("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP));
+        if (prefManager.getRegistrationToken() == null){
+            Toast.makeText(this, "Registration token failure", Toast.LENGTH_SHORT).show();
+            showProgress(false);
+            return;
+        }
+        Log.d(TAG, "loginRequest: registrationToken: "+ prefManager.getRegistrationToken());
+        Call<LoginResponse> call = service.login("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP), prefManager.getRegistrationToken());
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {

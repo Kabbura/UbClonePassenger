@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.example.islam.POJO.User;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 /**
  * Created by islam on 9/27/16.
@@ -24,6 +26,7 @@ public class PrefManager {
 
     private static final String IS_FIRST_TIME_LAUNCHED = "IsFirstTimeLaunch";
     private static final String IS_LOGGED_IN = "IsLoggedIn";
+    private static final String REGISTRATION_TOKEN = "registrationToken";
 
     // User data
     private static final String USER_FULLNAME = "UserName";
@@ -88,6 +91,16 @@ public class PrefManager {
         Gson gson = new Gson();
         String json = gson.toJson(placesList);
         return pref.getString(PLACES_LIST,json);
+    }
+
+
+    public void setRegistrationToken(String registrationToken) {
+        editor.putString(REGISTRATION_TOKEN, registrationToken);
+        editor.apply();
+    }
+
+    public String getRegistrationToken() {
+        return pref.getString(REGISTRATION_TOKEN, FirebaseInstanceId.getInstance().getToken());
     }
 
 //    public void setTicketsList(String ticketsList){

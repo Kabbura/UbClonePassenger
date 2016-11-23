@@ -1,10 +1,13 @@
 package com.example.islam.ubclone;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -12,6 +15,8 @@ import android.widget.Toast;
 import com.example.islam.POJO.DriverResponse;
 import com.example.islam.events.DriverAccepted;
 import com.example.islam.events.DriverRejected;
+import com.example.islam.events.RequestCanceled;
+import com.example.islam.events.RideStarted;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -41,21 +46,40 @@ public class RideRequestService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        onHandleIntent(intent);
         return null;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        onHandleIntent(intent);
         return START_STICKY;
     }
 
-    //    @Override
-    protected void onHandleIntent(Intent intent) {
+    @Subscribe
+    protected void onRideStarted(RideStarted rideStarted) {
         prefManager = new PrefManager(this);
+        if (!prefManager.isLoggedIn() || prefManager.getRideStatus().equals(PrefManager.NO_RIDE)){
+            Log.i(TAG, "onHandleIntent: No ride is ongoing");
+            return;
+        }
 
-        requestID = intent.getStringExtra("request_id");
+        // Adding notification
+        // Tapping the notification will open the specified Activity.
+        Intent activityIntent = new Intent(this, MapsActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+                activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // This always shows up in the notifications area when this Service is running.
+        // TODO: String localization
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setContentTitle(getText(R.string.app_name));
+//        builder.setContentText("content text");
+
+        Notification not = builder.build();
+        startForeground(1, not);
+
+
+        requestID = prefManager.getRideId();
         Log.d(TAG, "onHandleIntent: Got request_id: "+ requestID);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(RestServiceConstants.BASE_URL)
@@ -161,8 +185,16 @@ public class RideRequestService extends Service {
     @Subscribe
     public void onDriverAccepted(DriverAccepted driverAccepted){
         Log.d(TAG, "onDriverAccepted: A driver has accepted");
+        validCode++;
         handler.removeCallbacksAndMessages(null);
-        this.stopSelf();
+        prefManager.setRideStatus(PrefManager.DRIVER_ACCEPTED);
+        prefManager.setRideDriver(driverAccepted.getDriver());
+    }
+    @Subscribe
+    public void onRequestCanceled(RequestCanceled requestCanceled){
+        validCode++;
+        handler.removeCallbacksAndMessages(null);
+        stopForeground(true);
     }
 
     @Override

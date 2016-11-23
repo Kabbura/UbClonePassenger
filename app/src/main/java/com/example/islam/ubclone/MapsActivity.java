@@ -42,9 +42,12 @@ import com.akexorcist.googledirection.model.Info;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
+import com.example.islam.POJO.Driver;
 import com.example.islam.concepts.Ride;
 import com.example.islam.concepts.RideLocation;
 import com.example.islam.events.DriverAccepted;
+import com.example.islam.events.RequestCanceled;
+import com.example.islam.events.RideStarted;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -165,7 +168,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         STATUS_MESSAGE
     }
 
-    public void setUI(UI_STATE state, String message){
+    public void setUI(UI_STATE state, String message) {
+        setUI( state,  message,  prefManager.getRideDriver());
+    }
+
+    public void setUI(UI_STATE state, String message, Driver driver){
         setUI(state);
         if (state == UI_STATE.STATUS_MESSAGE){
 
@@ -173,10 +180,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             TextView driverName = (TextView) findViewById(R.id.driver_name);
             TextView vehicleNo = (TextView) findViewById(R.id.vehicle_no);
             driverStatus.setText(message);
-            if (!message.equals(getString(R.string.finding_a_driver))){
-                driverName.setText(ride.getDriver().getName());
-                vehicleNo.setText(ride.getDriver().getPlate());
-            }
+            driverName.setText(driver.getName());
+            vehicleNo.setText(driver.getPlate());
+
         }
     }
 
@@ -312,8 +318,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         UIState = UI_STATE.CONFIRM_PICKUP;
 
         prefManager = new PrefManager(this);
-        // Nav drawer
 
+
+        // Nav drawer
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -325,7 +332,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         // End Drawer
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -395,6 +401,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setUI(UI_STATE.CONFIRM_PICKUP);
 
         ride = new Ride();
+
+
+        Intent intent = new Intent(this, RideRequestService.class);
+        startService(intent);
         // getDrivers
         ride.getDrivers(this, KHARTOUM_CORDS);
 
@@ -769,11 +779,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void cancelRequest(View view) {
-        //TODO: call server to cancel
-        resetRequest();
+        ride.cancelRequest(this);
     }
     public void resetRequest(){
         setUI(UI_STATE.CONFIRM_PICKUP);
+        EventBus.getDefault().post(new RequestCanceled());
         pickupSelected = false;
         if (pickupMarker != null) {
             pickupMarker.remove();
@@ -805,6 +815,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLocation).zoom(14).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        //PrefManager
+        prefManager.setRideDriver(new Driver("---","","---","---",""));
+        prefManager.setRideStatus(PrefManager.NO_RIDE);
+        prefManager.setRideId("");
 
 
     }
@@ -922,7 +937,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onResume() {
-        Log.d(TAG, "onResume: Called");
+        validateSession();
+        if (prefManager.getRideStatus().equals(PrefManager.FINDING_DRIVER))
+        {
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.finding_a_driver), prefManager.getRideDriver());
+            EventBus.getDefault().post(new RideStarted());
+        }
+         else if (prefManager.getRideStatus().equals(PrefManager.DRIVER_ACCEPTED))
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.accepted_request), prefManager.getRideDriver());
         super.onResume();
     }
 
@@ -934,11 +956,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d(TAG, "onDriverAccepted: A driver has accepted");
         validateSession();
         ride.setDriver(driverAccepted.getDriver());
-        prefManager.setRideStatus(PrefManager.DRIVER_ACCEPTED);
-        setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.accepted_request));
+        setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.accepted_request), driverAccepted.getDriver());
 
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
     private void validateSession() {
         if (!prefManager.isLoggedIn()){
             Toast.makeText(this, "Please login again", Toast.LENGTH_LONG).show();

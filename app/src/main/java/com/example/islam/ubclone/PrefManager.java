@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.islam.POJO.Driver;
 import com.example.islam.POJO.User;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 
 /**
  * Created by islam on 9/27/16.
@@ -26,6 +28,7 @@ public class PrefManager {
     private static final String REGISTRATION_TOKEN = "registrationToken";
     private static final String RIDE_STATUS = "RideStatus";
     private static final String RIDE_ID = "RideId";
+    private static final String RIDE_DRIVER = "RideDriver";
 
     // User data
     private static final String USER_FULLNAME = "UserName";
@@ -113,6 +116,20 @@ public class PrefManager {
     }
     public String getRideId(){
         return pref.getString(RIDE_ID, null);
+    }
+
+    public void setRideDriver(Driver driver) {
+        Gson gson = new Gson();
+        String json = gson.toJson(driver);
+        editor.putString(RIDE_DRIVER, json);
+        editor.apply();
+    }
+
+    public Driver getRideDriver(){
+        Gson gson = new Gson();
+        String json = gson.toJson(new Driver("---","","---","---",""));
+        json = pref.getString(RIDE_DRIVER, json);
+        return gson.fromJson(json, Driver.class);
     }
 
 //    public void setTicketsList(String ticketsList){

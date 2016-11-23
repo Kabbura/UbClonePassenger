@@ -13,6 +13,7 @@ import android.util.Log;
 import com.example.islam.POJO.Driver;
 import com.example.islam.events.DriverAccepted;
 import com.example.islam.events.DriverRejected;
+import com.example.islam.events.DriverUpdatedStatus;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -25,6 +26,7 @@ import java.util.Objects;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
+    private PrefManager prefManager;
 
     /**
      * Called when message is received.
@@ -67,8 +69,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     )));
                     break;
                 case 2: // Driver location
+
                     break;
                 case 3: // Driver status
+                    EventBus.getDefault().post(new DriverUpdatedStatus(remoteMessage.getData().get("message")));
                     break;
                 case 4: // Driver canceled
                     break;

@@ -9,7 +9,9 @@ import android.widget.Toast;
 import com.example.islam.POJO.Driver;
 import com.example.islam.POJO.DriverResponse;
 import com.example.islam.POJO.DriversResponse;
+import com.example.islam.POJO.SimpleResponse;
 import com.example.islam.POJO.TimeResponse;
+import com.example.islam.events.RideStarted;
 import com.example.islam.ubclone.MapsActivity;
 import com.example.islam.ubclone.PrefManager;
 import com.example.islam.ubclone.R;
@@ -18,9 +20,12 @@ import com.example.islam.ubclone.RestServiceConstants;
 import com.example.islam.ubclone.RideRequestService;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
@@ -173,13 +178,11 @@ public class Ride {
                     // Status 6: When a request is already accepted. Return request id in the error_msg
                     switch (response.body().getStatus()){
                         case 0:
-                            Intent intent = new Intent(mapsActivity, RideRequestService.class);
-                            intent.putExtra("request_id", response.body().getRequestID());
-                            Log.d(TAG, "onResponse: requestID = "+ response.body().getRequestID());
-                            mapsActivity.startService(intent);
                             Log.d(TAG, "onResponse: status 0");
                             prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
                             prefManager.setRideId(response.body().getRequestID());
+
+                            EventBus.getDefault().post(new RideStarted());
                             mapsActivity.setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, mapsActivity.getString(R.string.finding_a_driver));
                             break;
                         case 1:
@@ -199,8 +202,7 @@ public class Ride {
             @Override
             public void onFailure(Call<DriverResponse> call, Throwable t) {
                 Toast.makeText(mapsActivity, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
-                if (progressDialog.isShowing())
-                    progressDialog.dismiss();
+                if (progressDialog.isShowing()) progressDialog.dismiss();
             }
         });
     }
@@ -211,6 +213,37 @@ public class Ride {
 
     public void setDriver(Driver driver) {
         this.driver = driver;
+    }
+
+    public void cancelRequest(final MapsActivity mapsActivity) {
+
+        final PrefManager prefManager = new PrefManager(mapsActivity);
+        String email = prefManager.getUser().getEmail();
+        String password = prefManager.getUser().getPassword();
+        Call<SimpleResponse> call = service.cancelRequest("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
+                prefManager.getRideId());
+        progressDialog   = new ProgressDialog(mapsActivity);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Connecting");
+        progressDialog.show();
+        call.enqueue(new Callback<SimpleResponse>() {
+            @Override
+            public void onResponse(Call<SimpleResponse> call, Response<SimpleResponse> response) {
+                if (response.isSuccessful()){
+                    Log.i(TAG, "onResponse: Request has been canceled");
+                    mapsActivity.resetRequest();
+                }else {
+                    Toast.makeText(mapsActivity, "Unknown error occurred", Toast.LENGTH_SHORT).show();
+                }
+                if (progressDialog.isShowing()) progressDialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Call<SimpleResponse> call, Throwable t) {
+                Toast.makeText(mapsActivity, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
+                if (progressDialog.isShowing()) progressDialog.dismiss();
+            }
+        });
     }
 
     public class RideDetails{

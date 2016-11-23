@@ -10,8 +10,11 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.example.islam.events.DriverRejected;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.Map;
 import java.util.Objects;
@@ -48,8 +51,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
             Integer status = Integer.parseInt(remoteMessage.getData().get("status"));
             switch (status){
-                case 0:
-                    Log.d(TAG, "onMessageReceived: 0 status");
+                case 0: // Driver reject:
+                    Log.i(TAG, "onMessageReceived: 0 status");
+                    EventBus.getDefault().post(new DriverRejected());
                     break;
                 case 1:
 

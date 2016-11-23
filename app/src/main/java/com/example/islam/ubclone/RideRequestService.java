@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.islam.POJO.DriverResponse;
+import com.example.islam.events.DriverAccepted;
 import com.example.islam.events.DriverRejected;
 
 import org.greenrobot.eventbus.EventBus;
@@ -155,6 +156,13 @@ public class RideRequestService extends Service {
         RestService service = retrofit.create(RestService.class);
         Call<DriverResponse> call = service.getDriver("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),"","","",true,"","", requestID);
         callable(call, validCode);
+    }
+
+    @Subscribe
+    public void onDriverAccepted(DriverAccepted driverAccepted){
+        Log.d(TAG, "onDriverAccepted: A driver has accepted");
+        handler.removeCallbacksAndMessages(null);
+        this.stopSelf();
     }
 
     @Override

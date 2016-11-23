@@ -44,6 +44,7 @@ import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.example.islam.concepts.Ride;
 import com.example.islam.concepts.RideLocation;
+import com.example.islam.events.DriverAccepted;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -71,6 +72,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.sql.Time;
 import java.text.DateFormat;
@@ -162,9 +167,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void setUI(UI_STATE state, String message){
         setUI(state);
-        TextView driverStatus = (TextView) findViewById(R.id.driver_status);
-        if (driverStatus != null) {
+        if (state == UI_STATE.STATUS_MESSAGE){
+
+            TextView driverStatus = (TextView) findViewById(R.id.driver_status);
+            TextView driverName = (TextView) findViewById(R.id.driver_name);
+            TextView vehicleNo = (TextView) findViewById(R.id.vehicle_no);
             driverStatus.setText(message);
+            if (!message.equals(getString(R.string.finding_a_driver))){
+                driverName.setText(ride.getDriver().getName());
+                vehicleNo.setText(ride.getDriver().getPlate());
+            }
         }
     }
 
@@ -254,12 +266,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onStop() {
         mGoogleApiClient.disconnect();
+        EventBus.getDefault().unregister(this);
         super.onStop();
     }
 
     @Override
     protected void onStart() {
         mGoogleApiClient.connect();
+        EventBus.getDefault().register(this);
         super.onStart();
 
     }
@@ -910,6 +924,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onResume() {
         Log.d(TAG, "onResume: Called");
         super.onResume();
+    }
+
+
+    // ============== FCM Events:
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDriverAccepted(DriverAccepted driverAccepted){
+        Log.d(TAG, "onDriverAccepted: A driver has accepted");
+        validateSession();
+        ride.setDriver(driverAccepted.getDriver());
+        prefManager.setRideStatus(PrefManager.DRIVER_ACCEPTED);
+        setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.accepted_request));
+
+    }
+
+    private void validateSession() {
+        if (!prefManager.isLoggedIn()){
+            Toast.makeText(this, "Please login again", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
 }

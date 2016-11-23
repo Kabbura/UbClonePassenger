@@ -40,7 +40,8 @@ public class PrefManager {
         PASSENGER_PICKED_UP = 4,
         ARRIVED_AT_DEST = 5,
         COMPLETED = 6,
-        ON_GOING_RIDE = 7;
+        ON_GOING_RIDE = 7,
+        DRIVER_ACCEPTED = 8;
 
     @SuppressLint("CommitPrefEdits")
     public PrefManager(Context context) {

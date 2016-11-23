@@ -6,6 +6,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.islam.POJO.Driver;
 import com.example.islam.POJO.DriverResponse;
 import com.example.islam.POJO.DriversResponse;
 import com.example.islam.POJO.TimeResponse;
@@ -36,6 +37,7 @@ public class Ride {
     private final static String TAG = "InRideClass";
     private RestService service;
     public RideDetails details;
+    private Driver driver;
     ProgressDialog progressDialog;
 
 
@@ -201,6 +203,14 @@ public class Ride {
                     progressDialog.dismiss();
             }
         });
+    }
+
+    public Driver getDriver() {
+        return driver;
+    }
+
+    public void setDriver(Driver driver) {
+        this.driver = driver;
     }
 
     public class RideDetails{

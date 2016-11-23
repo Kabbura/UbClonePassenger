@@ -33,6 +33,7 @@
     <string name="register">Register</string>
     <string name="now">Now</string>
     <string name="select_date">Select date</string>
+    <string name="accepted_request">Request has been accepted</string>
 
 
     <string-array name="gender_array">

@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.example.islam.POJO.Driver;
+import com.example.islam.events.DriverAccepted;
 import com.example.islam.events.DriverRejected;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -42,8 +44,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
         // [END_EXCLUDE]
 
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload.
@@ -55,9 +55,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     Log.i(TAG, "onMessageReceived: 0 status");
                     EventBus.getDefault().post(new DriverRejected());
                     break;
-                case 1:
-
+                case 1: // Driver accepted
                     Log.d(TAG, "onMessageReceived: 1 status");
+                    // This message should be stop the RideRequestService and update the UI
+                    EventBus.getDefault().post(new DriverAccepted(new Driver(
+                            remoteMessage.getData().get("name"),
+                            remoteMessage.getData().get("phone"),
+                            remoteMessage.getData().get("plate"),
+                            remoteMessage.getData().get("request_id"),
+                            remoteMessage.getData().get("vehicle")
+                    )));
+                    break;
+                case 2: // Driver location
+                    break;
+                case 3: // Driver status
+                    break;
+                case 4: // Driver canceled
+                    break;
+                case 5: // Logout
                     break;
                 default:
                     Log.d(TAG, "onMessageReceived: No status");

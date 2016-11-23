@@ -10,13 +10,13 @@ public class DriverResponse {
     public int status;
 
     @SerializedName(value = "request_id")
-    public int requestID;
+    public String requestID;
 
-    public int getRequestID() {
+    public String getRequestID() {
         return requestID;
     }
 
-    public void setRequestID(int requestID) {
+    public void setRequestID(String requestID) {
         this.requestID = requestID;
     }
 

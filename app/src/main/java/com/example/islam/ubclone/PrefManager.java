@@ -25,6 +25,7 @@ public class PrefManager {
     private static final String IS_LOGGED_IN = "IsLoggedIn";
     private static final String REGISTRATION_TOKEN = "registrationToken";
     private static final String RIDE_STATUS = "RideStatus";
+    private static final String RIDE_ID = "RideId";
 
     // User data
     private static final String USER_FULLNAME = "UserName";
@@ -104,6 +105,14 @@ public class PrefManager {
     }
     public Integer getRideStatus(){
         return pref.getInt(RIDE_STATUS, NO_RIDE);
+    }
+
+    public void setRideId(String rideId){
+        editor.putString(RIDE_ID, rideId);
+        editor.apply();
+    }
+    public String getRideId(){
+        return pref.getString(RIDE_ID, null);
     }
 
 //    public void setTicketsList(String ticketsList){

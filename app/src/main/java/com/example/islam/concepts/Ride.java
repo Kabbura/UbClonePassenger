@@ -174,11 +174,12 @@ public class Ride {
                     switch (response.body().getStatus()){
                         case 0:
                             Intent intent = new Intent(mapsActivity, RideRequestService.class);
-                            intent.putExtra("request_id", String.valueOf(response.body().getRequestID()));
+                            intent.putExtra("request_id", response.body().getRequestID());
                             Log.d(TAG, "onResponse: requestID = "+ response.body().getRequestID());
                             mapsActivity.startService(intent);
                             Log.d(TAG, "onResponse: status 0");
                             prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
+                            prefManager.setRideId(response.body().getRequestID());
                             mapsActivity.setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, mapsActivity.getString(R.string.finding_a_driver));
                             break;
                         case 1:
@@ -189,7 +190,6 @@ public class Ride {
                             //TODO: check the status.
 
                     }
-                    //TODO: try in 30 seconds
 
                 } else {
                     Toast.makeText(mapsActivity, "Unknown error occurred", Toast.LENGTH_SHORT).show();

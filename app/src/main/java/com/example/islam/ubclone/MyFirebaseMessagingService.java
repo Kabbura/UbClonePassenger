@@ -12,8 +12,10 @@ import android.util.Log;
 
 import com.example.islam.POJO.Driver;
 import com.example.islam.events.DriverAccepted;
+import com.example.islam.events.DriverLocation;
 import com.example.islam.events.DriverRejected;
 import com.example.islam.events.DriverUpdatedStatus;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -21,6 +23,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 //current token : dKkBmm8H48A:APA91bFQQR2f-ibM1EfuLXbIRTItS2M3l5oV4AosbyEDZLdWm9un_-CJArBXNHo-lAonoXAqrlEy-tgbik4K3Hd5NJeKjgVjSG0tavW1_swW38oUIHbRN9uwVCPE06ujZh6szCH5glgi
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
@@ -51,6 +54,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            if (remoteMessage.getData().get("status") == null) {
+                Log.w(TAG, "onMessageReceived: No status found");
+                return;
+            }
             Integer status = Integer.parseInt(remoteMessage.getData().get("status"));
             switch (status){
                 case 0: // Driver reject:
@@ -69,7 +76,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     )));
                     break;
                 case 2: // Driver location
-
+                    Log.d(TAG, "onMessageReceived: 2 status");
+                    String location = remoteMessage.getData().get("location");
+                    String[] locations = location.split(Pattern.quote(","));
+                    LatLng driverLocation = new LatLng(Double.valueOf(locations[0]),Double.valueOf(locations[1]));
+//                    Log.d(TAG, "onMessageReceived: Lat: " + driverLocation.latitude+" and lng: "+driverLocation.longitude);
+                    EventBus.getDefault().post(new DriverLocation(driverLocation, remoteMessage.getData().get("request_id")));
                     break;
                 case 3: // Driver status
                     EventBus.getDefault().post(new DriverUpdatedStatus(remoteMessage.getData().get("message")));

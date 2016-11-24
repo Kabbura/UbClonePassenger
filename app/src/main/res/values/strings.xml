@@ -34,6 +34,14 @@
     <string name="now">Now</string>
     <string name="select_date">Select date</string>
     <string name="accepted_request">Request has been accepted</string>
+    <string name="on_the_way">Driver is on the way</string>
+    <string name="arrived_pickup">Arrived at pickup point</string>
+    <string name="passenger_onboard">Passenger on board</string>
+    <string name="arrived_dest">Arrived at destination</string>
+    <string name="completed">Ride completed</string>
+    <string name="arrived_safely">Arrived safely</string>
+    <string name="cancel_request">Cancel request</string>
+    <string name="search_placeholder">Click to search</string>
 
 
     <string-array name="gender_array">

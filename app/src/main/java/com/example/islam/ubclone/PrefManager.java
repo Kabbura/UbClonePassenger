@@ -40,9 +40,9 @@ public class PrefManager {
     public static final Integer NO_RIDE = 0,
         FINDING_DRIVER = 1,
         ON_THE_WAY = 2,
-        ARRIVED_AT_PICKUP = 3,
-        PASSENGER_PICKED_UP = 4,
-        ARRIVED_AT_DEST = 5,
+        ARRIVED_PICKUP = 3,
+        PASSENGER_ONBOARD = 4,
+        ARRIVED_DEST = 5,
         COMPLETED = 6,
         ON_GOING_RIDE = 7,
         DRIVER_ACCEPTED = 8;

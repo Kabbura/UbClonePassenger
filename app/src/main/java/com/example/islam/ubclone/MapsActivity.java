@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -46,6 +47,8 @@ import com.example.islam.POJO.Driver;
 import com.example.islam.concepts.Ride;
 import com.example.islam.concepts.RideLocation;
 import com.example.islam.events.DriverAccepted;
+import com.example.islam.events.DriverLocation;
+import com.example.islam.events.DriverUpdatedStatus;
 import com.example.islam.events.RequestCanceled;
 import com.example.islam.events.RideStarted;
 import com.google.android.gms.common.ConnectionResult;
@@ -182,6 +185,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             driverStatus.setText(message);
             driverName.setText(driver.getName());
             vehicleNo.setText(driver.getPlate());
+
+            // Setting button:
+            if (message.equals(getString(R.string.passenger_onboard)) ||
+                    message.equals(getString(R.string.arrived_dest)) ||
+                    message.equals(getString(R.string.completed))){
+                cancelButton.setText(R.string.arrived_safely);
+                cancelButton.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+            } else {
+                cancelButton.setText(R.string.cancel_request);
+                cancelButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
+
+            }
 
         }
     }
@@ -741,7 +756,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // For zooming automatically to the location of the marker
         LatLng newCameraLocation = new LatLng(pickupPoint.latitude+0.01, pickupPoint.longitude+0.01);
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLocation).zoom(14).build();
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLocation).zoom(mMap.getCameraPosition().zoom).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
     public void getNextAction(View view) {
@@ -779,7 +794,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void cancelRequest(View view) {
-        ride.cancelRequest(this);
+        // The cancel button behavior depends on the UI state:
+        if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_PICKUP)){
+            Toast.makeText(this, "Driver has arrived. Contact driver to cancel.", Toast.LENGTH_LONG).show();
+        } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
+                    prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
+//            ride.arrived(this);
+            resetRequest();
+            Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
+        } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
+            resetRequest();
+            Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
+
+        } else {
+            ride.cancelRequest(this);
+        }
     }
     public void resetRequest(){
         setUI(UI_STATE.CONFIRM_PICKUP);
@@ -788,13 +817,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (pickupMarker != null) {
             pickupMarker.remove();
         }
-        ((TextView) findViewById(R.id.pickup_value)).setText("Click to search");
+        ((TextView) findViewById(R.id.pickup_value)).setText(R.string.search_placeholder);
 
         destinationSelected = false;
         if (destinationMarker != null) {
             destinationMarker.remove();
         }
-        ((TextView) findViewById(R.id.destination_value)).setText("Click to search");
+        ((TextView) findViewById(R.id.destination_value)).setText(R.string.search_placeholder);
 
         // remove route
         if (routePolyline != null) {
@@ -820,6 +849,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         prefManager.setRideDriver(new Driver("---","","---","---",""));
         prefManager.setRideStatus(PrefManager.NO_RIDE);
         prefManager.setRideId("");
+
+        // Reset cancel button
+        cancelButton.setText(R.string.cancel_request);
+        cancelButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
 
 
     }
@@ -938,18 +971,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onResume() {
         validateSession();
-        if (prefManager.getRideStatus().equals(PrefManager.FINDING_DRIVER))
-        {
+        if (prefManager.getRideStatus().equals(PrefManager.FINDING_DRIVER)) {
             setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.finding_a_driver), prefManager.getRideDriver());
             EventBus.getDefault().post(new RideStarted());
-        }
-         else if (prefManager.getRideStatus().equals(PrefManager.DRIVER_ACCEPTED))
+        } else if (prefManager.getRideStatus().equals(PrefManager.DRIVER_ACCEPTED)){
             setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.accepted_request), prefManager.getRideDriver());
+        } else if (prefManager.getRideStatus().equals(PrefManager.ON_THE_WAY)){
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.on_the_way), prefManager.getRideDriver());
+        } else if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_PICKUP)){
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_pickup), prefManager.getRideDriver());
+        } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD)){
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.passenger_onboard), prefManager.getRideDriver());
+        } else if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)){
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_dest), prefManager.getRideDriver());
+        } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)){
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.completed), prefManager.getRideDriver());
+        }
         super.onResume();
     }
 
 
-    // ============== FCM Events:
+    // ==================== FCM Events ==================== //:
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDriverAccepted(DriverAccepted driverAccepted){
@@ -969,5 +1011,37 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             finish();
         }
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDriverUpdatedStatus(DriverUpdatedStatus driverUpdatedStatus){
+        Log.i(TAG, "onDriverUpdatedStatus: called");
+        validateSession();
+        switch (driverUpdatedStatus.getMessage()){
+            case RestServiceConstants.ON_THE_WAY:
+                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.on_the_way), prefManager.getRideDriver());
+                break;
+            case RestServiceConstants.ARRIVED_PICKUP:
+                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_pickup), prefManager.getRideDriver());
+                break;
+            case RestServiceConstants.PASSENGER_ONBOARD:
+                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.passenger_onboard), prefManager.getRideDriver());
+                break;
+            case RestServiceConstants.ARRIVED_DEST:
+                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_dest), prefManager.getRideDriver());
+                break;
+            case RestServiceConstants.COMPLETED:
+                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.completed), prefManager.getRideDriver());
+                break;
+        }
+
+    }
+
+    @Subscribe
+    public void onDriverLocation(DriverLocation driverLocation){
+        Log.i(TAG, "onDriverLocation: called");
+
+
+    }
+
 
 }

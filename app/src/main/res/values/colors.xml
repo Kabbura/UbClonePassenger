@@ -8,4 +8,5 @@
     <color name="bgGray">#f2f2f2</color>
     <color name="textGray">#aaa</color>
     <color name="darkText">#444</color>
+    <color name="btn_green">#8cbc8c</color>
 </resources>

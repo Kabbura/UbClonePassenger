@@ -14,7 +14,9 @@ import android.widget.Toast;
 
 import com.example.islam.POJO.DriverResponse;
 import com.example.islam.events.DriverAccepted;
+import com.example.islam.events.DriverLocation;
 import com.example.islam.events.DriverRejected;
+import com.example.islam.events.DriverUpdatedStatus;
 import com.example.islam.events.RequestCanceled;
 import com.example.islam.events.RideStarted;
 
@@ -51,12 +53,13 @@ public class RideRequestService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        prefManager = new PrefManager(this);
         return START_STICKY;
     }
 
     @Subscribe
     protected void onRideStarted(RideStarted rideStarted) {
-        prefManager = new PrefManager(this);
         if (!prefManager.isLoggedIn() || prefManager.getRideStatus().equals(PrefManager.NO_RIDE)){
             Log.i(TAG, "onHandleIntent: No ride is ongoing");
             return;
@@ -190,6 +193,34 @@ public class RideRequestService extends Service {
         prefManager.setRideStatus(PrefManager.DRIVER_ACCEPTED);
         prefManager.setRideDriver(driverAccepted.getDriver());
     }
+
+    @Subscribe
+    public void onDriverUpdatedStatus(DriverUpdatedStatus driverUpdatedStatus){
+        switch (driverUpdatedStatus.getMessage()){
+            case RestServiceConstants.ON_THE_WAY:
+                prefManager.setRideStatus(PrefManager.ON_THE_WAY);
+                break;
+
+            case RestServiceConstants.ARRIVED_PICKUP:
+                prefManager.setRideStatus(PrefManager.ARRIVED_PICKUP);
+                break;
+
+            case RestServiceConstants.PASSENGER_ONBOARD:
+                prefManager.setRideStatus(PrefManager.PASSENGER_ONBOARD);
+                break;
+
+            case RestServiceConstants.ARRIVED_DEST:
+                prefManager.setRideStatus(PrefManager.ARRIVED_DEST);
+                break;
+
+            case RestServiceConstants.COMPLETED:
+                prefManager.setRideStatus(PrefManager.COMPLETED);
+                break;
+
+        }
+
+    }
+
     @Subscribe
     public void onRequestCanceled(RequestCanceled requestCanceled){
         validCode++;

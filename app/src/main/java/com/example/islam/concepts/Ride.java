@@ -246,6 +246,39 @@ public class Ride {
         });
     }
 
+    public void arrived(final MapsActivity mapsActivity) {
+        final PrefManager prefManager = new PrefManager(mapsActivity);
+        String email = prefManager.getUser().getEmail();
+        String password = prefManager.getUser().getPassword();
+        Call<SimpleResponse> call = service.postArrived("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
+                prefManager.getRideId());
+        progressDialog   = new ProgressDialog(mapsActivity);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Connecting");
+        progressDialog.show();
+        call.enqueue(new Callback<SimpleResponse>() {
+            @Override
+            public void onResponse(Call<SimpleResponse> call, Response<SimpleResponse> response) {
+                if (response.isSuccessful()){
+                    Log.i(TAG, "onResponse: Request has been canceled");
+                    mapsActivity.resetRequest();
+                }else {
+                    Toast.makeText(mapsActivity, "Unknown error occurred", Toast.LENGTH_SHORT).show();
+                }
+                if (progressDialog.isShowing()) progressDialog.dismiss();
+
+            }
+
+            @Override
+            public void onFailure(Call<SimpleResponse> call, Throwable t) {
+                Toast.makeText(mapsActivity, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
+                if (progressDialog.isShowing()) progressDialog.dismiss();
+
+            }
+        });
+
+    }
+
     public class RideDetails{
         public RideLocation pickup;
         public RideLocation dest;

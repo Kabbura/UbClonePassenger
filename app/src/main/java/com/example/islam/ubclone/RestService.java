@@ -65,5 +65,10 @@ public interface RestService {
     @POST("cancel")
     Call<SimpleResponse> cancelRequest(@Header("Authorization") String authorization,
                                      @Field("request_id") String requestId );
+
+    @FormUrlEncoded
+    @POST("/passenger_api/arrived")
+    Call<SimpleResponse> postArrived(@Header("Authorization") String authorization,
+                                     @Field("request_id") String requestId );
 }
 

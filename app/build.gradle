@@ -10,6 +10,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -17,7 +18,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
 }
+
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -38,6 +43,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.google.firebase:firebase-messaging:9.8.0'
     compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'com.android.support:multidex:1.0.1'
 
 }
 

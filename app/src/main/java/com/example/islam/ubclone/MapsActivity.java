@@ -799,7 +799,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Toast.makeText(this, "Driver has arrived. Contact driver to cancel.", Toast.LENGTH_LONG).show();
         } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
                     prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
-//            ride.arrived(this);
+            ride.arrived(this);
             resetRequest();
             Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
         } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {

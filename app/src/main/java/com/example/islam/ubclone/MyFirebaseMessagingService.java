@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.example.islam.POJO.Driver;
 import com.example.islam.events.DriverAccepted;
+import com.example.islam.events.DriverCanceled;
 import com.example.islam.events.DriverLocation;
 import com.example.islam.events.DriverRejected;
 import com.example.islam.events.DriverUpdatedStatus;
@@ -54,7 +55,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 return;
             }
             Integer status = Integer.parseInt(remoteMessage.getData().get("status"));
-            if (status == 5 &&
+            if (status != 5 &&
                     (remoteMessage.getData().get("request_id") == null) || !remoteMessage.getData().get("request_id").equals(prefManager.getRideId())){
                 Log.w(TAG, "onMessageReceived: wrong request_id");
                 return;
@@ -81,7 +82,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     String location = remoteMessage.getData().get("location");
                     String[] locations = location.split(Pattern.quote(","));
                     LatLng driverLocation = new LatLng(Double.valueOf(locations[0]),Double.valueOf(locations[1]));
-//                    Log.d(TAG, "onMessageReceived: Lat: " + driverLocation.latitude+" and lng: "+driverLocation.longitude);
                     EventBus.getDefault().post(new DriverLocation(driverLocation));
                     break;
                 case 3: // Driver status
@@ -90,6 +90,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 case 4: // Driver canceled
                     break;
                 case 5: // Logout
+                    EventBus.getDefault().post(new DriverCanceled());
                     break;
                 default:
                     Log.d(TAG, "onMessageReceived: No status");

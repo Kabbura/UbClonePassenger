@@ -47,6 +47,7 @@ import com.example.islam.POJO.Driver;
 import com.example.islam.concepts.Ride;
 import com.example.islam.concepts.RideLocation;
 import com.example.islam.events.DriverAccepted;
+import com.example.islam.events.DriverCanceled;
 import com.example.islam.events.DriverLocation;
 import com.example.islam.events.DriverUpdatedStatus;
 import com.example.islam.events.RequestCanceled;
@@ -845,11 +846,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLocation).zoom(14).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-        //PrefManager
-        prefManager.setRideDriver(new Driver("---","","---","---",""));
-        prefManager.setRideStatus(PrefManager.NO_RIDE);
-        prefManager.setRideId("");
-
         // Reset cancel button
         cancelButton.setText(R.string.cancel_request);
         cancelButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
@@ -1040,6 +1036,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onDriverLocation(DriverLocation driverLocation){
         Log.i(TAG, "onDriverLocation: called");
 
+
+    }
+
+    @Subscribe
+    public void onDriverCanceled(DriverCanceled driverCanceled){
+        Log.i(TAG, "onDriverCanceled: called");
+        Toast.makeText(this, R.string.driver_canceled_message, Toast.LENGTH_LONG).show();
+        resetRequest();
 
     }
 

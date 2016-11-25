@@ -12,8 +12,10 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.islam.POJO.Driver;
 import com.example.islam.POJO.DriverResponse;
 import com.example.islam.events.DriverAccepted;
+import com.example.islam.events.DriverCanceled;
 import com.example.islam.events.DriverLocation;
 import com.example.islam.events.DriverRejected;
 import com.example.islam.events.DriverUpdatedStatus;
@@ -226,6 +228,10 @@ public class RideRequestService extends Service {
         validCode++;
         handler.removeCallbacksAndMessages(null);
         stopForeground(true);
+        //PrefManager
+        prefManager.setRideDriver(new Driver("---","","---","---",""));
+        prefManager.setRideStatus(PrefManager.NO_RIDE);
+        prefManager.setRideId("");
     }
 
     @Override
@@ -238,5 +244,10 @@ public class RideRequestService extends Service {
     public void onDestroy() {
         EventBus.getDefault().unregister(this);
         super.onDestroy();
+    }
+
+    @Subscribe
+    public void onDriverCanceled(DriverCanceled driverCanceled){
+        onRequestCanceled(new RequestCanceled());
     }
 }

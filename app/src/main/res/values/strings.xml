@@ -42,6 +42,7 @@
     <string name="arrived_safely">Arrived safely</string>
     <string name="cancel_request">Cancel request</string>
     <string name="search_placeholder">Click to search</string>
+    <string name="driver_canceled_message">Driver canceled the request. Please book again.</string>
 
 
     <string-array name="gender_array">

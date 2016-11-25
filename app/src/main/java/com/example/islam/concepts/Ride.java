@@ -260,13 +260,13 @@ public class Ride {
             @Override
             public void onResponse(Call<SimpleResponse> call, Response<SimpleResponse> response) {
                 if (response.isSuccessful()){
-                    Log.i(TAG, "onResponse: Request has been canceled");
+                    Log.i(TAG, "onResponse: Passenger has arrived");
                     mapsActivity.resetRequest();
+                    Toast.makeText(mapsActivity, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
                 }else {
                     Toast.makeText(mapsActivity, "Unknown error occurred", Toast.LENGTH_SHORT).show();
                 }
                 if (progressDialog.isShowing()) progressDialog.dismiss();
-
             }
 
             @Override

@@ -50,6 +50,7 @@ import com.example.islam.events.DriverAccepted;
 import com.example.islam.events.DriverCanceled;
 import com.example.islam.events.DriverLocation;
 import com.example.islam.events.DriverUpdatedStatus;
+import com.example.islam.events.LogoutRequest;
 import com.example.islam.events.RequestCanceled;
 import com.example.islam.events.RideStarted;
 import com.google.android.gms.common.ConnectionResult;
@@ -119,6 +120,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // ====== Drivers markers ================= //
     private List<Marker> driversMarkers;
+    private Marker driverMarker;
 
 
     // ====== pickup and destination points === //
@@ -382,7 +384,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         locationSettingsReqBuilder.build());
         result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
             @Override
-            public void onResult(LocationSettingsResult result) {
+            public void onResult(@NonNull LocationSettingsResult result) {
                 final Status status = result.getStatus();
 //                final LocationSettingsStates = result.getLocationSettingsStates();
                 switch (status.getStatusCode()) {
@@ -432,7 +434,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Marker driver = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(drivers.get(index).lat, drivers.get(index).lng))
                     .icon(BitmapDescriptorFactory.fromResource(R.mipmap.driver_icon_smaller))
-                    .draggable(true)
+
             );
             driversMarkers.add(driver);
         }
@@ -801,8 +803,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
                     prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
             ride.arrived(this);
-            resetRequest();
-            Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
         } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
             resetRequest();
             Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
@@ -1017,6 +1017,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.on_the_way), prefManager.getRideDriver());
                 break;
             case RestServiceConstants.ARRIVED_PICKUP:
+
+                if (driverMarker != null) driverMarker.remove();
                 setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_pickup), prefManager.getRideDriver());
                 break;
             case RestServiceConstants.PASSENGER_ONBOARD:
@@ -1032,19 +1034,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDriverLocation(DriverLocation driverLocation){
         Log.i(TAG, "onDriverLocation: called");
+        if (driverMarker != null) driverMarker.remove();
 
-
+        driverMarker = mMap.addMarker(new MarkerOptions()
+                .position(driverLocation.getDriverLocation())
+                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.driver_coming_icon_smaller))
+        );
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDriverCanceled(DriverCanceled driverCanceled){
         Log.i(TAG, "onDriverCanceled: called");
         Toast.makeText(this, R.string.driver_canceled_message, Toast.LENGTH_LONG).show();
         resetRequest();
 
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLogoutRequest(LogoutRequest logoutRequest){
+        logout();
     }
 
 

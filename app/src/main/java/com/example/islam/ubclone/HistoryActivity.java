@@ -13,6 +13,11 @@ import com.example.islam.POJO.DriversResponse;
 import com.example.islam.POJO.RequestsResponse;
 import com.example.islam.POJO.SimpleResponse;
 import com.example.islam.POJO.User;
+import com.example.islam.events.LogoutRequest;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,4 +121,25 @@ public class HistoryActivity extends AppCompatActivity {
         historyEntriesAdapter.clearDataSet();
 //        showNoTicketsIndicator();
     }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        EventBus.getDefault().register(this);
+        super.onStart();
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLogoutRequest(LogoutRequest logoutRequest){
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
 }

@@ -19,11 +19,13 @@ import com.example.islam.events.DriverCanceled;
 import com.example.islam.events.DriverLocation;
 import com.example.islam.events.DriverRejected;
 import com.example.islam.events.DriverUpdatedStatus;
+import com.example.islam.events.LogoutRequest;
 import com.example.islam.events.RequestCanceled;
 import com.example.islam.events.RideStarted;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -250,4 +252,12 @@ public class RideRequestService extends Service {
     public void onDriverCanceled(DriverCanceled driverCanceled){
         onRequestCanceled(new RequestCanceled());
     }
+
+    @Subscribe
+    public void onLogoutRequest(LogoutRequest logoutRequest){
+        prefManager.setIsLoggedIn(false);
+        onRequestCanceled(new RequestCanceled());
+        stopSelf();
+    }
+
 }

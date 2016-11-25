@@ -16,6 +16,7 @@ import com.example.islam.events.DriverCanceled;
 import com.example.islam.events.DriverLocation;
 import com.example.islam.events.DriverRejected;
 import com.example.islam.events.DriverUpdatedStatus;
+import com.example.islam.events.LogoutRequest;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -55,11 +56,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 return;
             }
             Integer status = Integer.parseInt(remoteMessage.getData().get("status"));
-            if (status != 5 &&
-                    (remoteMessage.getData().get("request_id") == null) || !remoteMessage.getData().get("request_id").equals(prefManager.getRideId())){
-                Log.w(TAG, "onMessageReceived: wrong request_id");
-                return;
-            }
+//            if (status != 5 &&
+//                    (remoteMessage.getData().get("request_id") == null) || !remoteMessage.getData().get("request_id").equals(prefManager.getRideId())){
+//                Log.w(TAG, "onMessageReceived: wrong request_id");
+//                return;
+//            }
             switch (status){
                 case 0: // Driver reject:
 
@@ -88,9 +89,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     EventBus.getDefault().post(new DriverUpdatedStatus(remoteMessage.getData().get("message")));
                     break;
                 case 4: // Driver canceled
+                    EventBus.getDefault().post(new DriverCanceled());
                     break;
                 case 5: // Logout
-                    EventBus.getDefault().post(new DriverCanceled());
+                    EventBus.getDefault().post(new LogoutRequest());
                     break;
                 default:
                     Log.d(TAG, "onMessageReceived: No status");

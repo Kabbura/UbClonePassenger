@@ -39,18 +39,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     // [START receive_message]
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        // [START_EXCLUDE]
-        // There are two types of messages data messages and notification messages. Data messages are handled
-        // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
-        // traditionally used with GCM. Notification messages are only received here in onMessageReceived when the app
-        // is in the foreground. When the app is in the background an automatically generated notification is displayed.
-        // When the user taps on the notification they are returned to the app. Messages containing both notification
-        // and data payloads are treated as notification messages. The Firebase console always sends notification
-        // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
-        // [END_EXCLUDE]
+        prefManager = new PrefManager(this);
 
         Log.d(TAG, "From: " + remoteMessage.getFrom());
-
+        if (!prefManager.isLoggedIn()){
+            Log.i(TAG, "onMessageReceived: User is not logged in");
+            return;
+        }
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
@@ -59,8 +54,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 return;
             }
             Integer status = Integer.parseInt(remoteMessage.getData().get("status"));
+            if (status == 5 &&
+                    (remoteMessage.getData().get("request_id") == null) || !remoteMessage.getData().get("request_id").equals(prefManager.getRideId())){
+                Log.w(TAG, "onMessageReceived: wrong request_id");
+                return;
+            }
             switch (status){
                 case 0: // Driver reject:
+
                     Log.i(TAG, "onMessageReceived: 0 status");
                     EventBus.getDefault().post(new DriverRejected());
                     break;
@@ -81,7 +82,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     String[] locations = location.split(Pattern.quote(","));
                     LatLng driverLocation = new LatLng(Double.valueOf(locations[0]),Double.valueOf(locations[1]));
 //                    Log.d(TAG, "onMessageReceived: Lat: " + driverLocation.latitude+" and lng: "+driverLocation.longitude);
-                    EventBus.getDefault().post(new DriverLocation(driverLocation, remoteMessage.getData().get("request_id")));
+                    EventBus.getDefault().post(new DriverLocation(driverLocation));
                     break;
                 case 3: // Driver status
                     EventBus.getDefault().post(new DriverUpdatedStatus(remoteMessage.getData().get("message")));

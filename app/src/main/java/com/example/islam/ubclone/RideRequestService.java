@@ -171,7 +171,11 @@ public class RideRequestService extends Service {
     @Subscribe
     public void onDriverReject(DriverRejected driverRejected){
         Log.d(TAG, "restartCallable: Restarting");
-        handler.removeCallbacksAndMessages(null);
+        try {
+            handler.removeCallbacksAndMessages(null);
+        }catch (NullPointerException e){
+            Log.i(TAG, "onRequestCanceled: handler messages removed");
+        }
         validCode++;
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -193,9 +197,13 @@ public class RideRequestService extends Service {
     public void onDriverAccepted(DriverAccepted driverAccepted){
         Log.d(TAG, "onDriverAccepted: A driver has accepted");
         validCode++;
-        handler.removeCallbacksAndMessages(null);
         prefManager.setRideStatus(PrefManager.DRIVER_ACCEPTED);
         prefManager.setRideDriver(driverAccepted.getDriver());
+        try {
+            handler.removeCallbacksAndMessages(null);
+        }catch (NullPointerException e){
+            Log.i(TAG, "onRequestCanceled: handler messages removed");
+        }
     }
 
     @Subscribe
@@ -227,13 +235,20 @@ public class RideRequestService extends Service {
 
     @Subscribe
     public void onRequestCanceled(RequestCanceled requestCanceled){
-        validCode++;
-        handler.removeCallbacksAndMessages(null);
-        stopForeground(true);
+        Log.d(TAG, "onRequestCanceled: called");
         //PrefManager
         prefManager.setRideDriver(new Driver("---","","---","---",""));
         prefManager.setRideStatus(PrefManager.NO_RIDE);
         prefManager.setRideId("");
+        validCode++;
+
+        stopForeground(true);
+
+        try {
+            handler.removeCallbacksAndMessages(null);
+        }catch (NullPointerException e){
+            Log.i(TAG, "onRequestCanceled: handler messages removed");
+        }
     }
 
     @Override

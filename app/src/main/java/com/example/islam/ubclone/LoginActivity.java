@@ -250,6 +250,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     prefManager.setIsLoggedIn(true);
                     prefManager.setUser(user);
 
+                    switch (response.body().getOnGoingRequest()){
+                        case "pending":
+                            prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
+                            break;
+                        case "accepted":
+                            prefManager.setRideStatus(PrefManager.DRIVER_ACCEPTED);
+                            break;
+                        default:
+                            prefManager.setRideStatus(PrefManager.NO_RIDE);
+                            break;
+                    }
+
                     Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
                     startActivity(intent);
 //                showProgress(false);

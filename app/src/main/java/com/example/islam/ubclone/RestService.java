@@ -22,17 +22,19 @@ import retrofit2.http.Query;
  * Created by islam on 11/15/16.
  */
 public interface RestService {
-    @GET("passenger_api/login")
+    @FormUrlEncoded
+    @POST("passenger_api/login")
     Call<LoginResponse> login(@Header("Authorization") String authorization,
-                              @Query("registration_token") String registrationToken );
+                              @Field("registration_token") String registrationToken );
 
-    @GET("passenger_api/register")
+    @FormUrlEncoded
+    @POST("passenger_api/register")
     Call<SimpleResponse> register(
-            @Query("email") String email,
-            @Query("fullname") String fullname,
-            @Query("password") String password,
-            @Query("phone") String phone,
-            @Query("gender") String gender
+            @Field("email") String email,
+            @Field("fullname") String fullname,
+            @Field("password") String password,
+            @Field("phone") String phone,
+            @Field("gender") String gender
     );
 
     @GET("passenger_api/get_drivers")
@@ -57,17 +59,18 @@ public interface RestService {
     @GET("time")
     Call<TimeResponse> getTime( );
 
-    @GET("token")
+    @FormUrlEncoded
+    @POST("passenger_api/token")
     Call<SimpleResponse> updateToken(@Header("Authorization") String authorization,
-                                     @Query("registration_token") String registrationToken);
+                                     @Field("registration_token") String registrationToken);
 
     @FormUrlEncoded
-    @POST("cancel")
+    @POST("passenger_api/cancel")
     Call<SimpleResponse> cancelRequest(@Header("Authorization") String authorization,
                                      @Field("request_id") String requestId );
 
     @FormUrlEncoded
-    @POST("/passenger_api/arrived")
+    @POST("passenger_api/arrived")
     Call<SimpleResponse> postArrived(@Header("Authorization") String authorization,
                                      @Field("request_id") String requestId );
 }

@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -100,7 +99,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
     private static final String GOOGLE_DIRECTIONS_API = "AIzaSyDpJmpRN0BxJ76X27K0NLTGs-gDHQtoxXQ";
-    private static final int GET_PICKUP_POINT = 0, GET_DESTINATION_POINT = 1, PLACE_AUTOCOMPLETE_REQUEST_CODE = 2;
+    private static final int GET_PICKUP_POINT = 0, GET_DESTINATION_POINT = 1,
+            PLACE_AUTOCOMPLETE_REQUEST_CODE = 2, PERMISSION_REQUEST_LOCATION = 3, PERMISSION_REQUEST_CLIENT_CONNECT = 4;
 
 //    private static final String DRIVER_INCOMING = G
 //    private static final String DRIVER_INCOMING = "Incoming";
@@ -296,11 +296,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onStart() {
-        mGoogleApiClient.connect();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION },
+                    PERMISSION_REQUEST_CLIENT_CONNECT);
+        } else {
+            mGoogleApiClient.connect();
+        }
         EventBus.getDefault().register(this);
         super.onStart();
 
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -352,6 +360,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         navigationView.setNavigationItemSelectedListener(this);
         // End Drawer
 
+
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -366,14 +376,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+
+        // Request permissions
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION },
+                    PERMISSION_REQUEST_LOCATION);
+        } else {
+            initializeLocation();
+        }
+
+    }
+
+    private void initializeLocation() {
         // Location Request
         mLocationRequest = new LocationRequest();
         // Use high accuracy
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         // Set the update interval to 5 seconds
-        mLocationRequest.setInterval(5000);
+        mLocationRequest.setInterval(1000);
         // Set the fastest update interval to 1 second
-        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setFastestInterval(500);
 
 
         // Check device location settings
@@ -425,8 +449,35 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         startService(intent);
         // getDrivers
         ride.getDrivers(this, KHARTOUM_CORDS);
-
+        mGoogleApiClient.connect();
     }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_LOCATION){
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION },
+                        PERMISSION_REQUEST_LOCATION);
+            }
+            else {
+                initializeLocation();
+
+            }
+        } else if(requestCode == PERMISSION_REQUEST_CLIENT_CONNECT){
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION },
+                        PERMISSION_REQUEST_LOCATION);
+            }
+            else {
+                mGoogleApiClient.connect();
+            }
+        }
+    }
+
+
 
 
     public void setDriversMarkers(List<RideLocation> drivers) {
@@ -520,7 +571,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onConnected(@Nullable Bundle bundle) {
 
-
+        Log.d(TAG, "onConnected: I am connected");
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
 
@@ -561,8 +612,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mCurrentLocation = location;
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        if (firstMove){
+        if (firstMove && mLastLocation != null){
             Log.d(TAG, "onConnected: Moving cam");
+            Log.d(TAG, "onLocationChanged: mLocation: "+mLastLocation.toString());
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), 12.0f));
             firstMove = false;
         }
@@ -801,7 +853,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_PICKUP)){
             Toast.makeText(this, "Driver has arrived. Contact driver to cancel.", Toast.LENGTH_LONG).show();
         } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
-                    prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
+                prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
             ride.arrived(this);
         } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
             resetRequest();
@@ -879,7 +931,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         datePicker.setVisibility(View.GONE);
                         pickButton.setText("Pick Time");
                         requestDate =  Calendar.getInstance(TimeZone.getTimeZone("Africa/Khartoum"));
-                                //new Date(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+                        //new Date(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
                     } else {
                         int hour = 0;
                         int min = 0;

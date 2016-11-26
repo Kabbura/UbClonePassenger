@@ -168,8 +168,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public enum UI_STATE{
         CONFIRM_PICKUP,
         CONFIRM_DESTINATION,
-        ADD_DETAILS,
-        SIMPLE,
         DETAILED,
         STATUS_MESSAGE
     }
@@ -207,13 +205,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void setUI(UI_STATE state){
         UIState = state;
         switch (state){
-            case SIMPLE:
-                locationsCard.setVisibility(View.VISIBLE);
-                detailsCard.setVisibility(View.INVISIBLE);
-                statusCard.setVisibility(View.INVISIBLE);
-                cancelButton.setVisibility(View.INVISIBLE);
-
-                break;
             case CONFIRM_PICKUP:
                 locationsCard.setVisibility(View.VISIBLE);
                 pickupLayout.setVisibility(View.VISIBLE);
@@ -252,14 +243,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.VISIBLE);
                 break;
-            case ADD_DETAILS:
-                locationsCard.setVisibility(View.GONE);
-                pickupLayout.setVisibility(View.GONE);
-                destinationLayout.setVisibility(View.GONE);
-                detailsCard.setVisibility(View.INVISIBLE);
-                statusCard.setVisibility(View.INVISIBLE);
-                cancelButton.setVisibility(View.VISIBLE);
-                break;
+
             case DETAILED:
                 locationsCard.setVisibility(View.GONE);
                 detailsCard.setVisibility(View.VISIBLE);
@@ -838,7 +822,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else if (UIState == UI_STATE.DETAILED)
         {
             //Check if request is ready:
-            if (/*priceSet*/ true){
+            if (priceSet){
                 ride.details.price="4";
                 ride.details.femaleOnly = femaleOnlyBox.isChecked();
                 ride.makeRequest(MapsActivity.this);
@@ -850,7 +834,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void cancelRequest(View view) {
         // The cancel button behavior depends on the UI state:
-        if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_PICKUP)){
+        if (prefManager.getRideStatus().equals(PrefManager.NO_RIDE)){
+            resetRequest();
+        } else if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_PICKUP)){
             Toast.makeText(this, "Driver has arrived. Contact driver to cancel.", Toast.LENGTH_LONG).show();
         } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
                 prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
@@ -858,7 +844,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
             resetRequest();
             Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
-
         } else {
             ride.cancelRequest(this);
         }

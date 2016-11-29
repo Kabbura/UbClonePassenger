@@ -50,6 +50,12 @@
     <string name="profile_activity_name">Profile</string>
     <string name="history_activity_name">Previous requests</string>
     <string name="register_activity_name">Register</string>
+    <string name="about_activity_name">About Driver</string>
+    <string name="developed_by">Driver is developed by Favicon</string>
+    <string name="about_driver">About Driver</string>
+    <string name="about_driver_content">Driver app is a platform that connect drivers with passengers. Dit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.</string>
+    <string name="contact_us">Contact us</string>
+    <string name="contact_us_content">Phone: 0232\nEmail: wisam.app.temp@gmail.com</string>
 
 
     <string-array name="gender_array">

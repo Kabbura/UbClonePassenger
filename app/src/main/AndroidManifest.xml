@@ -81,26 +81,33 @@
             </intent-filter>
         </activity>
         <activity
-            android:label="@string/history_activity_name"
-             android:name=".HistoryActivity">
+            android:name=".HistoryActivity"
+            android:label="@string/history_activity_name">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.islam.ubclone.MapsActivity" />
         </activity>
         <activity
-            android:label="@string/register_activity_name"
-             android:name=".RegisterActivity" />
+            android:name=".RegisterActivity"
+            android:label="@string/register_activity_name" />
 
         <service
             android:name=".FetchAddressIntentService"
             android:exported="false" />
 
         <activity
-            android:label="@string/profile_activity_name"
-            android:name=".ProfileActivity">
+            android:name=".ProfileActivity"
+            android:label="@string/profile_activity_name">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.islam.ubclone.MapsActivity" /></activity>
+                android:value="com.example.islam.ubclone.MapsActivity" />
+        </activity>
+        <activity android:name=".AboutActivity"
+            android:label="@string/about_activity_name">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.islam.ubclone.MapsActivity" />
+        </activity>
     </application>
 
 </manifest>

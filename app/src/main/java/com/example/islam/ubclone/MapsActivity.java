@@ -505,6 +505,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             startActivity(intent);
 
         } else if (id == R.id.nav_about){
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
 
         }else if (id == R.id.nav_logout){
             logout();

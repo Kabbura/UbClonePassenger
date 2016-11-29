@@ -60,7 +60,8 @@ public class RegisterActivity extends AppCompatActivity {
                     fullname.getText().toString(),
                     password.getText().toString(),
                     phone.getText().toString(),
-                    (genderSpinner.getSelectedItem().toString().equals("Male")?"male":"female")
+                    (genderSpinner.getSelectedItem().toString().equals("Male")?"male":"female"),
+                    prefManager.getRegistrationToken()
             );
             call.enqueue(new Callback<SimpleResponse>() {
                 @Override

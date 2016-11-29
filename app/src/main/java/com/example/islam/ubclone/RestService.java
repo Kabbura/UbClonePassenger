@@ -34,7 +34,8 @@ public interface RestService {
             @Field("fullname") String fullname,
             @Field("password") String password,
             @Field("phone") String phone,
-            @Field("gender") String gender
+            @Field("gender") String gender,
+            @Field("registration_token") String registrationToken
     );
 
     @GET("passenger_api/get_drivers/")

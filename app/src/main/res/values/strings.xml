@@ -47,6 +47,9 @@
     <string name="invalid_lat_long_used">Invalid latitude or longitude used</string>
     <string name="address_found">Address was found</string>
     <string name="no_address_found">Sorry, no address found</string>
+    <string name="profile_activity_name">Profile</string>
+    <string name="history_activity_name">Previous requests</string>
+    <string name="register_activity_name">Register</string>
 
 
     <string-array name="gender_array">

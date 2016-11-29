@@ -498,7 +498,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         int id = item.getItemId();
 
         if (id == R.id.nav_profile) {
-            // Handle the camera action
+            Intent intent = new Intent(this, ProfileActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_history){
             Intent intent = new Intent(this, HistoryActivity.class);
             startActivity(intent);

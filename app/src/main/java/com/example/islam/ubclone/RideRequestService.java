@@ -139,15 +139,27 @@ public class RideRequestService extends Service {
                                    Log.i(TAG, "onResponse: status 0. Trying again in 30 seconds");
                                    callable(call.clone(), mValidCode);
                                    break;
-                               case 1:
+                               case 3:
                                    Toast.makeText(RideRequestService.this, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
                                    Log.i(TAG, "onResponse: status 1. No drivers available.");
+                                   EventBus.getDefault().post(new RequestCanceled());
                                    return;
-                               case 5:
+                               case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
+                                   EventBus.getDefault().post(new RequestCanceled());
                                    prefManager.setRideStatus(PrefManager.NO_RIDE);
                                    return;
-                               case 6:
-                                   prefManager.setRideStatus(PrefManager.ON_GOING_RIDE);
+                               case 6: // When a request is already accepted.Return request id in the error_msg
+                                   EventBus.getDefault().post(new DriverAccepted(new Driver(
+                                           "unknown",
+                                           "unknown",
+                                           "unknown",
+                                           "unknown",
+                                           "unknown"
+                                   )));
+                                   break;
+                               case 1:
+                                   EventBus.getDefault().post(new LogoutRequest());
+                                   break;
                            }
 
                        } else {
@@ -162,11 +174,10 @@ public class RideRequestService extends Service {
                        callable(call.clone(), validCode);
                    }
                });
-
-
             }
-        }, 3000);
+        }, 30000);
     }
+
 
     @Subscribe
     public void onDriverReject(DriverRejected driverRejected){

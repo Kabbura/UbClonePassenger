@@ -12,6 +12,9 @@ public class DriverResponse {
     @SerializedName(value = "request_id")
     public String requestID;
 
+    @SerializedName(value = "error_msg")
+    public String errorMessage;
+
     public String getRequestID() {
         return requestID;
     }
@@ -26,5 +29,9 @@ public class DriverResponse {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 }

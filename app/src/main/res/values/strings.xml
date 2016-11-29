@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">UbClone</string>
-    <string name="title_activity_maps">UbClone</string>
+    <string name="app_name">Driver</string>
+    <string name="title_activity_maps">Driver</string>
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
     <string name="title_activity_location_picker">LocationPicker</string>
@@ -9,12 +9,12 @@
     <string name="hello_blank_fragment">Google Places API</string>
     <string name="hello_second_fragment">Second Fragment</string>
     <string name="note_place_holder">Note to driver</string>
-    <string name="finding_a_driver">Finding a driver</string>
+    <string name="finding_a_driver">Finding a driver..</string>
     <string name="title_activity_login">Sign in</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
+    <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>

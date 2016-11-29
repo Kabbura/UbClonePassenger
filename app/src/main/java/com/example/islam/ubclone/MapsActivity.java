@@ -199,6 +199,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
 
+            // Drivers markers:
+            if (!message.equals(getString(R.string.accepted_request))){
+                clearDriversMarkers();
+            }
+
         }
     }
 
@@ -215,20 +220,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 statusLayout.setVisibility(View.INVISIBLE);
                 cancelButton.setVisibility(View.INVISIBLE);
                 bookButton.setText(R.string.confirm_pickup);
-
-//                locationsCard.setVisibility(View.GONE);
-//                pickupLayout.setVisibility(View.GONE);
-//                destinationLayout.setVisibility(View.GONE);
-//                detailsCard.setVisibility(View.GONE);
-//                statusCard.setVisibility(View.GONE);
-//                bookLayout.setVisibility(View.GONE);
-//                statusLayout.setVisibility(View.GONE);
-//                cancelButton.setVisibility(View.GONE);
-//                bookButton.setText(R.string.confirm_pickup);
-
                 constStartIcon.setVisibility(View.VISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
                 break;
+
             case CONFIRM_DESTINATION:
                 locationsCard.setVisibility(View.VISIBLE);
                 pickupLayout.setVisibility(View.GONE);
@@ -239,7 +234,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 statusLayout.setVisibility(View.INVISIBLE);
                 cancelButton.setVisibility(View.VISIBLE);
                 bookButton.setText(R.string.confirm_destination);
-
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.VISIBLE);
                 break;
@@ -247,6 +241,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case DETAILED:
                 locationsCard.setVisibility(View.GONE);
                 detailsCard.setVisibility(View.VISIBLE);
+                if (prefManager.getUser().getGender().equals("female"))
+                    femaleOnlyBox.setVisibility(View.VISIBLE);
+                else femaleOnlyBox.setVisibility(View.GONE);
                 statusCard.setVisibility(View.VISIBLE);
                 bookLayout.setVisibility(View.VISIBLE);
                 bookButton.setText(R.string.book);
@@ -532,13 +529,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         mMap.setMyLocationEnabled(true);
@@ -561,13 +551,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
@@ -596,10 +579,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mCurrentLocation = location;
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        if (firstMove && mLastLocation != null){
+        if (firstMove && mCurrentLocation != null){
             Log.d(TAG, "onConnected: Moving cam");
-            Log.d(TAG, "onLocationChanged: mLocation: "+mLastLocation.toString());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), 12.0f));
+            Log.d(TAG, "onLocationChanged: mLocation: "+mCurrentLocation.toString());
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 12.0f));
             firstMove = false;
         }
 //        if(null!= mCurrentLocation)
@@ -823,7 +806,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         {
             //Check if request is ready:
             if (priceSet){
-                ride.details.price="4";
+//                ride.details.price="4";
                 ride.details.femaleOnly = femaleOnlyBox.isChecked();
                 ride.makeRequest(MapsActivity.this);
             } else {
@@ -869,6 +852,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         ride.details.reset();
+        ride.getDrivers(this, KHARTOUM_CORDS);
         setPrice(false,"0.0");
         timeTextView.setText(R.string.now);
         noteTextView.setText(R.string.note_place_holder);
@@ -1008,6 +992,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.finding_a_driver), prefManager.getRideDriver());
             EventBus.getDefault().post(new RideStarted());
         } else if (prefManager.getRideStatus().equals(PrefManager.DRIVER_ACCEPTED)){
+            clearDriversMarkers();
             setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.accepted_request), prefManager.getRideDriver());
         } else if (prefManager.getRideStatus().equals(PrefManager.ON_THE_WAY)){
             setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.on_the_way), prefManager.getRideDriver());
@@ -1093,6 +1078,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onLogoutRequest(LogoutRequest logoutRequest){
         logout();
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onRequestCanceled(RequestCanceled requestCanceled) {
+        resetRequest();
     }
 
 

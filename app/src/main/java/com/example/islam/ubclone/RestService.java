@@ -23,12 +23,12 @@ import retrofit2.http.Query;
  */
 public interface RestService {
     @FormUrlEncoded
-    @POST("passenger_api/login")
+    @POST("passenger_api/login/")
     Call<LoginResponse> login(@Header("Authorization") String authorization,
                               @Field("registration_token") String registrationToken );
 
     @FormUrlEncoded
-    @POST("passenger_api/register")
+    @POST("passenger_api/register/")
     Call<SimpleResponse> register(
             @Field("email") String email,
             @Field("fullname") String fullname,
@@ -37,11 +37,11 @@ public interface RestService {
             @Field("gender") String gender
     );
 
-    @GET("passenger_api/get_drivers")
+    @GET("passenger_api/get_drivers/")
     Call<DriversResponse> getDrivers(@Query("location") String location);
 
 
-    @GET("passenger_api/driver")
+    @GET("passenger_api/driver/")
     Call<DriverResponse> getDriver(@Header("Authorization") String authorization,
             @Query("pickup") String pickup,
             @Query("dest") String dest,
@@ -53,24 +53,23 @@ public interface RestService {
 
             );
 
-    @GET("passenger_api/requests")
+    @GET("passenger_api/requests/")
     Call<RequestsResponse> getRequests(@Header("Authorization") String authorization );
 
-    @GET("time")
+    @GET("time/")
     Call<TimeResponse> getTime( );
 
     @FormUrlEncoded
-    @POST("passenger_api/token")
+    @POST("passenger_api/token/")
     Call<SimpleResponse> updateToken(@Header("Authorization") String authorization,
                                      @Field("registration_token") String registrationToken);
 
-    @FormUrlEncoded
-    @POST("passenger_api/cancel")
+    @GET("passenger_api/cancel/")
     Call<SimpleResponse> cancelRequest(@Header("Authorization") String authorization,
-                                     @Field("request_id") String requestId );
+                                     @Query("request_id") String requestId );
 
     @FormUrlEncoded
-    @POST("passenger_api/arrived")
+    @POST("passenger_api/arrived/")
     Call<SimpleResponse> postArrived(@Header("Authorization") String authorization,
                                      @Field("request_id") String requestId );
 }

@@ -11,6 +11,9 @@ import com.example.islam.POJO.DriverResponse;
 import com.example.islam.POJO.DriversResponse;
 import com.example.islam.POJO.SimpleResponse;
 import com.example.islam.POJO.TimeResponse;
+import com.example.islam.events.DriverAccepted;
+import com.example.islam.events.LogoutRequest;
+import com.example.islam.events.RequestCanceled;
 import com.example.islam.events.RideStarted;
 import com.example.islam.ubclone.MapsActivity;
 import com.example.islam.ubclone.PrefManager;
@@ -170,7 +173,8 @@ public class Ride {
                 if (progressDialog.isShowing())
                     progressDialog.dismiss();
                 if (response.isSuccessful()){
-                            Log.d(TAG, "onResponse: is successful");
+                            Log.d(TAG, "onResponse: " + response.raw());
+                            Log.d(TAG, "onResponse: " + response.body().getStatus());
                     // There are 4 situations here:
                     // Status 0: When request is pending. request_id is returned.
                     // Status 1: No driver found
@@ -185,12 +189,25 @@ public class Ride {
                             EventBus.getDefault().post(new RideStarted());
                             mapsActivity.setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, mapsActivity.getString(R.string.finding_a_driver));
                             break;
-                        case 1:
+                        case 3:
                             Toast.makeText(mapsActivity, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
                             break;
-                        case 5:
-                        case 6:
-                            //TODO: check the status.
+                        case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
+                            EventBus.getDefault().post(new RequestCanceled());
+                            prefManager.setRideStatus(PrefManager.NO_RIDE);
+                            break;
+                        case 6: // When a request is already accepted.Return request id in the error_msg
+                            EventBus.getDefault().post(new DriverAccepted(new Driver(
+                                    "unknown",
+                                    "unknown",
+                                    "unknown",
+                                    "unknown",
+                                    "unknown"
+                            )));
+                            break;
+                        case 1:
+                            EventBus.getDefault().post(new LogoutRequest());
+                            break;
 
                     }
 
@@ -222,6 +239,7 @@ public class Ride {
         String password = prefManager.getUser().getPassword();
         Call<SimpleResponse> call = service.cancelRequest("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
                 prefManager.getRideId());
+        Log.d(TAG, "cancelRequest: "+call.request().toString());
         progressDialog   = new ProgressDialog(mapsActivity);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Connecting");
@@ -240,6 +258,7 @@ public class Ride {
 
             @Override
             public void onFailure(Call<SimpleResponse> call, Throwable t) {
+                Log.d(TAG, "onFailure: "+t.toString());
                 Toast.makeText(mapsActivity, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
                 if (progressDialog.isShowing()) progressDialog.dismiss();
             }

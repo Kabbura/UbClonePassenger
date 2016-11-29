@@ -77,6 +77,7 @@ public class HistoryActivity extends AppCompatActivity {
 
         RestService service = retrofit.create(RestService.class);
         Call<RequestsResponse> call = service.getRequests("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP));
+        Log.d(TAG, "onCreate: " + call.request().toString());
         call.enqueue(new Callback<RequestsResponse>() {
             @Override
             public void onResponse(Call<RequestsResponse> call, Response<RequestsResponse> response) {

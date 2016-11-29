@@ -39,7 +39,7 @@
         </service>
         <service
             android:name=".RideRequestService"
-            android:exported="false"></service>
+            android:exported="false" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -80,16 +80,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HistoryActivity">
+        <activity
+            android:label="@string/history_activity_name"
+             android:name=".HistoryActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.islam.ubclone.MapsActivity" />
         </activity>
-        <activity android:name=".RegisterActivity" />
+        <activity
+            android:label="@string/register_activity_name"
+             android:name=".RegisterActivity" />
 
         <service
             android:name=".FetchAddressIntentService"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity
+            android:label="@string/profile_activity_name"
+            android:name=".ProfileActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.islam.ubclone.MapsActivity" /></activity>
     </application>
 
 </manifest>

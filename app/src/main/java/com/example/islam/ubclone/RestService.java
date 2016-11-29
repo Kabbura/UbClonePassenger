@@ -49,7 +49,9 @@ public interface RestService {
             @Query("female_driver") Boolean female_driver,
             @Query("notes") String notes,
             @Query("price") String price,
-            @Query("request_id") String request_id
+            @Query("request_id") String request_id,
+            @Query("pickup_text") String pickupText,
+            @Query("dest_text") String destText
 
             );
 

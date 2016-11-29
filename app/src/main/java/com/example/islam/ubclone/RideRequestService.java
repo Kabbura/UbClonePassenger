@@ -21,6 +21,7 @@ import com.example.islam.events.DriverRejected;
 import com.example.islam.events.DriverUpdatedStatus;
 import com.example.islam.events.LogoutRequest;
 import com.example.islam.events.RequestCanceled;
+import com.example.islam.events.RequestCanceledFromService;
 import com.example.islam.events.RideStarted;
 
 import org.greenrobot.eventbus.EventBus;
@@ -100,7 +101,7 @@ public class RideRequestService extends Service {
         }
         email = prefManager.getUser().getEmail();
         password = prefManager.getUser().getPassword();
-        Call<DriverResponse> call = service.getDriver("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),"","","",true,"","", requestID);
+        Call<DriverResponse> call = service.getDriver("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),"","","",true,"","", requestID,"","");
         handler = new Handler();
         Log.d(TAG, "run: Calling handler ");
         callable(call, validCode);
@@ -142,10 +143,10 @@ public class RideRequestService extends Service {
                                case 3:
                                    Toast.makeText(RideRequestService.this, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
                                    Log.i(TAG, "onResponse: status 1. No drivers available.");
-                                   EventBus.getDefault().post(new RequestCanceled());
+                                   EventBus.getDefault().post(new RequestCanceledFromService());
                                    return;
                                case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
-                                   EventBus.getDefault().post(new RequestCanceled());
+                                   EventBus.getDefault().post(new RequestCanceledFromService());
                                    prefManager.setRideStatus(PrefManager.NO_RIDE);
                                    return;
                                case 6: // When a request is already accepted.Return request id in the error_msg
@@ -200,7 +201,15 @@ public class RideRequestService extends Service {
         email = prefManager.getUser().getEmail();
         password = prefManager.getUser().getPassword();
         RestService service = retrofit.create(RestService.class);
-        Call<DriverResponse> call = service.getDriver("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),"","","",true,"","", requestID);
+        Call<DriverResponse> call = service.getDriver("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
+                "",
+                "",
+                "",
+                true,
+                "",
+                "",
+                requestID,
+                "","");
         callable(call, validCode);
     }
 
@@ -254,7 +263,6 @@ public class RideRequestService extends Service {
         validCode++;
 
         stopForeground(true);
-
         try {
             handler.removeCallbacksAndMessages(null);
         }catch (NullPointerException e){

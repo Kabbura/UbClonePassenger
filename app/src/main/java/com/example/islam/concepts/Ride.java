@@ -164,7 +164,9 @@ public class Ride {
                 details.femaleOnly,
                 details.notes,
                 details.price,
-                details.requestID
+                details.requestID,
+                details.pickupText,
+                details.destText
         );
         Log.d(TAG, "requestDriver: Request" + call.request().toString());
         call.enqueue(new Callback<DriverResponse>() {

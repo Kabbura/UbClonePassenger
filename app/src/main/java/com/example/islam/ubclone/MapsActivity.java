@@ -54,6 +54,7 @@ import com.example.islam.events.DriverLocation;
 import com.example.islam.events.DriverUpdatedStatus;
 import com.example.islam.events.LogoutRequest;
 import com.example.islam.events.RequestCanceled;
+import com.example.islam.events.RequestCanceledFromService;
 import com.example.islam.events.RideStarted;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -759,6 +760,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         CameraPosition cameraPosition = new CameraPosition.Builder().target(place.getLatLng()).zoom(14).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
+
     private void setPickupPoint(LatLng point){
 
         // Setting marker
@@ -787,6 +789,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         location.setLongitude(point.longitude);
         startIntentService(RestServiceConstants.PICKUP, location);
     }
+
     public void getNextAction(View view) {
         if (UIState == UI_STATE.CONFIRM_PICKUP){
             setPickupPoint(mMap.getCameraPosition().target);
@@ -849,6 +852,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void cancelRequest(View view) {
         // The cancel button behavior depends on the UI state:
+        Log.i(TAG, "cancelRequest");
         if (prefManager.getRideStatus().equals(PrefManager.NO_RIDE)){
             resetRequest();
         } else if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_PICKUP)){
@@ -864,6 +868,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
     public void resetRequest(){
+        Log.i(TAG, "resetRequest");
         setUI(UI_STATE.CONFIRM_PICKUP);
         EventBus.getDefault().post(new RequestCanceled());
         pickupSelected = false;
@@ -1152,7 +1157,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onRequestCanceled(RequestCanceled requestCanceled) {
+    public void onRequestCanceled(RequestCanceledFromService requestCanceledFromService) {
         resetRequest();
     }
 

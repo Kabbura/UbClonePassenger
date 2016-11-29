@@ -16,4 +16,16 @@ public class RestServiceConstants {
         ARRIVED_DEST = "arrived_dest",
         COMPLETED = "completed";
 
+    public static final boolean PICKUP = true;
+    public static final boolean DEST = false;
+    public static final String POINT = "POINT";
+    public static final int SUCCESS_RESULT_PICKUP = 0;
+    public static final int FAILURE_RESULT_PICKUP = 1;
+    public static final int SUCCESS_RESULT_DEST = 10;
+    public static final int FAILURE_RESULT_DEST = 11;
+    public static final String PACKAGE_NAME = "com.example.islam.ubclone";
+    public static final String RECEIVER = PACKAGE_NAME + ".RECEIVER";
+    public static final String RESULT_DATA_KEY = PACKAGE_NAME + ".RESULT_DATA_KEY";
+    public static final String LOCATION_DATA_EXTRA = PACKAGE_NAME + ".LOCATION_DATA_EXTRA";
+
 }

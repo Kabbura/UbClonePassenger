@@ -43,6 +43,10 @@
     <string name="cancel_request">Cancel request</string>
     <string name="search_placeholder">Click to search</string>
     <string name="driver_canceled_message">Driver canceled the request. Please book again.</string>
+    <string name="service_not_available">Service is not available</string>
+    <string name="invalid_lat_long_used">Invalid latitude or longitude used</string>
+    <string name="address_found">Address was found</string>
+    <string name="no_address_found">Sorry, no address found</string>
 
 
     <string-array name="gender_array">

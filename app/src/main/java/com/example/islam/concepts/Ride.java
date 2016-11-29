@@ -307,6 +307,8 @@ public class Ride {
         public String notes;
         public String price;
         public String requestID;
+        public String pickupText;
+        public String destText;
 
         public RideDetails() {
         }
@@ -318,6 +320,8 @@ public class Ride {
             if (notes == null) Log.d(TAG, "isSet: notes is null");
             if (price == null) Log.d(TAG, "isSet: price is null");
             if (requestID == null) Log.d(TAG, "isSet: requestID is null");
+            if (pickupText == null) Log.d(TAG, "isSet: pickupText is null");
+            if (destText == null) Log.d(TAG, "isSet: destText is null");
 
             return (pickup != null &&
                     dest != null &&
@@ -325,7 +329,9 @@ public class Ride {
                     femaleOnly != null &&
                     notes != null &&
                     price != null &&
-                    requestID != null);
+                    requestID != null &&
+                    pickupText != null &&
+                    destText != null);
         }
 
         public void reset() {
@@ -337,6 +343,8 @@ public class Ride {
             time = null;
             requestID="-1";
             now = true;
+            pickupText = null;
+            destText = null;
         }
     }
 }

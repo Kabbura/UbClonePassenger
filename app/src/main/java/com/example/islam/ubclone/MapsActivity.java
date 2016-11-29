@@ -1,6 +1,7 @@
 package com.example.islam.ubclone;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,11 +9,13 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.os.ResultReceiver;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -102,10 +105,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int GET_PICKUP_POINT = 0, GET_DESTINATION_POINT = 1,
             PLACE_AUTOCOMPLETE_REQUEST_CODE = 2, PERMISSION_REQUEST_LOCATION = 3, PERMISSION_REQUEST_CLIENT_CONNECT = 4;
 
-//    private static final String DRIVER_INCOMING = G
-//    private static final String DRIVER_INCOMING = "Incoming";
-//    private static final String DRIVER_INCOMING = "Incoming";
-//    private static final String DRIVER_INCOMING = "Incoming";
 
     private GoogleMap mMap;
     static final private LatLng KHARTOUM_CORDS = new LatLng(15.592791, 32.534134) ;
@@ -117,6 +116,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String mLastUpdateTime;
     public String TAG = "UbClone";
     private PrefManager prefManager;
+    private AddressResultReceiver mResultReceiver;
 
     // ====== Drivers markers ================= //
     private List<Marker> driversMarkers;
@@ -133,6 +133,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LatLng destinationPoint;
     private Marker destinationMarker;
     private Polyline routePolyline;
+
+    private Boolean pickupTextSet;
+    private Boolean destTextSet;
 
     // ============ Time ====================//
     private Calendar requestDate;
@@ -302,6 +305,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         priceSet = false;
         firstMove = true;
 
+        pickupTextSet = false;
+        destTextSet = false;
+
         pickupPoint = new LatLng(0,0);
         destinationPoint = new LatLng(0,0);
 
@@ -325,6 +331,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         UIState = UI_STATE.CONFIRM_PICKUP;
 
         prefManager = new PrefManager(this);
+        mResultReceiver = new AddressResultReceiver(new Handler());
 
 
         // Nav drawer
@@ -631,10 +638,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Always remove the route on the map
-
-
-
         switch (requestCode) {
             case GET_PICKUP_POINT:
                 if (resultCode == RESULT_OK) {
@@ -683,11 +686,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void showRoute() {
         Log.d(TAG, "showRoute: Called");
         setPrice(false, "0.0");
-
-//        if (routePolyline != null) {
-//            routePolyline.remove();
-//        }
-
         GoogleDirection.withServerKey(GOOGLE_DIRECTIONS_API)
                 .from(pickupPoint)
                 .to(destinationPoint)
@@ -723,9 +721,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }
                             routePolyline = mMap.addPolyline(polylineOptions);
                             setPrice(true, price);
-
                         }
-
                     }
 
                     @Override
@@ -741,6 +737,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (place == null) {
             return;
         }
+        pickupTextSet = true;
+        ride.details.pickupText = (String) place.getName();
         TextView textView = (TextView) findViewById(R.id.pickup_value);
         if (textView != null) {
             textView.setText(place.getName());
@@ -752,6 +750,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (place == null) {
             return;
         }
+        destTextSet = true;
+        ride.details.destText = (String) place.getName();
         TextView textView = (TextView) findViewById(R.id.destination_value);
         if (textView != null) {
             textView.setText(place.getName());
@@ -780,6 +780,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng newCameraLocation = new LatLng(pickupPoint.latitude+0.01, pickupPoint.longitude+0.01);
         CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLocation).zoom(mMap.getCameraPosition().zoom).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        // Get text:
+        Location location = new Location("");
+        location.setLatitude(point.latitude);
+        location.setLongitude(point.longitude);
+        startIntentService(RestServiceConstants.PICKUP, location);
     }
     public void getNextAction(View view) {
         if (UIState == UI_STATE.CONFIRM_PICKUP){
@@ -800,15 +806,41 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .icon(BitmapDescriptorFactory.fromResource(R.mipmap.stop_loc_smaller))
                             .draggable(true)
             );
+
+            // Get text
+            Location location = new Location("");
+            location.setLatitude(destinationPoint.latitude);
+            location.setLongitude(destinationPoint.longitude);
+            startIntentService(RestServiceConstants.DEST, location);
+
             showRoute();
             setUI(UI_STATE.DETAILED);
         } else if (UIState == UI_STATE.DETAILED)
         {
             //Check if request is ready:
-            if (priceSet){
+            if (priceSet ){
 //                ride.details.price="4";
-                ride.details.femaleOnly = femaleOnlyBox.isChecked();
-                ride.makeRequest(MapsActivity.this);
+                if (pickupTextSet && destTextSet){
+                    ride.details.femaleOnly = femaleOnlyBox.isChecked();
+                    ride.makeRequest(MapsActivity.this);
+                } else {
+                    Toast.makeText(this, "Server is taking too long. Try again later", Toast.LENGTH_LONG).show();
+                    if (!pickupTextSet){
+                        // Get text
+                        Location location = new Location("");
+                        location.setLatitude(pickupPoint.latitude);
+                        location.setLongitude(pickupPoint.longitude);
+                        startIntentService(RestServiceConstants.PICKUP, location);
+                    }
+                    if (!destTextSet){
+                        // Get text
+                        Location location = new Location("");
+                        location.setLatitude(destinationPoint.latitude);
+                        location.setLongitude(destinationPoint.longitude);
+                        startIntentService(RestServiceConstants.DEST, location);
+
+                    }
+                }
             } else {
                 Toast.makeText(this, "Wait until price is calculated", Toast.LENGTH_SHORT).show();
             }
@@ -850,6 +882,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (routePolyline != null) {
             routePolyline.remove();
         }
+
+        pickupTextSet = false;
+        destTextSet = false;
 
         ride.details.reset();
         ride.getDrivers(this, KHARTOUM_CORDS);
@@ -1008,6 +1043,41 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onResume();
     }
 
+    protected void startIntentService(Boolean point, Location location) {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        intent.putExtra(RestServiceConstants.RECEIVER, mResultReceiver);
+        intent.putExtra(RestServiceConstants.LOCATION_DATA_EXTRA, location);
+        intent.putExtra(RestServiceConstants.POINT, point);
+        startService(intent);
+    }
+
+    @SuppressLint("ParcelCreator")
+    class AddressResultReceiver extends ResultReceiver {
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+            // Display the address string
+            // or an error message sent from the intent service.
+//            mAddressOutput = resultData.getString(RestServiceConstants.RESULT_DATA_KEY);
+//            displayAddressOutput();
+
+            // Show a toast message if an address was found.
+            if (resultCode == RestServiceConstants.SUCCESS_RESULT_PICKUP) {
+                pickupTextSet = true;
+                ride.details.pickupText = resultData.getString(RestServiceConstants.RESULT_DATA_KEY);
+            } else if (resultCode == RestServiceConstants.SUCCESS_RESULT_DEST){
+                destTextSet = true;
+                ride.details.destText = resultData.getString(RestServiceConstants.RESULT_DATA_KEY);
+            } else {
+                Log.w(TAG, "onReceiveResult: Address: "+ resultData.getString(RestServiceConstants.RESULT_DATA_KEY));
+            }
+
+        }
+    }
 
     // ==================== FCM Events ==================== //:
 

@@ -77,6 +77,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             remoteMessage.getData().get("request_id"),
                             remoteMessage.getData().get("vehicle")
                     )));
+                    sendNotification("Driver " + remoteMessage.getData().get("name") + " accepted the ride");
                     break;
                 case 2: // Driver location
                     Log.d(TAG, "onMessageReceived: 2 status");
@@ -87,12 +88,31 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     break;
                 case 3: // Driver status
                     EventBus.getDefault().post(new DriverUpdatedStatus(remoteMessage.getData().get("message")));
+                    switch (remoteMessage.getData().get("message")){
+                        case RestServiceConstants.ON_THE_WAY:
+                            sendNotification(getString(R.string.on_the_way));
+                            break;
+                        case RestServiceConstants.ARRIVED_PICKUP:
+                            sendNotification(getString(R.string.arrived_pickup));
+                            break;
+                        case RestServiceConstants.PASSENGER_ONBOARD:
+                            sendNotification(getString(R.string.passenger_onboard));
+                            break;
+                        case RestServiceConstants.ARRIVED_DEST:
+                            sendNotification(getString(R.string.arrived_dest));
+                            break;
+                        case RestServiceConstants.COMPLETED:
+                            sendNotification(getString(R.string.completed));
+                            break;
+                    }
                     break;
                 case 4: // Driver canceled
                     EventBus.getDefault().post(new DriverCanceled());
+                    sendNotification(getString(R.string.driver_canceled_message));
                     break;
                 case 5: // Logout
                     EventBus.getDefault().post(new LogoutRequest());
+                    sendNotification(getString(R.string.logged_in_from_another_device));
                     break;
                 default:
                     Log.d(TAG, "onMessageReceived: No status");

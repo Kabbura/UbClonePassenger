@@ -6,6 +6,7 @@ import com.example.islam.POJO.LoginResponse;
 import com.example.islam.POJO.RequestsResponse;
 import com.example.islam.POJO.SimpleResponse;
 import com.example.islam.POJO.TimeResponse;
+import com.example.islam.POJO.PriceResponse;
 
 import java.util.List;
 
@@ -75,5 +76,8 @@ public interface RestService {
     @POST("passenger_api/arrived/")
     Call<SimpleResponse> postArrived(@Header("Authorization") String authorization,
                                      @Field("request_id") String requestId );
+
+    @GET("price/")
+    Call<PriceResponse> getPrice();
 }
 

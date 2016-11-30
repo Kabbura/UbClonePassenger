@@ -46,6 +46,7 @@ import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.example.islam.POJO.Driver;
+import com.example.islam.concepts.PriceSettings;
 import com.example.islam.concepts.Ride;
 import com.example.islam.concepts.RideLocation;
 import com.example.islam.events.DriverAccepted;
@@ -53,6 +54,7 @@ import com.example.islam.events.DriverCanceled;
 import com.example.islam.events.DriverLocation;
 import com.example.islam.events.DriverUpdatedStatus;
 import com.example.islam.events.LogoutRequest;
+import com.example.islam.events.PriceUpdated;
 import com.example.islam.events.RequestCanceled;
 import com.example.islam.events.RequestCanceledFromService;
 import com.example.islam.events.RideStarted;
@@ -90,6 +92,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.sql.Time;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -145,7 +148,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // ============ Price ====================//
     public String price;
-    private Boolean priceSet;
+    private enum PriceSet {
+        NOTYET,
+        SUCCESS,
+        FAILURE
+    }
+    private PriceSet priceSet;
+    private PriceSettings priceSettings;
 
     // =========== UI Elements ============== //
     private CardView locationsCard;
@@ -303,7 +312,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         pickupSelected = false;
         destinationSelected = false;
         dateSet = false;
-        priceSet = false;
+        priceSet = PriceSet.NOTYET;
+        priceSettings = new PriceSettings();
         firstMove = true;
 
         pickupTextSet = false;
@@ -674,22 +684,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    private void setPrice(Boolean set, String priceString){
+    private void setPrice(PriceSet set, String priceString){
         TextView priceValue = (TextView) findViewById(R.id.price_value);
-        if (set) {
-            priceSet = true;
-            priceValue.setText(priceString + " SDG");
+        priceSet = set;
+        if (set == PriceSet.SUCCESS) {
+            //TODO: handle number properly
+            priceString = priceString + "SDG";
+            priceValue.setText(priceString);
             ride.details.price = priceString;
-        } else {
-            priceSet = false;
+        } else if (set == PriceSet.NOTYET){
             priceValue.setText(R.string.calculating_price);
             ride.details.price = null;
+        } else if (set == PriceSet.FAILURE){
+            priceValue.setText(R.string.price_failed_to_connect);
+            ride.details.price = null;
         }
-
     }
+
     private void showRoute() {
         Log.d(TAG, "showRoute: Called");
-        setPrice(false, "0.0");
+        setPrice(PriceSet.NOTYET, "0.0");
         GoogleDirection.withServerKey(GOOGLE_DIRECTIONS_API)
                 .from(pickupPoint)
                 .to(destinationPoint)
@@ -710,21 +724,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             Route route = direction.getRouteList().get(0);
                             Leg leg = route.getLegList().get(0);
 
-                            // Distance info
-                            Info distanceInfo = leg.getDistance();
-                            Info durationInfo = leg.getDuration();
-                            String distance = distanceInfo.getValue();
-                            String duration = durationInfo.getValue();
 
-                            Double priceValue = (double) (Integer.valueOf(distance) *  Integer.valueOf(duration) / 3/60/1000);
-                            price = String.format("%s", priceValue) ;
+//                            Double priceValue = (double) (Integer.valueOf(distance) *  Integer.valueOf(duration) / 3/60/1000);
                             ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
                             PolylineOptions polylineOptions = DirectionConverter.createPolyline(MapsActivity.this, directionPositionList, 5, getResources().getColor(R.color.colorPrimary));
                             if (routePolyline != null) {
                                 routePolyline.remove();
                             }
                             routePolyline = mMap.addPolyline(polylineOptions);
-                            setPrice(true, price);
+
+
+                            // Distance info
+                            Info distanceInfo = leg.getDistance();
+                            Info durationInfo = leg.getDuration();
+                            String distance = distanceInfo.getValue();
+                            String duration = durationInfo.getValue();
+                            calculatePrice(Integer.valueOf(duration), Integer.valueOf(distance));
                         }
                     }
 
@@ -732,11 +747,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onDirectionFailure(Throwable t) {
                         // Do something here
                         Toast.makeText(MapsActivity.this, "Route Failed ", Toast.LENGTH_SHORT).show();
-                        setPrice(false, "0.0");
+                        showRoute();
                         Log.d(TAG, "showRoute: Route Failed ");
                     }
                 });
     }
+
+    public void calculatePrice(Integer duration, Integer distance){
+        if (priceSettings.isUpdatedFromServer()){
+            Double priceValue = priceSettings.getPrice(duration, distance);
+//            price = String.format("%s",  priceValue.intValue()) ;
+            price = String.valueOf(priceValue.intValue());
+            setPrice(PriceSet.SUCCESS, price);
+        } else {
+            priceSettings.updateFromServer(duration, distance, true);
+        }
+    }
+
+
+
     private void setPickupPointUI(Place place) {
         if (place == null) {
             return;
@@ -819,12 +848,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             location.setLongitude(destinationPoint.longitude);
             startIntentService(RestServiceConstants.DEST, location);
 
+            priceSettings.updateFromServer();
             showRoute();
             setUI(UI_STATE.DETAILED);
         } else if (UIState == UI_STATE.DETAILED)
         {
             //Check if request is ready:
-            if (priceSet ){
+            if (priceSet == PriceSet.SUCCESS ){
 //                ride.details.price="4";
                 if (pickupTextSet && destTextSet){
                     ride.details.femaleOnly = femaleOnlyBox.isChecked();
@@ -852,6 +882,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
+
 
     public void cancelRequest(View view) {
         // The cancel button behavior depends on the UI state:
@@ -896,7 +927,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         ride.details.reset();
         ride.getDrivers(this, KHARTOUM_CORDS);
-        setPrice(false,"0.0");
+        setPrice(PriceSet.NOTYET,"0.0");
         timeTextView.setText(R.string.now);
         noteTextView.setText(R.string.note_place_holder);
 
@@ -1162,6 +1193,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onRequestCanceled(RequestCanceledFromService requestCanceledFromService) {
         resetRequest();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPriceUpdated(PriceUpdated priceUpdated){
+        calculatePrice(priceUpdated.getDuration(), priceUpdated.getDistance());
     }
 
 

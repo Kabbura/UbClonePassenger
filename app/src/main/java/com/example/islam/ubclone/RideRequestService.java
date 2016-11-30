@@ -150,6 +150,7 @@ public class RideRequestService extends Service {
                                    prefManager.setRideStatus(PrefManager.NO_RIDE);
                                    return;
                                case 6: // When a request is already accepted.Return request id in the error_msg
+                                   prefManager.setRideId(response.body().getErrorMessage());
                                    EventBus.getDefault().post(new DriverAccepted(new Driver(
                                            "unknown",
                                            "unknown",

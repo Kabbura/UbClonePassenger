@@ -18,6 +18,9 @@ public class LoginResponse {
     @SerializedName(value = "on_going_request")
     private String onGoingRequest;
 
+    @SerializedName(value = "request_id")
+    private String requestID;
+
     public String getErrorMessage() {
         return errorMessage;
     }
@@ -32,5 +35,9 @@ public class LoginResponse {
 
     public String getOnGoingRequest() {
         return onGoingRequest;
+    }
+
+    public String getRequestID() {
+        return requestID;
     }
 }

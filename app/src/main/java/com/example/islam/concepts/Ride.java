@@ -176,7 +176,7 @@ public class Ride {
                     progressDialog.dismiss();
                 if (response.isSuccessful()){
                             Log.d(TAG, "onResponse: " + response.raw());
-                            Log.d(TAG, "onResponse: " + response.body().getStatus());
+                            Log.d(TAG, "onResponse: " + response.toString());
                     // There are 4 situations here:
                     // Status 0: When request is pending. request_id is returned.
                     // Status 1: No driver found
@@ -199,6 +199,8 @@ public class Ride {
                             prefManager.setRideStatus(PrefManager.NO_RIDE);
                             break;
                         case 6: // When a request is already accepted.Return request id in the error_msg
+                            prefManager.setRideId(response.body().getErrorMessage());
+                            Log.d(TAG, "onResponse: id: " + response.body().getErrorMessage());
                             EventBus.getDefault().post(new DriverAccepted(new Driver(
                                     "unknown",
                                     "unknown",
@@ -237,6 +239,7 @@ public class Ride {
     public void cancelRequest(final MapsActivity mapsActivity) {
 
         final PrefManager prefManager = new PrefManager(mapsActivity);
+        Log.d(TAG, "cancelRequest: id: " + prefManager.getRideId());
         String email = prefManager.getUser().getEmail();
         String password = prefManager.getUser().getPassword();
         Call<SimpleResponse> call = service.cancelRequest("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),

@@ -236,7 +236,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                Log.d(TAG, "onResponse: raw: " + response.raw());
+                Log.d(TAG, "onResponse: raw: " + response.raw().body());
                 if (response.isSuccessful()){
                     User user = response.body().getUser();
                     user.setPassword(password);
@@ -247,9 +247,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     switch (response.body().getOnGoingRequest()){
                         case "pending":
                             prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
+                            prefManager.setRideId(response.body().getRequestID());
                             break;
                         case "accepted":
                             prefManager.setRideStatus(PrefManager.DRIVER_ACCEPTED);
+                            prefManager.setRideId(response.body().getRequestID());
                             break;
                         default:
                             prefManager.setRideStatus(PrefManager.NO_RIDE);

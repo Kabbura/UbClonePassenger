@@ -626,7 +626,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         try {
-            LatLngBounds bounds = new LatLngBounds(new LatLng(12.951125, 35.404134), new LatLng(20.486998, 25.769819));
+            LatLngBounds bounds = new LatLngBounds(new LatLng(11.616428, 24.326453), new LatLng(21.381160, 36.991820));
             Intent intent =
                     new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
                             .setBoundsBias(bounds)
@@ -931,7 +931,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         timeTextView.setText(R.string.now);
         noteTextView.setText(R.string.note_place_holder);
 
-        //Moving cam
+        // Moving cam
         LatLng newCameraLocation;
         if (mCurrentLocation != null) {
             newCameraLocation = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
@@ -1034,6 +1034,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 noteTextView.setText(((EditText)dialogView.findViewById(R.id.dialog_input)).getText().toString());
+                ride.details.notes = ((EditText)dialogView.findViewById(R.id.dialog_input)).getText().toString();
             }
         });
 

@@ -6,6 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:actionBarStyle">@style/AppTheme.LightAppBar</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -23,4 +24,18 @@
         <item name="android:gravity">center_horizontal</item>
     </style>
 
+
+    <style name="AppTheme.LightAppBar" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:background">@android:color/white</item>
+        <item name="titleTextStyle">@style/MyTitleTextStyle</item>
+    </style>
+
+    <style name="AppTheme.LightPopup" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:background">@android:color/white</item>
+        <item name="titleTextStyle">@style/MyTitleTextStyle</item>
+    </style>
+
+    <style name="MyTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
 </resources>

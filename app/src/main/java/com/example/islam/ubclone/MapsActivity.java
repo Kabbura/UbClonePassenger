@@ -228,7 +228,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 pickupLayout.setVisibility(View.VISIBLE);
                 destinationLayout.setVisibility(View.GONE);
                 detailsCard.setVisibility(View.GONE);
-                statusCard.setVisibility(View.VISIBLE);
+//                statusCard.setVisibility(View.VISIBLE);
+                statusCard.setVisibility(View.GONE);
                 bookLayout.setVisibility(View.VISIBLE);
                 statusLayout.setVisibility(View.INVISIBLE);
                 cancelButton.setVisibility(View.INVISIBLE);

@@ -568,7 +568,11 @@
                     android:src="@drawable/ic_call"
                     android:contentDescription="@string/ic_desc_call_driver"
                     android:scaleType="fitCenter"
-                    android:padding="3dp"/>
+                    android:padding="3dp"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="callDriver"/>
                 <View
                     android:id="@+id/driver_actions_sep"
                     android:layout_width="1dp"

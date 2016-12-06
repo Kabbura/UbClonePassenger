@@ -152,6 +152,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // ============ Price ====================//
     public String price;
+
+    public void callDriver(View view) {
+        AlertDialog.Builder alerBuilder = new AlertDialog.Builder(this);
+        alerBuilder.setMessage(getString(R.string.call_driver_message));
+        alerBuilder.setPositiveButton(getString(R.string.call_driver), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:".concat(prefManager.getRideDriver().getPhone())));
+                startActivity(intent);
+            }
+        });
+        alerBuilder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        alerBuilder.show();
+    }
+
     private enum PriceSet {
         NOTYET,
         SUCCESS,

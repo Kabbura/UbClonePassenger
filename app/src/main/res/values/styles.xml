@@ -28,11 +28,16 @@
     <style name="AppTheme.LightAppBar" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:background">@android:color/white</item>
         <item name="titleTextStyle">@style/MyTitleTextStyle</item>
+        <item name="android:textColorSecondary">@color/colorPrimary</item>
+        <item name="colorControlNormal">@color/colorPrimary</item>
+
     </style>
 
     <style name="AppTheme.LightPopup" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:background">@android:color/white</item>
         <item name="titleTextStyle">@style/MyTitleTextStyle</item>
+        <item name="android:textColorSecondary">@color/colorPrimary</item>
+        <item name="colorControlNormal">@color/colorPrimary</item>
     </style>
 
     <style name="MyTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">

@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
@@ -27,12 +29,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -159,9 +163,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // =========== UI Elements ============== //
     private CardView locationsCard;
     private CardView detailsCard;
-    private CardView statusCard;
-    private LinearLayout bookLayout;
-    private LinearLayout statusLayout;
+//    private CardView statusCard;
+//    private LinearLayout bookLayout;
+//    private LinearLayout statusLayout;
     private Button cancelButton;
     private Button bookButton;
     private RelativeLayout destinationLayout;
@@ -171,6 +175,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private CheckBox femaleOnlyBox;
     private TextView timeTextView;
     private TextView noteTextView;
+
+    // =========== New UI ================== //
+    private ViewGroup arrivedButtonBottomView;
+    private ViewGroup cancelButtonBottomView;
+    private ViewGroup detailsBottomView;
+    private ViewGroup actionButtonBottomView;
+    private ViewGroup driverDetailsBottomView;
+    private TextView actionButtonBottom;
+    private ProgressBar priceProgressBar;
+    private LinearLayout priceTextBottomView;
+    private TextView priceTextBottom;
+
 
     private UI_STATE UIState;
 
@@ -182,7 +198,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         CONFIRM_PICKUP,
         CONFIRM_DESTINATION,
         DETAILED,
-        STATUS_MESSAGE
+        STATUS_MESSAGE,
+        FINISHED
     }
 
     public void setUI(UI_STATE state, String message) {
@@ -190,7 +207,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void setUI(UI_STATE state, String message, Driver driver){
-        setUI(state);
         if (state == UI_STATE.STATUS_MESSAGE){
 
             TextView driverStatus = (TextView) findViewById(R.id.driver_status);
@@ -204,9 +220,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (message.equals(getString(R.string.passenger_onboard)) ||
                     message.equals(getString(R.string.arrived_dest)) ||
                     message.equals(getString(R.string.completed))){
-                cancelButton.setText(R.string.arrived_safely);
-                cancelButton.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+
+                setUI(UI_STATE.FINISHED);
+//                cancelButton.setText(R.string.arrived_safely);
+//                cancelButton.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
             } else {
+                setUI(UI_STATE.STATUS_MESSAGE);
                 cancelButton.setText(R.string.cancel_request);
                 cancelButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
 
@@ -216,6 +235,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (!message.equals(getString(R.string.accepted_request))){
                 clearDriversMarkers();
             }
+
+        } else {
+            setUI(state);
 
         }
     }
@@ -227,58 +249,111 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 locationsCard.setVisibility(View.VISIBLE);
                 pickupLayout.setVisibility(View.VISIBLE);
                 destinationLayout.setVisibility(View.GONE);
-                detailsCard.setVisibility(View.GONE);
+//                detailsCard.setVisibility(View.GONE);
 //                statusCard.setVisibility(View.VISIBLE);
-                statusCard.setVisibility(View.GONE);
-                bookLayout.setVisibility(View.VISIBLE);
-                statusLayout.setVisibility(View.INVISIBLE);
-                cancelButton.setVisibility(View.INVISIBLE);
-                bookButton.setText(R.string.confirm_pickup);
+//                statusCard.setVisibility(View.GONE);
+//                bookLayout.setVisibility(View.VISIBLE);
+//                statusLayout.setVisibility(View.INVISIBLE);
+//                cancelButton.setVisibility(View.INVISIBLE);
+//                bookButton.setText(R.string.confirm_pickup);
                 constStartIcon.setVisibility(View.VISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
+
+                arrivedButtonBottomView.setVisibility(View.GONE);
+                actionButtonBottomView.setVisibility(View.VISIBLE);
+                actionButtonBottom.setVisibility(View.VISIBLE);
+                actionButtonBottom.setText(R.string.confirm_pickup);
+                arrivedButtonBottomView.setVisibility(View.GONE);
+                cancelButtonBottomView.setVisibility(View.GONE);
+                detailsBottomView.setVisibility(View.GONE);
+                driverDetailsBottomView.setVisibility(View.GONE);
+
+
                 break;
 
             case CONFIRM_DESTINATION:
                 locationsCard.setVisibility(View.VISIBLE);
                 pickupLayout.setVisibility(View.GONE);
                 destinationLayout.setVisibility(View.VISIBLE);
-                detailsCard.setVisibility(View.GONE);
-                statusCard.setVisibility(View.VISIBLE);
-                bookLayout.setVisibility(View.VISIBLE);
-                statusLayout.setVisibility(View.INVISIBLE);
-                cancelButton.setVisibility(View.VISIBLE);
-                bookButton.setText(R.string.confirm_destination);
+//                detailsCard.setVisibility(View.GONE);
+//                statusCard.setVisibility(View.VISIBLE);
+//                bookLayout.setVisibility(View.VISIBLE);
+//                statusLayout.setVisibility(View.INVISIBLE);
+//                cancelButton.setVisibility(View.VISIBLE);
+//                bookButton.setText(R.string.confirm_destination);
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.VISIBLE);
+
+                arrivedButtonBottomView.setVisibility(View.GONE);
+                cancelButtonBottomView.setVisibility(View.VISIBLE);
+                actionButtonBottomView.setVisibility(View.VISIBLE);
+                actionButtonBottom.setVisibility(View.VISIBLE);
+                actionButtonBottom.setText(R.string.confirm_destination);
+                arrivedButtonBottomView.setVisibility(View.GONE);
+                detailsBottomView.setVisibility(View.GONE);
+                driverDetailsBottomView.setVisibility(View.GONE);
                 break;
 
             case DETAILED:
                 locationsCard.setVisibility(View.GONE);
-                detailsCard.setVisibility(View.VISIBLE);
+                detailsCard.setVisibility(View.GONE);
                 if (prefManager.getUser().getGender().equals("female"))
                     femaleOnlyBox.setVisibility(View.VISIBLE);
                 else femaleOnlyBox.setVisibility(View.GONE);
-                statusCard.setVisibility(View.VISIBLE);
-                bookLayout.setVisibility(View.VISIBLE);
-                bookButton.setText(R.string.book);
-                statusLayout.setVisibility(View.INVISIBLE);
-                cancelButton.setVisibility(View.VISIBLE);
+//                statusCard.setVisibility(View.VISIBLE);
+//                bookLayout.setVisibility(View.VISIBLE);
+//                bookButton.setText(R.string.book);
+//                statusLayout.setVisibility(View.INVISIBLE);
+//                cancelButton.setVisibility(View.VISIBLE);
 
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
+
+                arrivedButtonBottomView.setVisibility(View.GONE);
+                cancelButtonBottomView.setVisibility(View.VISIBLE);
+                actionButtonBottomView.setVisibility(View.VISIBLE);
+                actionButtonBottom.setVisibility(View.VISIBLE);
+                actionButtonBottom.setText(R.string.book);
+                arrivedButtonBottomView.setVisibility(View.GONE);
+                detailsBottomView.setVisibility(View.VISIBLE);
+                priceTextBottomView.setVisibility(View.GONE);
+                priceProgressBar.setVisibility(View.VISIBLE);
+                driverDetailsBottomView.setVisibility(View.GONE);
                 break;
 
             case STATUS_MESSAGE:
-                locationsCard.setVisibility(View.GONE);
-                detailsCard.setVisibility(View.GONE);
-                statusCard.setVisibility(View.VISIBLE);
-                bookLayout.setVisibility(View.INVISIBLE);
-                statusLayout.setVisibility(View.VISIBLE);
-                cancelButton.setVisibility(View.VISIBLE);
+//                locationsCard.setVisibility(View.GONE);
+//                detailsCard.setVisibility(View.GONE);
+//                statusCard.setVisibility(View.GONE);
+//                bookLayout.setVisibility(View.INVISIBLE);
+//                statusLayout.setVisibility(View.VISIBLE);
+//                cancelButton.setVisibility(View.VISIBLE);
 
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
+
+                arrivedButtonBottomView.setVisibility(View.GONE);
+                cancelButtonBottomView.setVisibility(View.VISIBLE);
+                actionButtonBottomView.setVisibility(View.GONE);
+                actionButtonBottom.setVisibility(View.GONE);
+                arrivedButtonBottomView.setVisibility(View.GONE);
+                detailsBottomView.setVisibility(View.GONE);
+                driverDetailsBottomView.setVisibility(View.VISIBLE);
                 break;
+
+            case FINISHED:
+                constStartIcon.setVisibility(View.INVISIBLE);
+                constStopIcon.setVisibility(View.INVISIBLE);
+
+                cancelButtonBottomView.setVisibility(View.GONE);
+                arrivedButtonBottomView.setVisibility(View.VISIBLE);
+                actionButtonBottomView.setVisibility(View.GONE);
+                actionButtonBottom.setVisibility(View.GONE);
+                arrivedButtonBottomView.setVisibility(View.GONE);
+                detailsBottomView.setVisibility(View.GONE);
+                driverDetailsBottomView.setVisibility(View.VISIBLE);
+                break;
+
         }
     }
 
@@ -327,9 +402,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         locationsCard = (CardView) findViewById(R.id.locations_card);
         detailsCard = (CardView) findViewById(R.id.details_card);
-        statusCard = (CardView) findViewById(R.id.status_card);
-        bookLayout = (LinearLayout) findViewById(R.id.book_layout);
-        statusLayout = (LinearLayout) findViewById(R.id.status_layout);
+//        statusCard = (CardView) findViewById(R.id.status_card);
+//        bookLayout = (LinearLayout) findViewById(R.id.book_layout);
+//        statusLayout = (LinearLayout) findViewById(R.id.status_layout);
         cancelButton = (Button) findViewById(R.id.cancel_btn);
         bookButton = (Button) findViewById(R.id.book_btn);
         destinationLayout = (RelativeLayout) findViewById(R.id.destination_layout);
@@ -339,6 +414,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         femaleOnlyBox = (CheckBox) findViewById(R.id.female_only);
         timeTextView = (TextView) findViewById(R.id.time_value);
         noteTextView = (TextView) findViewById(R.id.note_value);
+
+        arrivedButtonBottomView = (LinearLayout) findViewById(R.id.arrived_btn_bottom_view);
+        cancelButtonBottomView = (LinearLayout) findViewById(R.id.cancel_btn_bottom_view);
+        detailsBottomView = (LinearLayout) findViewById(R.id.details_bottom_view);
+        actionButtonBottomView = (LinearLayout) findViewById(R.id.action_btn_bottom_view);
+        driverDetailsBottomView = (LinearLayout) findViewById(R.id.driver_details_view);
+        actionButtonBottom = (TextView) findViewById(R.id.action_btn_bottom);
+        priceProgressBar = (ProgressBar) findViewById(R.id.price_progress);
+        priceProgressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+        priceTextBottomView = (LinearLayout) findViewById(R.id.price_text_bottom_view);
+        priceTextBottom = (TextView) findViewById(R.id.price_text_bottom);
 
         UIState = UI_STATE.CONFIRM_PICKUP;
 
@@ -690,9 +776,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         priceSet = set;
         if (set == PriceSet.SUCCESS) {
             //TODO: handle number properly
-            priceString = priceString + "SDG";
-            priceValue.setText(priceString);
+//            priceString = priceString + "SDG";
+//            priceValue.setText(priceString);
             ride.details.price = priceString;
+            priceTextBottom.setText(priceString);
+            priceProgressBar.setVisibility(View.GONE);
+            priceTextBottomView.setVisibility(View.VISIBLE);
         } else if (set == PriceSet.NOTYET){
             priceValue.setText(R.string.calculating_price);
             ride.details.price = null;
@@ -807,7 +896,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         pickupMarker = mMap.addMarker(new MarkerOptions()
                         .position(point)
 //                    .title(data.getStringExtra("name"))
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.start_loc_smaller))
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.pickup_loc_ic_small))
                         .draggable(true)
         );
 
@@ -839,7 +928,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             destinationMarker = mMap.addMarker(new MarkerOptions()
                             .position(destinationPoint)
 //                    .title(data.getStringExtra("name"))
-                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.stop_loc_smaller))
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.dest_loc_ic_small))
                             .draggable(true)
             );
 
@@ -884,6 +973,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    public void setArrived(View view) {
+        if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
+                prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
+            ride.arrived(this);
+        }
+    }
+
 
     public void cancelRequest(View view) {
         // The cancel button behavior depends on the UI state:
@@ -892,9 +988,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             resetRequest();
         } else if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_PICKUP)){
             Toast.makeText(this, "Driver has arrived. Contact driver to cancel.", Toast.LENGTH_LONG).show();
-        } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
-                prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
-            ride.arrived(this);
+//        } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
+//                prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
+//            ride.arrived(this);
         } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
             resetRequest();
             Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();

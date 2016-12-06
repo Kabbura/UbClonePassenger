@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Driver</string>
+    <string name="app_name" translatable="false">Driver</string>
     <string name="title_activity_maps">Driver</string>
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
@@ -59,6 +59,7 @@
     <string name="price_failed_to_connect">Failed to connect. Retrying..</string>
     <string name="logged_in_from_another_device">You\'ve logged in from another device.</string>
     <string name="ic_desc_call_driver">Call Driver</string>
+    <string name="dash">-</string>
 
 
     <string-array name="gender_array">

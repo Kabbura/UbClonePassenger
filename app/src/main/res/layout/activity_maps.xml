@@ -4,8 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    android:theme="@style/AppTheme">
+    android:layout_width="match_parent">
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -39,7 +38,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="0dp"
-                android:padding="5dp"
+                android:paddingTop="5dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
                 android:focusable="true"
                 android:clickable="true"
                 android:background="?android:attr/selectableItemBackground"
@@ -51,8 +52,9 @@
                     android:layout_height="40dp"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentLeft="true"
-                    android:src="@drawable/start_loc_small"
-                    android:padding="2dp"/>
+                    android:src="@drawable/ic_pickup_small"
+                    android:paddingTop="8dp"
+                    />
                 <TextView
                     android:id="@+id/pickup_text"
                     android:layout_toEndOf="@+id/pickup_icon"
@@ -81,7 +83,9 @@
                 android:id="@+id/destination_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
+                android:paddingBottom="5dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
                 android:focusable="true"
                 android:clickable="true"
                 android:background="?android:attr/selectableItemBackground"
@@ -93,8 +97,8 @@
                     android:layout_height="40dp"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentLeft="true"
-                    android:src="@drawable/stop_loc_small"
-                    android:padding="2dp"/>
+                    android:src="@drawable/ic_destination_small"
+                    android:paddingBottom="8dp"/>
                 <TextView
                     android:id="@+id/destination_text"
                     android:layout_toEndOf="@+id/destination_icon"
@@ -179,15 +183,10 @@
                 android:background="@color/sepGray"/>
 
             <RelativeLayout
-                android:id="@+id/time_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="0dp"
-                android:padding="5dp"
-                android:focusable="true"
-                android:clickable="true"
-                android:background="?android:attr/selectableItemBackground"
-                android:onClick="getTime">
+                android:padding="5dp">
                 <ImageView
                     android:id="@+id/time_icon"
                     android:layout_width="27dp"
@@ -197,7 +196,6 @@
                     android:src="@drawable/ic_time"
                     android:padding="3dp"/>
                 <TextView
-                    android:id="@+id/time_value"
                     android:layout_toRightOf="@+id/time_icon"
                     android:layout_toEndOf="@+id/time_icon"
                     android:layout_width="match_parent"
@@ -205,8 +203,7 @@
                     android:layout_centerVertical="true"
                     android:text="@string/now"
                     android:textSize="16sp"
-                    android:layout_marginLeft="12dp"
-                    android:maxLines="1"/>
+                    android:layout_marginLeft="12dp"/>
             </RelativeLayout>
             <View
                 android:layout_width="match_parent"
@@ -214,14 +211,9 @@
                 android:background="@color/sepGray"/>
 
             <RelativeLayout
-                android:id="@+id/note_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:focusable="true"
-                android:clickable="true"
-                android:background="?android:attr/selectableItemBackground"
-                android:onClick="writeNote">
+                android:padding="5dp">
                 <ImageView
                     android:id="@+id/note_icon"
                     android:layout_width="27dp"
@@ -231,7 +223,6 @@
                     android:src="@drawable/ic_vote_for_projects"
                     android:padding="2dp"/>
                 <TextView
-                    android:id="@+id/note_value"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/note_icon"
                     android:layout_toEndOf="@+id/note_icon"
@@ -240,7 +231,6 @@
                     android:text="@string/note_place_holder"
                     android:textSize="16sp"
                     android:layout_marginLeft="12dp"
-                    android:maxLines="1"
                     />
             </RelativeLayout>
 
@@ -250,7 +240,6 @@
                 android:background="@color/sepGray"
                 />
             <CheckBox
-                android:id="@+id/female_only"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/female_driver_only"
@@ -269,7 +258,8 @@
         android:text="@string/cancel_request"
         android:background="@android:color/holo_red_dark"
         android:textColor="@android:color/white"
-        android:onClick="cancelRequest">
+        android:onClick="cancelRequest"
+        android:visibility="gone">
     </Button>
 
 
@@ -284,7 +274,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:focusable="true"
+            android:clickable="true"
+            android:onClick="setArrived">
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -323,6 +316,10 @@
                 android:padding="10dp"
                 android:visibility="visible"
                 android:gravity="center"
+                android:focusable="true"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="cancelRequest"
                 />
         </LinearLayout>
 
@@ -347,22 +344,29 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <LinearLayout
+                android:id="@+id/time_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_gravity="center_vertical">
+                android:layout_gravity="center_vertical"
+                android:focusable="true"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="getTime">
                 <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/ic_time"
+                    android:src="@drawable/ic_time_btm"
                     android:padding="10dp"
                     android:scaleType="centerCrop"/>
                 <TextView
+                    android:id="@+id/time_value"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Now"
+                    android:text="@string/now"
                     android:textSize="14sp"
-                    android:layout_gravity="center_vertical"/>
+                    android:layout_gravity="center_vertical"
+                    android:maxLines="1"/>
 
             </LinearLayout>
             <View
@@ -370,22 +374,29 @@
                 android:layout_height="1dp"
                 android:background="@color/grey_300"/>
             <LinearLayout
+                android:id="@+id/note_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_gravity="center_vertical">
+                android:layout_gravity="center_vertical"
+                android:focusable="true"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="writeNote">
                 <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/ic_time"
+                    android:src="@drawable/ic_note_btm"
                     android:padding="10dp"
                     android:scaleType="centerCrop"/>
                 <TextView
+                    android:id="@+id/note_value"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Note to driver"
+                    android:text="@string/note_place_holder"
                     android:textSize="14sp"
-                    android:layout_gravity="center_vertical"/>
+                    android:layout_gravity="center_vertical"
+                    android:maxLines="1"/>
             </LinearLayout>
 
             <View
@@ -399,7 +410,7 @@
                 android:layout_gravity="center_vertical"
                 android:padding="4dp">
                 <CheckBox
-                    android:id="@+id/female_only_bottom"
+                    android:id="@+id/female_only"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/female_driver_only"
@@ -414,20 +425,39 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_gravity="center">
-            <TextView
+
+            <ProgressBar
+                android:id="@+id/price_progress"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                android:layout_gravity="center_horizontal"
+
+                />
+            <LinearLayout
+                android:id="@+id/price_text_bottom_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="88"
-                android:textSize="38sp"
-                android:textColor="@color/colorPrimary"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="SDG"
-                android:textSize="24sp"
-                android:textColor="@color/colorPrimary"/>
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                android:id="@+id/price_text_bottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="--"
+                    android:textSize="38sp"
+                    android:textColor="@color/colorPrimary"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="SDG"
+                    android:textSize="24sp"
+                    android:textColor="@color/colorPrimary"/>
+            </LinearLayout>
+
 
         </LinearLayout>
     </LinearLayout>
@@ -455,6 +485,9 @@
                 android:textColor="@android:color/white"
                 android:padding="10dp"
                 android:gravity="center"
+                android:focusable="true"
+                android:clickable="true"
+                android:onClick="getNextAction"
                 />
         </LinearLayout>
 
@@ -470,9 +503,10 @@
                 android:layout_height="1dp"
                 android:background="@color/grey_300"/>
             <TextView
+                android:id="@+id/driver_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Driver Status"
+                android:text="@string/finding_a_driver"
                 android:gravity="center"
                 android:textSize="20sp"
                 android:textColor="@color/colorAccent"
@@ -483,9 +517,10 @@
                 android:layout_height="1dp"
                 android:background="@color/grey_300"/>
             <TextView
+                android:id="@+id/driver_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ayman Hassan Salim Gumaa"
+                android:text="@string/dash"
                 android:textSize="14sp"
                 android:textColor="@color/colorAccent"
                 android:padding="10dp"
@@ -505,16 +540,18 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
                     <TextView
+                        android:id="@+id/vehicle_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Lamborghini gallardo"
+                        android:text="@string/dash"
                         android:textSize="14sp"
                         android:textColor="@color/colorAccent"
                         />
                     <TextView
+                        android:id="@+id/vehicle_no"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="KH1201"
+                        android:text="@string/dash"
                         android:textSize="14sp"
                         android:textColor="@color/colorAccent"
                         android:paddingTop="2dp"
@@ -664,7 +701,6 @@
                     android:paddingRight="10dp"
                     android:paddingTop="2dp">
                     <TextView
-                        android:id="@+id/driver_status"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/finding_a_driver"
@@ -687,7 +723,6 @@
                             />
 
                         <TextView
-                            android:id="@+id/driver_name"
                             android:layout_marginLeft="10dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -712,7 +747,6 @@
                             />
 
                         <TextView
-                            android:id="@+id/vehicle_no"
                             android:layout_marginLeft="10dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -742,17 +776,17 @@
         />
     <ImageView
         android:id="@+id/const_start_icon"
-        android:layout_width="40dp"
+        android:layout_width="140dp"
         android:layout_height="49dp"
         android:layout_above="@id/center_in_parent"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/start_loc_small"/>
+        android:src="@drawable/pickup_loc_ic"/>
     <ImageView
         android:id="@+id/const_stop_icon"
-        android:layout_width="40dp"
+        android:layout_width="140dp"
         android:layout_height="49dp"
         android:layout_above="@id/center_in_parent"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/stop_loc_small"/>
+        android:src="@drawable/dest_loc_ic"/>
 
 </RelativeLayout>

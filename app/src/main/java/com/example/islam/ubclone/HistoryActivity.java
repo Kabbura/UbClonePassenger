@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -41,6 +43,13 @@ public class HistoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.history_toolbar);
+        toolbar.setTitleTextColor(getResources().getColor(R.color.colorPrimary));
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+
         prefManager = new PrefManager(this);
         
         historyEntriesRecyclerView = (RecyclerView) findViewById(R.id.history_rec_view);
@@ -83,6 +92,22 @@ public class HistoryActivity extends AppCompatActivity {
             public void onResponse(Call<RequestsResponse> call, Response<RequestsResponse> response) {
                 Log.d(TAG, "onResponse: raw: " + response.body());
                 if (response.isSuccessful() && response.body() != null){
+                    List <HistoryEntry> rides = response.body().getRides();
+                    List <HistoryEntry> history = new ArrayList<HistoryEntry>(){{}};
+                    for (HistoryEntry entry : rides){
+                        if (entry.getStatus().equals("completed") ||
+                                entry.getStatus().equals("canceled") ||
+                                entry.getStatus().equals("noDriver")) {
+                            long unixTime;
+                            Log.d(TAG,"Time is :" + entry.getTime());
+                            unixTime = Long.valueOf(entry.getTime()) * 1000; // In this case, the server sends the time in seconds while unix time needs milliseconds
+
+                            entry.setTime(String.valueOf(DateUtils.getRelativeTimeSpanString(unixTime, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)));
+//                        //TODO: extract string
+                            entry.setPrice(entry.getPrice() + " SDG");
+                            history.add(history.size(), entry);
+                        }
+                    }
                     HistoryActivity.this.setHistoryEntries(response.body().getRides());
                 } else if (response.code() == 401){
                     Toast.makeText(HistoryActivity.this, "Please login to continue", Toast.LENGTH_SHORT).show();

@@ -36,9 +36,9 @@
             <RelativeLayout
                 android:id="@+id/pickup_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="54dp"
                 android:layout_marginBottom="0dp"
-                android:paddingTop="5dp"
+                android:paddingTop="8dp"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
                 android:focusable="true"
@@ -54,6 +54,7 @@
                     android:layout_alignParentLeft="true"
                     android:src="@drawable/ic_pickup_small"
                     android:paddingTop="8dp"
+                    android:layout_alignParentBottom="true"
                     />
                 <TextView
                     android:id="@+id/pickup_text"
@@ -61,7 +62,8 @@
                     android:layout_toRightOf="@+id/pickup_icon"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Pick up" />
+                    android:text="Pick up"
+                    android:textColor="@color/colorPrimary"/>
                 <TextView
                     android:id="@+id/pickup_value"
                     android:layout_toRightOf="@+id/pickup_icon"
@@ -82,7 +84,7 @@
             <RelativeLayout
                 android:id="@+id/destination_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="54dp"
                 android:paddingBottom="5dp"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
@@ -106,6 +108,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Destination"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/colorRed"
                     />
                 <TextView
                     android:id="@+id/destination_value"

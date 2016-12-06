@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_history"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
     tools:context="com.example.islam.ubclone.HistoryActivity"
     android:background="@color/bgGray">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/history_toolbar"
+        android:background="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        android:elevation="4dp"
+        tools:targetApi="lollipop" />
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
@@ -16,4 +23,4 @@
         android:id="@+id/history_rec_view"
         android:layout_marginTop="4dp"/>
 
-</RelativeLayout>
+</LinearLayout>

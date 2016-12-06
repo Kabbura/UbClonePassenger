@@ -280,7 +280,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 constStartIcon.setVisibility(View.VISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
 
-                arrivedButtonBottomView.setVisibility(View.GONE);
                 actionButtonBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottom.setVisibility(View.VISIBLE);
                 actionButtonBottom.setText(R.string.confirm_pickup);
@@ -305,7 +304,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.VISIBLE);
 
-                arrivedButtonBottomView.setVisibility(View.GONE);
                 cancelButtonBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottom.setVisibility(View.VISIBLE);
@@ -330,7 +328,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
 
-                arrivedButtonBottomView.setVisibility(View.GONE);
                 cancelButtonBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottom.setVisibility(View.VISIBLE);
@@ -353,7 +350,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
 
-                arrivedButtonBottomView.setVisibility(View.GONE);
                 cancelButtonBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottomView.setVisibility(View.GONE);
                 actionButtonBottom.setVisibility(View.GONE);
@@ -370,7 +366,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 arrivedButtonBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottomView.setVisibility(View.GONE);
                 actionButtonBottom.setVisibility(View.GONE);
-                arrivedButtonBottomView.setVisibility(View.GONE);
                 detailsBottomView.setVisibility(View.GONE);
                 driverDetailsBottomView.setVisibility(View.VISIBLE);
                 break;
@@ -455,6 +450,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Nav drawer
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        toolbar.setTitleTextColor(getResources().getColor(R.color.colorPrimary));
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

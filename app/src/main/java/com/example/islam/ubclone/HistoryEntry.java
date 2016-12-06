@@ -24,10 +24,16 @@ public class HistoryEntry {
     @SerializedName(value = "status")
     private String status;
 
+    @SerializedName(value = "pickup_text")
+    private String pickupText;
+
+    @SerializedName(value = "dest_text")
+    private String destText;
+
     private String driverName;
     private String driverVehicle;
 
-    public HistoryEntry(String destinationPoint, String driverName, String driverVehicle, String id, String pickupPoint, String price, String status, String time) {
+    public HistoryEntry(String destinationPoint, String driverName, String driverVehicle, String id, String pickupPoint, String price, String status, String time, String pickupText, String destText) {
         this.destinationPoint = destinationPoint;
         this.driverName = driverName;
         this.driverVehicle = driverVehicle;
@@ -36,6 +42,8 @@ public class HistoryEntry {
         this.price = price;
         this.status = status;
         this.time = time;
+        this.pickupText = pickupText;
+        this.destText = destText;
     }
 
     public String getDestinationPoint() {
@@ -100,5 +108,21 @@ public class HistoryEntry {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public String getDestText() {
+        return destText;
+    }
+
+    public void setDestText(String destText) {
+        this.destText = destText;
+    }
+
+    public String getPickupText() {
+        return pickupText;
+    }
+
+    public void setPickupText(String pickupText) {
+        this.pickupText = pickupText;
     }
 }

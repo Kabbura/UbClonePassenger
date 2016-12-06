@@ -61,7 +61,7 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.MainActivity" />
         <activity
             android:name=".LocationPicker"
             android:label="@string/title_activity_location_picker"
@@ -84,7 +84,8 @@
         </activity>
         <activity
             android:name=".HistoryActivity"
-            android:label="@string/history_activity_name">
+            android:label="@string/history_activity_name"
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.islam.ubclone.MapsActivity" />

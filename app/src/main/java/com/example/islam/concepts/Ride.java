@@ -1,6 +1,7 @@
 package com.example.islam.concepts;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -19,6 +20,7 @@ import com.example.islam.ubclone.PrefManager;
 import com.example.islam.ubclone.R;
 import com.example.islam.ubclone.RestService;
 import com.example.islam.ubclone.RestServiceConstants;
+import com.example.islam.ubclone.RideRequestService;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.eventbus.EventBus;
@@ -170,6 +172,7 @@ public class Ride {
                 Log.d(TAG, "onResponse: " + response.raw());
                 Log.d(TAG, "onResponse: " + response.toString());
                 if (response.isSuccessful()){
+                    Toast.makeText(mapsActivity, "Successful. Status: "+response.body().getStatus(), Toast.LENGTH_SHORT).show();
                     // There are 4 situations here:
                     // Status 0: When request is pending. request_id is returned.
                     // Status 1: No driver found
@@ -178,6 +181,13 @@ public class Ride {
                     switch (response.body().getStatus()){
                         case 0:
                             Log.d(TAG, "onResponse: status 0");
+
+                            Intent intent = new Intent(mapsActivity, RideRequestService.class);
+                            if (mapsActivity.startService(intent) == null) {
+                                Toast.makeText(mapsActivity, "Failed to start the service", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(mapsActivity, "Service started", Toast.LENGTH_SHORT).show();
+                            }
                             prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
                             prefManager.setRideId(response.body().getRequestID());
                             details.requestID = response.body().getRequestID();
@@ -185,6 +195,7 @@ public class Ride {
 
                             EventBus.getDefault().post(new RideStarted());
                             mapsActivity.setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, mapsActivity.getString(R.string.finding_a_driver));
+
                             break;
                         case 3:
                             mapsActivity.toast.setText("Sorry, all drivers are busy. Try again later.");

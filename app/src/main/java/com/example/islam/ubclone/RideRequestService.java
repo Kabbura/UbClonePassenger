@@ -71,6 +71,7 @@ public class RideRequestService extends Service {
             return;
         }
 
+        Toast.makeText(this, "Inside service", Toast.LENGTH_SHORT).show();
         // Adding notification
         // Tapping the notification will open the specified Activity.
         Intent activityIntent = new Intent(this, MapsActivity.class);
@@ -153,11 +154,14 @@ public class RideRequestService extends Service {
             @Override
             public void run() {
                 Log.d(TAG, "run: I am called for "+ callCounter++ +" service: "+call.request().toString());
-               call.enqueue(new Callback<DriverResponse>() {
+                Toast.makeText(RideRequestService.this, "Request sent: " + callCounter, Toast.LENGTH_LONG).show();
+
+                call.enqueue(new Callback<DriverResponse>() {
                    @Override
                    public void onResponse(Call<DriverResponse> call, Response<DriverResponse> response) {
                        if (response.isSuccessful()){
                            Log.d(TAG, "onResponse: is successful");
+                           Toast.makeText(RideRequestService.this, "Successful. Status: "+response.body().getStatus(), Toast.LENGTH_LONG).show();
                            // There are 4 situations here:
                            // Status 0: When request is pending. request_id is returned.
                            // Status 1: No driver found
@@ -200,12 +204,13 @@ public class RideRequestService extends Service {
 
                    @Override
                    public void onFailure(Call<DriverResponse> call, Throwable t) {
+                       Toast.makeText(RideRequestService.this, "Failed to connect. Trying again in 30 seconds", Toast.LENGTH_LONG).show();
                        Log.i(TAG, "onFailure: Failed to connect. Trying again in 30 seconds");
                        callable(call.clone(), validCode);
                    }
                });
             }
-        }, 30000);
+        }, 7000);
     }
 
 
@@ -305,8 +310,8 @@ public class RideRequestService extends Service {
 
     @Override
     public void onCreate() {
-        EventBus.getDefault().register(this);
         super.onCreate();
+        EventBus.getDefault().register(this);
     }
 
     @Override

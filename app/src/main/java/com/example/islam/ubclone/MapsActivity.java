@@ -401,6 +401,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -409,8 +411,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             mGoogleApiClient.connect();
         }
-        EventBus.getDefault().register(this);
-        super.onStart();
 
     }
 
@@ -500,6 +500,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addApi(LocationServices.API)
                 .build();
 
+        Intent intent = new Intent(this, RideRequestService.class);
+        startService(intent);
         // Request permissions
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -568,8 +570,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ride = new Ride();
 
 
-        Intent intent = new Intent(this, RideRequestService.class);
-        startService(intent);
         // getDrivers
         ride.getDrivers(this, KHARTOUM_CORDS);
         mGoogleApiClient.connect();
@@ -1225,7 +1225,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)){
             setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.completed), prefManager.getRideDriver());
         } else {
-            EventBus.getDefault().post(new RequestCanceled());
+            // When the activity is resuming after onActivityResults, we do not want to reset it.
+            if (UIState != UI_STATE.CONFIRM_PICKUP && UIState != UI_STATE.CONFIRM_DESTINATION){
+                EventBus.getDefault().post(new RequestCanceled());
+            }
         }
         super.onResume();
     }

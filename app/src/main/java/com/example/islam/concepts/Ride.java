@@ -192,7 +192,8 @@ public class Ride {
                             mapsActivity.setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, mapsActivity.getString(R.string.finding_a_driver));
                             break;
                         case 3:
-                            Toast.makeText(mapsActivity, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
+                            mapsActivity.toast.setText("Sorry, all drivers are busy. Try again later.");
+                            mapsActivity.toast.show();
                             break;
                         case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
                             EventBus.getDefault().post(new RequestCanceled());

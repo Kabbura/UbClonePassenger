@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="13dp"
+        android:textColor="@color/colorPrimary"
+        android:text="@string/price"/>
+
+    <TextView
+        android:id="@+id/price_dialog_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="13dp"
+        android:textSize="16sp"
+        android:text="@string/dash" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="13dp"
+        android:textColor="@color/colorPrimary"
+        android:text="@string/note"/>
+
+    <TextView
+        android:id="@+id/note_dialog_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:textSize="16sp"
+        android:paddingBottom="20dp"
+        android:text="@string/dash" />
+
+</LinearLayout>

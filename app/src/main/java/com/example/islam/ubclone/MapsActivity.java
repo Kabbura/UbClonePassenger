@@ -153,6 +153,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // ============ Price ====================//
     public String price;
 
+    public Toast toast;
+
     public void callDriver(View view) {
         AlertDialog.Builder alerBuilder = new AlertDialog.Builder(this);
         alerBuilder.setMessage(getString(R.string.call_driver_message));
@@ -171,6 +173,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
         alerBuilder.show();
+    }
+
+    public void showRideInfo(View view) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.requeset_info_layout, null);
+        ((TextView) dialogView.findViewById(R.id.price_dialog_text)).setText(ride.details.price);
+        ((TextView) dialogView.findViewById(R.id.note_dialog_text)).setText(ride.details.notes);
+
+        alertDialogBuilder.setView(dialogView)
+
+                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+
+        alertDialogBuilder.show();
     }
 
     private enum PriceSet {
@@ -446,7 +465,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         prefManager = new PrefManager(this);
         mResultReceiver = new AddressResultReceiver(new Handler());
-
+        toast = Toast.makeText(this, "", Toast.LENGTH_LONG);
 
         // Nav drawer
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -819,7 +838,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onDirectionSuccess(Direction direction, String rawBody) {
                         // Do something here
-                        Toast.makeText(MapsActivity.this, "Route successfully computed ", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(MapsActivity.this, "Route successfully computed ", Toast.LENGTH_SHORT).show();
+                        toast.setText("Route successfully computed ");
+                        toast.show();
                         Log.d(TAG, "showRoute: Route successfully computed ");
 
                         if(direction.isOK()) {
@@ -854,7 +875,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onDirectionFailure(Throwable t) {
                         // Do something here
-                        Toast.makeText(MapsActivity.this, "Route Failed ", Toast.LENGTH_SHORT).show();
+                        toast.setText( "Route Failed ");
+                        toast.show();
                         showRoute();
                         Log.d(TAG, "showRoute: Route Failed ");
                     }
@@ -968,7 +990,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ride.details.femaleOnly = femaleOnlyBox.isChecked();
                     ride.makeRequest(MapsActivity.this);
                 } else {
-                    Toast.makeText(this, "Server is taking too long. Try again later", Toast.LENGTH_LONG).show();
+                    toast.setText("Connecting...");
+                    toast.show();
                     if (!pickupTextSet){
                         // Get text
                         Location location = new Location("");
@@ -986,7 +1009,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 }
             } else {
-                Toast.makeText(this, "Wait until price is calculated", Toast.LENGTH_SHORT).show();
+                toast.setText("Wait until price is calculated");
+                toast.show();
             }
         }
     }
@@ -995,6 +1019,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
                 prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
             ride.arrived(this);
+        }  else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
+            resetRequest();
+            Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -1009,9 +1036,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 //        } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
 //                prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
 //            ride.arrived(this);
-        } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
-            resetRequest();
-            Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
+//        } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
+//            resetRequest();
+//            Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
         } else {
             ride.cancelRequest(this);
         }

@@ -65,6 +65,7 @@
     <string name="cancel">Cancel</string>
     <string name="from">From</string>
     <string name="to">To</string>
+    <string name="note">Note</string>
 
 
     <string-array name="gender_array">

@@ -333,7 +333,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:visibility="visible">
+    android:visibility="gone">
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -501,7 +501,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="visible">
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -596,7 +596,11 @@
                     android:src="@drawable/ic_info"
                     android:contentDescription="@string/ic_desc_call_driver"
                     android:scaleType="fitCenter"
-                    android:padding="3dp"/>
+                    android:padding="3dp"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="showRideInfo"/>
                 <View
                     android:layout_width="1dp"
                     android:layout_height="@dimen/driver_action_size"

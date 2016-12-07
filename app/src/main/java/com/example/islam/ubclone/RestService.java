@@ -47,7 +47,7 @@ public interface RestService {
     Call<DriverResponse> getDriver(@Header("Authorization") String authorization,
             @Query("pickup") String pickup,
             @Query("dest") String dest,
-            @Query("date") String time,
+            @Query("time") String time,
             @Query("female_driver") Boolean female_driver,
             @Query("notes") String notes,
             @Query("price") String price,
@@ -60,7 +60,7 @@ public interface RestService {
     @GET("passenger_api/requests/")
     Call<RequestsResponse> getRequests(@Header("Authorization") String authorization );
 
-    @GET("date/")
+    @GET("time/")
     Call<TimeResponse> getTime( );
 
     @FormUrlEncoded

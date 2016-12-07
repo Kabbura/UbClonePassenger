@@ -66,7 +66,9 @@ public class RegisterActivity extends AppCompatActivity {
             call.enqueue(new Callback<SimpleResponse>() {
                 @Override
                 public void onResponse(Call<SimpleResponse> call, Response<SimpleResponse> response) {
-                    Log.d(TAG, "onResponse: raw: " + response.body());
+
+                    Log.d(TAG, "onResponse: " + response.raw());
+                    Log.d(TAG, "onResponse: " + response.toString());
                     if (response.isSuccessful() && response.body() != null && response.body().getStatus() == 0){
                         User user = new User(email.getText().toString(),
                                 fullname.getText().toString(),
@@ -93,6 +95,10 @@ public class RegisterActivity extends AppCompatActivity {
                 public void onFailure(Call<SimpleResponse> call, Throwable t) {
                     Toast.makeText(RegisterActivity.this, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
                     showProgress(false);
+                    Log.w(TAG, "onFailure: " + t.toString() );
+                    Log.w(TAG, "onFailure: " + call.request().toString() );
+                    Log.w(TAG, "onFailure: " + t.getMessage() );
+                    Log.w(TAG, "onFailure: " + t.getCause() );
                 }
             });
         }
@@ -100,14 +106,14 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void showProgress(boolean b) {
-        if (b) progressDialog = ProgressDialog.show(this, "Signing in", "Please wait");
+        if (b) progressDialog = ProgressDialog.show(this, "Registering..", "Please wait");
         else if(progressDialog != null) progressDialog.dismiss();
     }
 
     private Boolean checkFields() {
         // Check fields
 
-        if (email == null ||
+        /*if (email == null ||
                 fullname == null ||
                 phone == null ||
                 password == null ||
@@ -133,7 +139,7 @@ public class RegisterActivity extends AppCompatActivity {
         if (!password.getText().toString().equals(confirmPassword.getText().toString())) {
             Toast.makeText(this, "Passwords do not match.", Toast.LENGTH_SHORT).show();
             return false;
-        }
+        }*/
         return true;
     }
 }

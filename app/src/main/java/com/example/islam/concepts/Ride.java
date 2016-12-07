@@ -94,7 +94,7 @@ public class Ride {
             progressDialog.setMessage("Connecting");
             progressDialog.show();
 
-            // Validate time
+            // Validate date
             validateTime(mapsActivity);
 
 
@@ -117,14 +117,14 @@ public class Ride {
                             Long requestTime = details.time.getTime().getTime()/1000;
                             Long diff = requestTime - currentTime;
                             if (diff < -300) {
-                                Toast.makeText(mapsActivity, "Invalid time", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mapsActivity, "Invalid date", Toast.LENGTH_SHORT).show();
                                 if (progressDialog.isShowing()) progressDialog.dismiss();
                                 return;
                             }
 
                             // If request is after more than 18 hours
                             if (diff > (17*3600)) {
-                                Toast.makeText(mapsActivity, "Time is too far. Please choose an earlier time.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mapsActivity, "Time is too far. Please choose an earlier date.", Toast.LENGTH_SHORT).show();
                                 if (progressDialog.isShowing()) progressDialog.dismiss();
                                 return;
                             }
@@ -147,7 +147,7 @@ public class Ride {
                 }
             });
         } else {
-            Toast.makeText(mapsActivity, "Error setting time. Try again", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mapsActivity, "Error setting date. Try again", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -320,7 +320,7 @@ public class Ride {
         public boolean isSet(){
             if (pickup == null) Log.d(TAG, "isSet: Pickup is null");
             if (dest == null) Log.d(TAG, "isSet: dest is null");
-            if (time == null && !now) Log.d(TAG, "isSet: time is null");
+            if (time == null && !now) Log.d(TAG, "isSet: date is null");
             if (femaleOnly == null) Log.d(TAG, "isSet: femaleOnly is null");
             if (notes == null) Log.d(TAG, "isSet: notes is null");
             if (price == null) Log.d(TAG, "isSet: price is null");

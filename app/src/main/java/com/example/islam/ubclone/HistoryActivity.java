@@ -100,15 +100,15 @@ public class HistoryActivity extends AppCompatActivity {
                                 entry.getStatus().equals("noDriver")) {
                             long unixTime;
                             Log.d(TAG,"Time is :" + entry.getTime());
-                            unixTime = Long.valueOf(entry.getTime()) * 1000; // In this case, the server sends the time in seconds while unix time needs milliseconds
+                            unixTime = Long.valueOf(entry.getTime()) * 1000; // In this case, the server sends the date in seconds while unix date needs milliseconds
 
                             entry.setTime(String.valueOf(DateUtils.getRelativeTimeSpanString(unixTime, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)));
 //                        //TODO: extract string
                             entry.setPrice(entry.getPrice() + " SDG");
-                            history.add(history.size(), entry);
+                            history.add(0, entry);
                         }
                     }
-                    HistoryActivity.this.setHistoryEntries(response.body().getRides());
+                    HistoryActivity.this.setHistoryEntries(history);
                 } else if (response.code() == 401){
                     Toast.makeText(HistoryActivity.this, "Please login to continue", Toast.LENGTH_SHORT).show();
                     Log.i(TAG, "onCreate: User not logged in");

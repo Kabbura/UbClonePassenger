@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by islam on 11/19/16.
  */
 public class TimeResponse {
-    @SerializedName(value = "time")
+    @SerializedName(value = "date")
     private Long time;
 
     public Long getTime() {

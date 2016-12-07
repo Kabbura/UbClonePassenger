@@ -63,6 +63,8 @@
     <string name="call_driver">Call driver</string>
     <string name="call_driver_message">Do you want to call the driver?</string>
     <string name="cancel">Cancel</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
 
 
     <string-array name="gender_array">

@@ -16,7 +16,6 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-
     <!-- Internet access for the REST APIs -->
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -105,19 +104,26 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.islam.ubclone.MapsActivity" />
         </activity>
-        <activity android:name=".AboutActivity"
+        <activity
+            android:name=".AboutActivity"
             android:label="@string/about_activity_name">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.islam.ubclone.MapsActivity" />
         </activity>
 
-
         <receiver android:name=".OnBootBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".SelectedRequestActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.islam.ubclone.HistoryActivity" /></activity>
     </application>
 
 </manifest>

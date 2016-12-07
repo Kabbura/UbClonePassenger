@@ -30,6 +30,9 @@ public class HistoryEntry {
     @SerializedName(value = "dest_text")
     private String destText;
 
+    @SerializedName(value = "notes")
+    private String notes;
+
     private String driverName;
     private String driverVehicle;
 

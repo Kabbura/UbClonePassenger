@@ -1,135 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
+    android:id="@+id/history_card_view"
     android:layout_marginBottom="16dp"
     android:elevation="2dp">
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width= "match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/history_card_view"
+        android:elevation="2dp"
         android:background="@android:color/white">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:background="@color/colorPrimary"
-            >
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight=".5"
-                android:layout_height="wrap_content"
-                android:text="25/10/16 4:33"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:padding="6dp"
-                android:gravity="center_horizontal"
-                android:id="@+id/entry_date"
-                />
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimaryDark"/>
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight=".3"
-                android:layout_height="wrap_content"
-                android:padding="6dp"
-                android:gravity="center_horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="65"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorAccent"
-                    android:id="@+id/entry_price"
-                    />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=" SDG"
-                    android:textSize="12sp"
-                    android:textColor="@color/colorAccent"
-                    />
-            </LinearLayout>
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimaryDark"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight=".3"
-                android:layout_height="wrap_content"
-                android:text="Completed"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:padding="6dp"
-                android:gravity="center_horizontal"
-                android:id="@+id/entry_status"
-                />
-
-        </LinearLayout>
         <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/colorPrimaryDark"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/entry_status"
+            android:layout_width="10dp"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:padding="6dp"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="From: "
-                android:textSize="14sp"
-                android:textColor="@color/colorPrimaryDark"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="El Baraha street, Khartoum, Sudan"
-                android:textSize="14sp"
-                android:textColor="@color/darkText"
-                android:id="@+id/entry_from"
-                />
-
-        </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/sepGray"/>
+            android:background="@color/colorRed"/>
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:padding="6dp"
-            >
+            android:id="@+id/entry_left"
+            android:layout_width="230dp"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:orientation="vertical">
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="To: "
-                android:textSize="14sp"
-                android:textColor="@color/colorPrimaryDark"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Khartoum North, Khartoum, Sudan"
-                android:textSize="14sp"
-                android:textColor="@color/darkText"
                 android:id="@+id/entry_to"
-                />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:textColor="@color/colorAccent"
+                android:text="@string/dash"
+                android:layout_marginBottom="4dp"/>
+            <TextView
+                android:id="@+id/entry_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/colorAccent"
+                android:text="@string/dash"/>
 
         </LinearLayout>
-
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="bottom"
+            android:padding="10dp">
+            <TextView
+                android:id="@+id/entry_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewEnd"
+                android:layout_gravity="end"
+                android:textSize="12sp"
+                android:textColor="@color/colorAccent"
+                android:text="Yesterday"/>
+        </LinearLayout>
     </LinearLayout>
-
-</android.support.v7.widget.CardView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey_50"/>
+</LinearLayout>

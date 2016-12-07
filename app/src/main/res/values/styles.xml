@@ -56,6 +56,37 @@
         <item name="colorControlNormal">@color/colorPrimary</item>
     </style>
 
+    <style name="AppTheme.details.completed" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <!--<item name="windowActionBar">false</item>-->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorControlNormal">@android:color/white</item>
+        <!--<item name="toolbarStyle">@style/Widget.Toolbar</item>-->
+    </style>
+    <style name="AppTheme.details.missed" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <!--<item name="windowActionBar">false</item>-->
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="colorPrimaryDark">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorControlNormal">@android:color/white</item>
+        <!--<item name="toolbarStyle">@style/Widget.Toolbar</item>-->
+    </style>
+    <style name="AppTheme.details.canceled" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <!--<item name="windowActionBar">false</item>-->
+        <item name="colorPrimary">@color/colorRed</item>
+        <item name="colorPrimaryDark">@color/colorRed</item>
+        <item name="colorAccent">@color/colorRed</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorControlNormal">@android:color/white</item>
+        <!--<item name="toolbarStyle">@style/Widget.Toolbar</item>-->
+    </style>
+
     <style name="MyTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/colorPrimary</item>
     </style>

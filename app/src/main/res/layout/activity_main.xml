@@ -22,10 +22,10 @@
         app:headerLayout="@layout/nav_header_main"
         android:fitsSystemWindows="false"
         app:menu="@menu/activity_main_drawer"
-        app:itemTextColor="@color/colorPrimary"
+        app:itemTextColor="@color/colorAccent"
         android:background="@android:color/white"
         app:itemTextAppearance="@style/drawerMenuItemStyle"
-        app:itemIconTint="@color/colorPrimary"
+        app:itemIconTint="@color/colorAccent"
         />
 
 </android.support.v4.widget.DrawerLayout>

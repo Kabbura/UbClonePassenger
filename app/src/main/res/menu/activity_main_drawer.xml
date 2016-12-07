@@ -13,8 +13,8 @@
                     />
                 <item
                     android:id="@+id/nav_history"
-                    android:title="History"
-                    android:icon="@android:drawable/ic_dialog_dialer"
+                    android:title="Previous requests"
+                    android:icon="@drawable/ic_menu_previous"
                     />
                 <item
                     android:id="@+id/nav_about"

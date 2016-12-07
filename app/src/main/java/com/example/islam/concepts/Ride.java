@@ -174,9 +174,9 @@ public class Ride {
             public void onResponse(Call<DriverResponse> call, Response<DriverResponse> response) {
                 if (progressDialog.isShowing())
                     progressDialog.dismiss();
+                Log.d(TAG, "onResponse: " + response.raw());
+                Log.d(TAG, "onResponse: " + response.toString());
                 if (response.isSuccessful()){
-                            Log.d(TAG, "onResponse: " + response.raw());
-                            Log.d(TAG, "onResponse: " + response.toString());
                     // There are 4 situations here:
                     // Status 0: When request is pending. request_id is returned.
                     // Status 1: No driver found

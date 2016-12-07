@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.example.islam.ubclone.HistoryActivity"
-    android:background="@color/bgGray">
+    android:background="@android:color/white">
     <android.support.v7.widget.Toolbar
         android:id="@+id/history_toolbar"
         android:background="@android:color/white"

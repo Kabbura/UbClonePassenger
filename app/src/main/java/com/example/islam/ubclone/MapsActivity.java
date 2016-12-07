@@ -1020,7 +1020,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
             ride.arrived(this);
         }  else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
-            resetRequest();
+            EventBus.getDefault().post(new RequestCanceled());
             Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
         }
     }
@@ -1030,7 +1030,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // The cancel button behavior depends on the UI state:
         Log.i(TAG, "cancelRequest");
         if (prefManager.getRideStatus().equals(PrefManager.NO_RIDE)){
-            resetRequest();
+//            resetRequest();
+            EventBus.getDefault().post(new RequestCanceled());
         } else if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_PICKUP)){
             Toast.makeText(this, "Driver has arrived. Contact driver to cancel.", Toast.LENGTH_LONG).show();
 //        } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
@@ -1043,10 +1044,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             ride.cancelRequest(this);
         }
     }
-    public void resetRequest(){
+
+
+    public void resetRequestUI(){
         Log.i(TAG, "resetRequest");
         setUI(UI_STATE.CONFIRM_PICKUP);
-        EventBus.getDefault().post(new RequestCanceled());
         pickupSelected = false;
         if (pickupMarker != null) {
             pickupMarker.remove();
@@ -1205,6 +1207,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onResume() {
         validateSession();
+        Log.i(TAG, "onResume: RideStatus: "+ prefManager.getRideStatus());
         if (prefManager.getRideStatus().equals(PrefManager.FINDING_DRIVER)) {
             setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.finding_a_driver), prefManager.getRideDriver());
             EventBus.getDefault().post(new RideStarted());
@@ -1221,6 +1224,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_dest), prefManager.getRideDriver());
         } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)){
             setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.completed), prefManager.getRideDriver());
+        } else {
+            EventBus.getDefault().post(new RequestCanceled());
         }
         super.onResume();
     }
@@ -1323,7 +1328,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onDriverCanceled(DriverCanceled driverCanceled){
         Log.i(TAG, "onDriverCanceled: called");
         Toast.makeText(this, R.string.driver_canceled_message, Toast.LENGTH_LONG).show();
-        resetRequest();
+        EventBus.getDefault().post(new RequestCanceled());
 
     }
 
@@ -1334,8 +1339,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onRequestCanceled(RequestCanceledFromService requestCanceledFromService) {
-        resetRequest();
+    public void onRequestCanceled(RequestCanceled requestCanceled) {
+        resetRequestUI();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

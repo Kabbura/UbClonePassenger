@@ -3,9 +3,11 @@ package com.example.islam.ubclone;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.example.islam.POJO.Driver;
 import com.example.islam.POJO.User;
+import com.example.islam.concepts.Ride;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 
@@ -37,15 +39,26 @@ public class PrefManager {
     private static final String USER_PHONE = "UserPhone";
     private static final String USER_GENDER = "UserGender";
 
+    // Ride details
+//    private static final String RIDE_PICKUP = "RidePickup";
+//    private static final String RIDE_DEST = "RideDest";
+//    private static final String RIDE_TIME = "RideTime";
+//    private static final String RIDE_FEMALE_DRIVER = "RideFemaleDriver";
+//    private static final String RIDE_NOTES = "RideNotes";
+//    private static final String RIDE_PRICE = "RidePrice";
+//    private static final String RIDE_PICKUP_TEXT = "RidePickupText";
+//    private static final String RIDE_DEST_TEXT = "RideDestText";
+    private static final String RIDE_DETAILS = "RideDetails";
+
     public static final Integer NO_RIDE = 0,
-        FINDING_DRIVER = 1,
-        ON_THE_WAY = 2,
-        ARRIVED_PICKUP = 3,
-        PASSENGER_ONBOARD = 4,
-        ARRIVED_DEST = 5,
-        COMPLETED = 6,
-        ON_GOING_RIDE = 7,
-        DRIVER_ACCEPTED = 8;
+            FINDING_DRIVER = 1,
+            ON_THE_WAY = 2,
+            ARRIVED_PICKUP = 3,
+            PASSENGER_ONBOARD = 4,
+            ARRIVED_DEST = 5,
+            COMPLETED = 6,
+            ON_GOING_RIDE = 7,
+            DRIVER_ACCEPTED = 8;
 
     @SuppressLint("CommitPrefEdits")
     public PrefManager(Context context) {
@@ -85,11 +98,11 @@ public class PrefManager {
 
     public User getUser() {
         return new User(pref.getString(USER_EMAIL, "No data"),
-                        pref.getString(USER_FULLNAME, "No data"),
-                        pref.getString(USER_GENDER, "No data"),
-                        pref.getString(USER_PASSWORD, "No data"),
-                        pref.getString(USER_PHONE, "No data")
-                        );
+                pref.getString(USER_FULLNAME, "No data"),
+                pref.getString(USER_GENDER, "No data"),
+                pref.getString(USER_PASSWORD, "No data"),
+                pref.getString(USER_PHONE, "No data")
+        );
     }
 
 
@@ -130,6 +143,23 @@ public class PrefManager {
         String json = gson.toJson(new Driver("---","","---","---",""));
         json = pref.getString(RIDE_DRIVER, json);
         return gson.fromJson(json, Driver.class);
+    }
+
+    public void setRideDetails(Ride.RideDetails rideDetails) {
+        Log.d("PrefManager", "setRideDetails: Called");
+        Gson gson = new Gson();
+        String json = gson.toJson(rideDetails);
+        editor.putString(RIDE_DETAILS, json);
+        editor.apply();
+    }
+
+    public Ride.RideDetails getRideDetails(){
+        Log.d("PrefManager", "getRideDetails: Called");
+        Gson gson = new Gson();
+        Ride ride = new Ride();
+        String json = gson.toJson(ride.details);
+        json = pref.getString(RIDE_DETAILS, json);
+        return gson.fromJson(json, Ride.RideDetails.class);
     }
 
 //    public void setTicketsList(String ticketsList){

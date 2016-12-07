@@ -98,7 +98,8 @@
 
     <style name="LoginTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="windowNoTitle">true</item>
-        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <!--<item name="android:windowNoTitle">true</item>-->
         <item name="android:windowFullscreen">true</item>
     </style>
     <style name="MyEditTextTheme">

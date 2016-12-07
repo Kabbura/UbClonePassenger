@@ -1,7 +1,6 @@
 package com.example.islam.concepts;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -20,17 +19,11 @@ import com.example.islam.ubclone.PrefManager;
 import com.example.islam.ubclone.R;
 import com.example.islam.ubclone.RestService;
 import com.example.islam.ubclone.RestServiceConstants;
-import com.example.islam.ubclone.RideRequestService;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.sql.Time;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -187,6 +180,8 @@ public class Ride {
                             Log.d(TAG, "onResponse: status 0");
                             prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
                             prefManager.setRideId(response.body().getRequestID());
+                            details.requestID = response.body().getRequestID();
+                            prefManager.setRideDetails(details);
 
                             EventBus.getDefault().post(new RideStarted());
                             mapsActivity.setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, mapsActivity.getString(R.string.finding_a_driver));
@@ -255,7 +250,7 @@ public class Ride {
             public void onResponse(Call<SimpleResponse> call, Response<SimpleResponse> response) {
                 if (response.isSuccessful()){
                     Log.i(TAG, "onResponse: Request has been canceled");
-                    mapsActivity.resetRequest();
+                    EventBus.getDefault().post(new RequestCanceled());
                 }else {
                     Toast.makeText(mapsActivity, "Unknown error occurred", Toast.LENGTH_SHORT).show();
                 }
@@ -286,7 +281,7 @@ public class Ride {
             public void onResponse(Call<SimpleResponse> call, Response<SimpleResponse> response) {
                 if (response.isSuccessful()){
                     Log.i(TAG, "onResponse: Passenger has arrived");
-                    mapsActivity.resetRequest();
+                    EventBus.getDefault().post(new RequestCanceled());
                     Toast.makeText(mapsActivity, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
                 }else {
                     Toast.makeText(mapsActivity, "Unknown error occurred", Toast.LENGTH_SHORT).show();

@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.islam.POJO.Driver;
 import com.example.islam.POJO.DriverResponse;
+import com.example.islam.concepts.Ride;
 import com.example.islam.events.DriverAccepted;
 import com.example.islam.events.DriverCanceled;
 import com.example.islam.events.DriverLocation;
@@ -89,6 +90,8 @@ public class RideRequestService extends Service {
 
         requestID = prefManager.getRideId();
         Log.d(TAG, "onHandleIntent: Got request_id: "+ requestID);
+        Ride ride = new Ride();
+        ride.details = prefManager.getRideDetails();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(RestServiceConstants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -100,14 +103,39 @@ public class RideRequestService extends Service {
             return;
         }
         email = prefManager.getUser().getEmail();
+
         password = prefManager.getUser().getPassword();
-        Call<DriverResponse> call = service.getDriver("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),"","","",true,"","", requestID,"","");
+
+        if (ride.details.pickup == null) Log.d(TAG, "isSet: Pickup is null");
+        if (ride.details.dest == null) Log.d(TAG, "isSet: dest is null");
+        if (ride.details.time == null) Log.d(TAG, "isSet: date is null");
+        if (ride.details.femaleOnly == null) Log.d(TAG, "isSet: femaleOnly is null");
+        if (ride.details.notes == null) Log.d(TAG, "isSet: notes is null");
+        if (ride.details.price == null) Log.d(TAG, "isSet: price is null");
+        if (ride.details.requestID == null) Log.d(TAG, "isSet: requestID is null");
+        if (ride.details.pickupText == null) Log.d(TAG, "isSet: pickupText is null");
+        if (ride.details.destText == null) Log.d(TAG, "isSet: destText is null");
+
+
+        Call<DriverResponse> call = service.getDriver("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
+                ride.details.pickup.toString(),
+                ride.details.dest.toString(),
+                (ride.details.now)?"now":String.valueOf(ride.details.time.getTime().getTime()),
+                ride.details.femaleOnly,
+                ride.details.notes,
+                ride.details.price,
+                ride.details.requestID,
+                ride.details.pickupText,
+                ride.details.destText);
+
+
+
         handler = new Handler();
         Log.d(TAG, "run: Calling handler ");
         callable(call, validCode);
     }
     public void callable(final Call<DriverResponse> call, final int mValidCode){
-        Log.d(TAG, "callable: call: "+call.request().toString());
+//        Log.d(TAG, "callable: call: "+call.request().toString());
         // Check if user logged in: and if request hasn't been updated:
         if (!prefManager.isLoggedIn()){
             Log.i(TAG, "callable: user is not logged in");
@@ -124,7 +152,7 @@ public class RideRequestService extends Service {
 
             @Override
             public void run() {
-                Log.d(TAG, "run: I am called for "+ callCounter++ +" service: "+call.toString());
+                Log.d(TAG, "run: I am called for "+ callCounter++ +" service: "+call.request().toString());
                call.enqueue(new Callback<DriverResponse>() {
                    @Override
                    public void onResponse(Call<DriverResponse> call, Response<DriverResponse> response) {
@@ -143,10 +171,10 @@ public class RideRequestService extends Service {
                                case 3:
                                    Toast.makeText(RideRequestService.this, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
                                    Log.i(TAG, "onResponse: status 1. No drivers available.");
-                                   EventBus.getDefault().post(new RequestCanceledFromService());
+                                   EventBus.getDefault().post(new RequestCanceled());
                                    return;
                                case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
-                                   EventBus.getDefault().post(new RequestCanceledFromService());
+                                   EventBus.getDefault().post(new RequestCanceled());
                                    prefManager.setRideStatus(PrefManager.NO_RIDE);
                                    return;
                                case 6: // When a request is already accepted.Return request id in the error_msg
@@ -202,15 +230,19 @@ public class RideRequestService extends Service {
         email = prefManager.getUser().getEmail();
         password = prefManager.getUser().getPassword();
         RestService service = retrofit.create(RestService.class);
+        Ride ride = new Ride();
+        ride.details = prefManager.getRideDetails();
         Call<DriverResponse> call = service.getDriver("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
-                "",
-                "",
-                "",
-                true,
-                "",
-                "",
-                requestID,
-                "","");
+                ride.details.pickup.toString(),
+                ride.details.dest.toString(),
+                (ride.details.now)?"now":String.valueOf(ride.details.time.getTime().getTime()),
+                ride.details.femaleOnly,
+                ride.details.notes,
+                ride.details.price,
+                ride.details.requestID,
+                ride.details.pickupText,
+                ride.details.destText);
+
         callable(call, validCode);
     }
 
@@ -258,7 +290,7 @@ public class RideRequestService extends Service {
     public void onRequestCanceled(RequestCanceled requestCanceled){
         Log.d(TAG, "onRequestCanceled: called");
         //PrefManager
-        prefManager.setRideDriver(new Driver("---","","---","---",""));
+        prefManager.setRideDriver(new Driver(getString(R.string.dash),"",getString(R.string.dash),getString(R.string.dash),""));
         prefManager.setRideStatus(PrefManager.NO_RIDE);
         prefManager.setRideId("");
         validCode++;

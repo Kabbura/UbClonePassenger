@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Location;
 import android.net.Uri;
@@ -60,7 +59,6 @@ import com.example.islam.events.DriverUpdatedStatus;
 import com.example.islam.events.LogoutRequest;
 import com.example.islam.events.PriceUpdated;
 import com.example.islam.events.RequestCanceled;
-import com.example.islam.events.RequestCanceledFromService;
 import com.example.islam.events.RideStarted;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -96,10 +94,10 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.sql.Time;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -108,7 +106,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         NavigationView.OnNavigationItemSelectedListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener,
+        GoogleMap.OnCameraIdleListener,
+        GoogleMap.OnCameraMoveListener
+{
     private static final String GOOGLE_DIRECTIONS_API = "AIzaSyDpJmpRN0BxJ76X27K0NLTGs-gDHQtoxXQ";
     private static final int GET_PICKUP_POINT = 0, GET_DESTINATION_POINT = 1,
             PLACE_AUTOCOMPLETE_REQUEST_CODE = 2, PERMISSION_REQUEST_LOCATION = 3, PERMISSION_REQUEST_CLIENT_CONNECT = 4;
@@ -129,6 +130,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // ====== Drivers markers ================= //
     private List<Marker> driversMarkers;
     private Marker driverMarker;
+    private List<RideLocation> driversList;
 
 
     // ====== pickup and destination points === //
@@ -192,6 +194,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         alertDialogBuilder.show();
     }
 
+    @Override
+    public void onCameraIdle() {
+        Log.i(TAG, "onCameraIdle: called");
+//        driversList = new ArrayList<>();
+//        driversList.add(new RideLocation(15.601046,32.561790));
+//        driversList.add(new RideLocation(15.604246,32.531558));
+
+        if (driversList != null) {
+            LatLng currentLocation = mMap.getCameraPosition().target;
+            Location location = new Location("");
+            location.setLatitude(currentLocation.latitude);
+            location.setLongitude(currentLocation.longitude);
+            List<Float> locations = new ArrayList<>();
+            for (int index = 0; index < driversList.size(); index++) {
+                Location driverLocation = new Location("");
+                driverLocation.setLatitude(driversList.get(index).lat);
+                driverLocation.setLongitude(driversList.get(index).lng);
+                locations.add(driverLocation.distanceTo(location));
+            }
+            Float min = Collections.min(locations);
+            Integer minutes = Math.round(min / 1000 * 5);
+            //TODO: globalize string
+            String pickupIn = minutes  + " minutes";
+            pickupTimeText.setText(pickupIn);
+        }
+    }
+
+    @Override
+    public void onCameraMove() {
+        Log.i(TAG, "onCameraMove: called");
+        pickupTimeText.setText("-- minutes");
+    }
+
     private enum PriceSet {
         NOTYET,
         SUCCESS,
@@ -203,7 +238,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // =========== UI Elements ============== //
     private CardView locationsCard;
     private CardView detailsCard;
-//    private CardView statusCard;
+    //    private CardView statusCard;
 //    private LinearLayout bookLayout;
 //    private LinearLayout statusLayout;
     private Button cancelButton;
@@ -226,6 +261,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ProgressBar priceProgressBar;
     private LinearLayout priceTextBottomView;
     private TextView priceTextBottom;
+    private LinearLayout pickupInBottomView;
+    private TextView pickupTimeText;
 
 
     private UI_STATE UIState;
@@ -301,6 +338,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 actionButtonBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottom.setVisibility(View.VISIBLE);
+                pickupInBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottom.setText(R.string.confirm_pickup);
                 arrivedButtonBottomView.setVisibility(View.GONE);
                 cancelButtonBottomView.setVisibility(View.GONE);
@@ -314,17 +352,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 locationsCard.setVisibility(View.VISIBLE);
                 pickupLayout.setVisibility(View.GONE);
                 destinationLayout.setVisibility(View.VISIBLE);
-//                detailsCard.setVisibility(View.GONE);
-//                statusCard.setVisibility(View.VISIBLE);
-//                bookLayout.setVisibility(View.VISIBLE);
-//                statusLayout.setVisibility(View.INVISIBLE);
-//                cancelButton.setVisibility(View.VISIBLE);
-//                bookButton.setText(R.string.confirm_destination);
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.VISIBLE);
 
                 cancelButtonBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottomView.setVisibility(View.VISIBLE);
+                pickupInBottomView.setVisibility(View.GONE);
                 actionButtonBottom.setVisibility(View.VISIBLE);
                 actionButtonBottom.setText(R.string.confirm_destination);
                 arrivedButtonBottomView.setVisibility(View.GONE);
@@ -338,11 +371,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (prefManager.getUser().getGender().equals("female"))
                     femaleOnlyBox.setVisibility(View.VISIBLE);
                 else femaleOnlyBox.setVisibility(View.GONE);
-//                statusCard.setVisibility(View.VISIBLE);
-//                bookLayout.setVisibility(View.VISIBLE);
-//                bookButton.setText(R.string.book);
-//                statusLayout.setVisibility(View.INVISIBLE);
-//                cancelButton.setVisibility(View.VISIBLE);
 
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
@@ -350,6 +378,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 cancelButtonBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottomView.setVisibility(View.VISIBLE);
                 actionButtonBottom.setVisibility(View.VISIBLE);
+                pickupInBottomView.setVisibility(View.GONE);
                 actionButtonBottom.setText(R.string.book);
                 arrivedButtonBottomView.setVisibility(View.GONE);
                 detailsBottomView.setVisibility(View.VISIBLE);
@@ -434,6 +463,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         destinationPoint = new LatLng(0,0);
 
         driversMarkers = new ArrayList<>();
+        driversList = new ArrayList<>();
+
 
         locationsCard = (CardView) findViewById(R.id.locations_card);
         detailsCard = (CardView) findViewById(R.id.details_card);
@@ -460,6 +491,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         priceProgressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
         priceTextBottomView = (LinearLayout) findViewById(R.id.price_text_bottom_view);
         priceTextBottom = (TextView) findViewById(R.id.price_text_bottom);
+
+        pickupInBottomView = (LinearLayout) findViewById(R.id.pickup_in_bottom_view);
+        pickupTimeText = (TextView) findViewById(R.id.pickup_time_bottom);
 
         UIState = UI_STATE.CONFIRM_PICKUP;
 
@@ -489,6 +523,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
 
         // ==================== To get location ================
@@ -572,6 +607,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // getDrivers
         ride.getDrivers(this, KHARTOUM_CORDS);
+
+
         mGoogleApiClient.connect();
     }
 
@@ -604,6 +641,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     public void setDriversMarkers(List<RideLocation> drivers) {
+        driversList = drivers;
         for (int index = 0; index < drivers.size(); index++) {
             Marker driver = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(drivers.get(index).lat, drivers.get(index).lng))
@@ -676,6 +714,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+
+        mMap.setOnCameraIdleListener(this);
+        mMap.setOnCameraMoveListener(this);
         mMap.setMyLocationEnabled(true);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(KHARTOUM_CORDS, 12.0f));
@@ -1070,7 +1111,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         destTextSet = false;
 
         ride.details.reset();
-        ride.getDrivers(this, KHARTOUM_CORDS);
         setPrice(PriceSet.NOTYET,"0.0");
         timeTextView.setText(R.string.now);
         noteTextView.setText(R.string.note_place_holder);
@@ -1082,6 +1122,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             newCameraLocation = KHARTOUM_CORDS;
         }
+        ride.getDrivers(this, newCameraLocation);
         CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLocation).zoom(14).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 

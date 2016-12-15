@@ -33,8 +33,14 @@ public class HistoryEntry {
     @SerializedName(value = "notes")
     private String notes;
 
+    @SerializedName(value = "driver_name")
     private String driverName;
+
+    @SerializedName(value = "driver_plate")
+    private String plateNo;
+
     private String driverVehicle;
+
 
     public HistoryEntry(String destinationPoint, String driverName, String driverVehicle, String id, String pickupPoint, String price, String status, String time, String pickupText, String destText) {
         this.destinationPoint = destinationPoint;
@@ -58,7 +64,7 @@ public class HistoryEntry {
     }
 
     public String getDriverName() {
-        return driverName;
+        return (driverName == null )?"unknown":  driverName;
     }
 
     public void setDriverName(String driverName) {
@@ -127,5 +133,9 @@ public class HistoryEntry {
 
     public void setPickupText(String pickupText) {
         this.pickupText = pickupText;
+    }
+
+    public String getPlateNo() {
+        return (plateNo == null )?"unknown": plateNo;
     }
 }

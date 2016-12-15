@@ -517,7 +517,7 @@
                         android:id="@+id/pickup_time_bottom"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="5 minutes"
+                        android:text="-- minutes"
                         android:textSize="14sp"
                         android:textColor="@android:color/white"
                         android:gravity="center"

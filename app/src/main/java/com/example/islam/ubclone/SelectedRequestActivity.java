@@ -66,6 +66,9 @@ public class SelectedRequestActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.request_details_dest)).setText(intent.getStringExtra("dest_text"));
         ((TextView) findViewById(R.id.request_details_price)).setText(intent.getStringExtra("price"));
         ((TextView) findViewById(R.id.request_details_time)).setText(intent.getStringExtra("time"));
+        ((TextView) findViewById(R.id.request_details_driver_name)).setText(intent.getStringExtra("driver_name"));
+        ((TextView) findViewById(R.id.request_details_plate)).setText(intent.getStringExtra("plate"));
+
 //        ((TextView) findViewById(R.id.request_details_notes)).setText(intent.getStringExtra("notes"));
 
 

@@ -26,7 +26,7 @@
     </string>
     <string name="confirm_pickup">Set pickup point</string>
     <string name="confirm_destination">Set destination point</string>
-    <string name="book">Book</string>
+    <string name="book">Request Driver</string>
     <string name="price">Price:</string>
     <string name="calculating_price">Calculating..</string>
     <string name="female_driver_only">Female driver only</string>

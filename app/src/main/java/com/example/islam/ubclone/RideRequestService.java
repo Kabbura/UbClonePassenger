@@ -71,7 +71,7 @@ public class RideRequestService extends Service {
             return;
         }
 
-        Toast.makeText(this, "Inside service", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Inside service", Toast.LENGTH_SHORT).show();
         // Adding notification
         // Tapping the notification will open the specified Activity.
         Intent activityIntent = new Intent(this, MapsActivity.class);

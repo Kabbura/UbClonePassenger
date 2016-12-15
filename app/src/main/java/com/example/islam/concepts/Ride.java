@@ -25,7 +25,9 @@ import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -60,16 +62,25 @@ public class Ride {
 
     public void getDrivers(final MapsActivity mapsActivity, LatLng latLng) {
         String location = latLng.latitude +","+latLng.longitude;
-        Call<DriversResponse> call = service.getDrivers(location);
+        // Count is set to 50
+        Call<DriversResponse> call = service.getDrivers(location, 50);
+        Log.d(TAG, "getDriver: raw: " + call.request().toString());
         call.enqueue(new Callback<DriversResponse>() {
             @Override
             public void onResponse(Call<DriversResponse> call, Response<DriversResponse> response) {
+                Log.d(TAG, "getDriver: onResponse: raw: " + response.raw());
                 if (response.isSuccessful()){
                     //TODO: Check if drivers is null
-                    Log.d(TAG, "onResponse: raw: " + response.raw());
-                    Log.d(TAG, "onResponse: Retrofit response success: Got "+ response.body().drivers.size());
+                    Log.d(TAG, "getDriver: onResponse: raw: " + response.raw());
+                    Log.d(TAG, "getDriver: onResponse: Retrofit response success: Got "+ response.body().drivers.size());
+                    List<RideLocation> drivers = new ArrayList<RideLocation>();
+                    for (int index = 0; index < response.body().drivers.size(); index++) {
+                        drivers.add(new RideLocation(response.body().drivers.get(index).lng, response.body().drivers.get(index).lat));
+                        Log.d(TAG, "onResponse: driver lat: " + response.body().drivers.get(index).lat + " and lng "+ response.body().drivers.get(index).lng);
+
+                    }
                     mapsActivity.clearDriversMarkers();
-                    mapsActivity.setDriversMarkers(response.body().drivers);
+                    mapsActivity.setDriversMarkers(drivers);
                 }
             }
 
@@ -80,6 +91,7 @@ public class Ride {
         });
 
     }
+
 
     public void makeRequest(final MapsActivity mapsActivity){
 
@@ -117,8 +129,8 @@ public class Ride {
                                 return;
                             }
 
-                            // If request is after more than 18 hours
-                            if (diff > (17*3600)) {
+                            // If request is after more than 72 hours
+                            if (diff > (72*3600)) {
                                 Toast.makeText(mapsActivity, "Time is too far. Please choose an earlier date.", Toast.LENGTH_SHORT).show();
                                 if (progressDialog.isShowing()) progressDialog.dismiss();
                                 return;
@@ -172,7 +184,7 @@ public class Ride {
                 Log.d(TAG, "onResponse: " + response.raw());
                 Log.d(TAG, "onResponse: " + response.toString());
                 if (response.isSuccessful()){
-                    Toast.makeText(mapsActivity, "Successful. Status: "+response.body().getStatus(), Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(mapsActivity, "Successful. Status: "+response.body().getStatus(), Toast.LENGTH_SHORT).show();
                     // There are 4 situations here:
                     // Status 0: When request is pending. request_id is returned.
                     // Status 1: No driver found
@@ -184,9 +196,9 @@ public class Ride {
 
                             Intent intent = new Intent(mapsActivity, RideRequestService.class);
                             if (mapsActivity.startService(intent) == null) {
-                                Toast.makeText(mapsActivity, "Failed to start the service", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(mapsActivity, "Failed to start the service", Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(mapsActivity, "Service started", Toast.LENGTH_SHORT).show();
+                               // Toast.makeText(mapsActivity, "Service started", Toast.LENGTH_SHORT).show();
                             }
                             prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
                             prefManager.setRideId(response.body().getRequestID());

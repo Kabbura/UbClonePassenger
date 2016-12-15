@@ -25,6 +25,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -156,6 +157,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public String price;
 
     public Toast toast;
+    RelativeLayout.LayoutParams relocateButtonLayoutParams;
+    View locationButton;
 
     public void callDriver(View view) {
         AlertDialog.Builder alerBuilder = new AlertDialog.Builder(this);
@@ -196,12 +199,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onCameraIdle() {
-        Log.i(TAG, "onCameraIdle: called");
+//        Log.i(TAG, "onCameraIdle: called");
 //        driversList = new ArrayList<>();
 //        driversList.add(new RideLocation(15.601046,32.561790));
 //        driversList.add(new RideLocation(15.604246,32.531558));
 
-        if (driversList != null) {
+        if (driversList != null && !driversList.isEmpty()) {
             LatLng currentLocation = mMap.getCameraPosition().target;
             Location location = new Location("");
             location.setLatitude(currentLocation.latitude);
@@ -223,7 +226,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onCameraMove() {
-        Log.i(TAG, "onCameraMove: called");
+//        Log.i(TAG, "onCameraMove: called");
         pickupTimeText.setText("-- minutes");
     }
 
@@ -346,6 +349,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 driverDetailsBottomView.setVisibility(View.GONE);
 
 
+                setRelocateButtonLocation(60);
                 break;
 
             case CONFIRM_DESTINATION:
@@ -363,6 +367,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 arrivedButtonBottomView.setVisibility(View.GONE);
                 detailsBottomView.setVisibility(View.GONE);
                 driverDetailsBottomView.setVisibility(View.GONE);
+
+                setRelocateButtonLocation(100);
                 break;
 
             case DETAILED:
@@ -385,6 +391,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 priceTextBottomView.setVisibility(View.GONE);
                 priceProgressBar.setVisibility(View.VISIBLE);
                 driverDetailsBottomView.setVisibility(View.GONE);
+
+                setRelocateButtonLocation(220);
                 break;
 
             case STATUS_MESSAGE:
@@ -404,6 +412,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 arrivedButtonBottomView.setVisibility(View.GONE);
                 detailsBottomView.setVisibility(View.GONE);
                 driverDetailsBottomView.setVisibility(View.VISIBLE);
+
+                setRelocateButtonLocation(220);
                 break;
 
             case FINISHED:
@@ -416,6 +426,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 actionButtonBottom.setVisibility(View.GONE);
                 detailsBottomView.setVisibility(View.GONE);
                 driverDetailsBottomView.setVisibility(View.VISIBLE);
+
+                setRelocateButtonLocation(220);
                 break;
 
         }
@@ -645,7 +657,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         for (int index = 0; index < drivers.size(); index++) {
             Marker driver = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(drivers.get(index).lat, drivers.get(index).lng))
-                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.driver_icon_smaller))
+                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.driver_nearby))
 
             );
             driversMarkers.add(driver);
@@ -720,6 +732,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setMyLocationEnabled(true);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(KHARTOUM_CORDS, 12.0f));
+
+
+        // Get the button view
+        locationButton = ((View) findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+
+        // and next place it, for example, on bottom right (as Google Maps app)
+        relocateButtonLayoutParams = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+        // position on right bottom
+        relocateButtonLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        relocateButtonLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        int bottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, getResources().getDisplayMetrics());
+        int right = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics());
+        relocateButtonLayoutParams.setMargins(0, 0, right, bottom);
+    }
+
+    public void setRelocateButtonLocation(int bottomDimension){
+
+        if (relocateButtonLayoutParams != null && locationButton != null){
+            int bottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, bottomDimension, getResources().getDisplayMetrics());
+            int right = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics());
+            relocateButtonLayoutParams.setMargins(0, 0, right, bottom);
+            locationButton.requestLayout();
+
+            Log.d(TAG, "setRelocateButtonLocation: bottomMargin: "+ bottomDimension);
+        }
     }
 
 

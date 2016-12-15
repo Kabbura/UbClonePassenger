@@ -67,6 +67,8 @@ public class HistoryEntriesAdapter extends RecyclerView.Adapter<HistoryEntriesAd
                 intent.putExtra("request_id", historyEntry.getId());
                 intent.putExtra("pickup_text", historyEntry.getPickupText());
                 intent.putExtra("dest_text", historyEntry.getDestText());
+                intent.putExtra("driver_name", historyEntry.getDriverName());
+                intent.putExtra("plate", historyEntry.getPlateNo());
 
                 ((Activity) context).startActivityForResult(intent, FROM_HISTORY_CODE);
             }
@@ -91,7 +93,6 @@ public class HistoryEntriesAdapter extends RecyclerView.Adapter<HistoryEntriesAd
             for (int i = 0; i < listSize; i++) {
                 entriesList.remove(0);
             }
-
             this.notifyItemRangeRemoved(0, listSize);
         }
 

@@ -40,7 +40,8 @@ public interface RestService {
     );
 
     @GET("passenger_api/get_drivers/")
-    Call<DriversResponse> getDrivers(@Query("location") String location);
+    Call<DriversResponse> getDrivers(@Query("location") String location,
+                                     @Query("count") Integer count);
 
 
     @GET("passenger_api/driver/")

@@ -112,8 +112,10 @@ public class Ride {
             call.enqueue(new Callback<TimeResponse>() {
                 @Override
                 public void onResponse(Call<TimeResponse> call, Response<TimeResponse> response) {
+                    Log.d(TAG, "onResponse: " + response.raw());
                     if (response.isSuccessful() && response.body() != null){
                         if (response.body().getTime() != null){
+                            Log.d(TAG, "onResponse: time: "+ response.body().getTime()/1000);
                             Long currentTime = response.body().getTime();
                             Long requestTime = details.time.getTime().getTime()/1000;
                             Long diff = requestTime - currentTime;

@@ -705,33 +705,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             logout();
         }else if (id == R.id.nav_change_lang){
             Configuration config = new Configuration();
-            if(item.getTitle().equals("English")){
-                String languageToLoad = "en";
-                Locale locale = new Locale(languageToLoad);
-                Locale.setDefault(locale);
-                config.locale = locale;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    config.setLayoutDirection(locale);
-                }
-//                item.setTitle("عربي");
-                if(item.getTitle().equals(getString(R.string.language)))
-                    prefManager.setOtherLanguage(true);
-                else
-                    prefManager.setOtherLanguage(false);
+                String languageToLoad;
+            if (prefManager.usingEnglish()){
+                languageToLoad = "ar";
+                prefManager.setUsingEnglish(false);
+            } else {
+                languageToLoad = "en";
+                prefManager.setUsingEnglish(true);
             }
-            else {
-                String languageToLoad = "ar";
-                Locale locale = new Locale(languageToLoad);
-                Locale.setDefault(locale);
-                config.locale = locale;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    config.setLayoutDirection(locale);
-                }
-//                item.setTitle("English");
-                if(item.getTitle().equals(getString(R.string.language)))
-                    prefManager.setOtherLanguage(true);
-                else
-                    prefManager.setOtherLanguage(false);
+
+            Locale locale = new Locale(languageToLoad);
+            Locale.setDefault(locale);
+            config.locale = locale;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                config.setLayoutDirection(locale);
             }
 
             Context context = getApplicationContext();

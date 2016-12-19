@@ -164,13 +164,13 @@ public class PrefManager {
     }
 
 
-    public void setOtherLanguage(boolean otherLanguage) {
+    public void setUsingEnglish(boolean otherLanguage) {
         editor.putBoolean(OTHER_LANGUAGE, otherLanguage);
         editor.commit();
     }
 
-    public boolean usingOtherLanguage() {
-        return pref.getBoolean(OTHER_LANGUAGE, false);
+    public boolean usingEnglish() {
+        return pref.getBoolean(OTHER_LANGUAGE, true);
     }
 
 

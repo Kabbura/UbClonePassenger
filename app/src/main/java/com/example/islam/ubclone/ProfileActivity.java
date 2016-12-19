@@ -86,10 +86,12 @@ public class ProfileActivity extends AppCompatActivity {
                 email.setText(user.getEmail());
             }
             if (password != null) {
-                password.setText(user.getPassword());
+                password.setText(R.string.click_to_update_password);
             }
             if (gender != null) {
-                gender.setText(user.getGender());
+                if (user.getGender().equals("male"))
+                    gender.setText(getString(R.string.male));
+                else gender.setText(getString(R.string.female));
             }
 
         } else {
@@ -127,7 +129,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 } else {
 
                                     Toast.makeText(ProfileActivity.this, R.string.password_updated, Toast.LENGTH_SHORT).show();
-                                    password.setText(((EditText) dialogView.findViewById(R.id.dialog_new_password)).getText());
+//                                    password.setText(((EditText) dialogView.findViewById(R.id.dialog_new_password)).getText());
                                     user.setPassword(((EditText) dialogView.findViewById(R.id.dialog_new_password)).getText().toString());
                                     updated = true;
                                 }
@@ -248,8 +250,8 @@ public class ProfileActivity extends AppCompatActivity {
         if(updated){
 
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-            alertDialogBuilder.setMessage("You did not update your profile. Continue?");
-            alertDialogBuilder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+            alertDialogBuilder.setMessage(R.string.you_did_not_update_profile);
+            alertDialogBuilder.setPositiveButton(R.string.no, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
@@ -259,7 +261,7 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             });
 
-            alertDialogBuilder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+            alertDialogBuilder.setNegativeButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     ProfileActivity.super.onBackPressed();

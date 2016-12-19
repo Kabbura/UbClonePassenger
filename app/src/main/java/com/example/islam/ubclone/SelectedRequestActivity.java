@@ -45,19 +45,19 @@ public class SelectedRequestActivity extends AppCompatActivity {
 //                    getTheme().applyStyle(R.style.AppTheme_details_completed,true);
             toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
             icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_request_completed));
-            ((TextView) findViewById(R.id.request_details_toolbar_title)).setText("Completed");
+            ((TextView) findViewById(R.id.request_details_toolbar_title)).setText(R.string.status_completed);
 
 //                    icon.setBackground(getResources().getDrawable(R.drawable.ic_request_completed));
         } else if (intent.getStringExtra("status").equals("canceled")) {
 //                    getTheme().applyStyle(R.style.AppTheme_details_canceled,true);
             toolbar.setBackgroundColor(getResources().getColor(R.color.colorRed));
             icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_request_canceled));
-            ((TextView) findViewById(R.id.request_details_toolbar_title)).setText("Cancelled");
+            ((TextView) findViewById(R.id.request_details_toolbar_title)).setText(R.string.status_cancelled);
         } else  {
             getTheme().applyStyle(R.style.AppTheme_details_missed,true);
             toolbar.setBackgroundColor(getResources().getColor(R.color.colorAccent));
             icon.setImageDrawable(getResources().getDrawable(R.drawable.request_missed));
-            ((TextView) findViewById(R.id.request_details_toolbar_title)).setText("No driver");
+            ((TextView) findViewById(R.id.request_details_toolbar_title)).setText(R.string.status_no_driver);
         }
 
 

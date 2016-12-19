@@ -92,7 +92,7 @@
     <string name="don_t_have_an_account_yet_register">Don\'t have an account yet? Register.</string>
     <string name="pick_up">Pick up</string>
     <string name="destination">Destination</string>
-    <string name="dashes">--</string>
+    <string name="dashes" translatable="false">--</string>
     <string name="currency">SDG</string>
     <string name="pick_up_in">Pick up in</string>
     <string name="account_info">Account info</string>
@@ -120,6 +120,18 @@
     <string name="update_data">Update data</string>
     <string name="profile_updated_successfully">Profile updated successfully</string>
     <string name="updating_profile_data">Updating profile data</string>
+    <string name="you_did_not_update_profile">You did not update your profile. Continue?</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_cancelled">Cancelled</string>
+    <string name="status_no_driver">No driver</string>
+    <string name="time">Time</string>
+    <string name="price_no_colon">Price</string>
+    <string name="driver_name">Driver name</string>
+    <string name="plate_no">Plate No.</string>
+    <string name="details_icon">details icon</string>
+    <string name="click_to_update_password">Click to update password</string>
 
 
     <string-array name="gender_array">

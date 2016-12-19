@@ -244,7 +244,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         assert pInfo != null;
         Integer versionCode = pInfo.versionCode;
 
-        Call<LoginResponse> call = service.login("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP), prefManager.getRegistrationToken(), 0);
+        Call<LoginResponse> call = service.login("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP), prefManager.getRegistrationToken(), versionCode);
         Log.d(TAG, "loginRequest: "+call.request().toString());
         call.enqueue(new Callback<LoginResponse>() {
             @Override

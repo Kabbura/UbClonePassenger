@@ -58,9 +58,9 @@ public class PriceSettings {
         }
     }
 
-    public void updateFromServer(final Integer duration, final Integer distance, final Boolean emit){
+    public void updateFromServer(final Boolean emit, final String time){
         reset();
-        Call<PriceResponse> call = service.getPrice();
+        Call<PriceResponse> call = service.getPrice(time);
         call.enqueue(new Callback<PriceResponse>() {
             @Override
             public void onResponse(Call<PriceResponse> call, Response<PriceResponse> response) {
@@ -68,7 +68,7 @@ public class PriceSettings {
                 if (response.isSuccessful()){
                     priceConstants = response.body();
                     setUpdatedFromServer();
-                    if (emit) EventBus.getDefault().post(new PriceUpdated(duration, distance));
+                    if (emit) EventBus.getDefault().post(new PriceUpdated(0,0));
                 } else {
                     Log.w(TAG, "onResponse: failed to get price");
                 }
@@ -77,7 +77,7 @@ public class PriceSettings {
             @Override
             public void onFailure(Call<PriceResponse> call, Throwable t) {
                 Log.w(TAG, "onFailure: response: " + t.toString());
-                updateFromServer();
+                updateFromServer(emit, time);
 
             }
         });
@@ -85,6 +85,7 @@ public class PriceSettings {
     }
 
     public void updateFromServer() {
-            updateFromServer(0,0,false);
+            updateFromServer(false, "now");
+
     }
 }

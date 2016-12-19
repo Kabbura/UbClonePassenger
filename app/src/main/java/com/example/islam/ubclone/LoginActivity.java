@@ -3,10 +3,13 @@ package com.example.islam.ubclone;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -231,37 +234,63 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             return;
         }
         Log.d(TAG, "loginRequest: registrationToken: "+ prefManager.getRegistrationToken());
-        Call<LoginResponse> call = service.login("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP), prefManager.getRegistrationToken());
+        PackageInfo pInfo = null;
+        try {
+            pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            Log.e(TAG, "loginRequest: "+ e.getMessage());
+        }
+        assert pInfo != null;
+        Integer versionCode = pInfo.versionCode;
+
+        Call<LoginResponse> call = service.login("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP), prefManager.getRegistrationToken(), versionCode);
         Log.d(TAG, "loginRequest: "+call.request().toString());
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 Log.d(TAG, "onResponse: raw: " + response.raw().body());
                 if (response.isSuccessful()){
-                    User user = response.body().getUser();
-                    user.setPassword(password);
-                    user.setEmail(email);
-                    prefManager.setIsLoggedIn(true);
-                    prefManager.setUser(user);
+                    switch (response.body().getStatus()){
+                        case 0:
+                            User user = response.body().getUser();
+                            user.setPassword(password);
+                            user.setEmail(email);
+                            prefManager.setIsLoggedIn(true);
+                            prefManager.setUser(user);
 
-                    switch (response.body().getOnGoingRequest()){
-                        case "pending":
-                            prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
-                            prefManager.setRideId(response.body().getRequestID());
+                            switch (response.body().getOnGoingRequest()){
+                                case "pending":
+                                    prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
+                                    prefManager.setRideId(response.body().getRequestID());
+                                    break;
+                                case "accepted":
+                                    prefManager.setRideStatus(PrefManager.DRIVER_ACCEPTED);
+                                    prefManager.setRideId(response.body().getRequestID());
+                                    break;
+                                default:
+                                    prefManager.setRideStatus(PrefManager.NO_RIDE);
+                                    break;
+                            }
+
+                            Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+                            startActivity(intent);
+                            finish();
+//                showProgress(false);
+
                             break;
-                        case "accepted":
-                            prefManager.setRideStatus(PrefManager.DRIVER_ACCEPTED);
-                            prefManager.setRideId(response.body().getRequestID());
-                            break;
-                        default:
-                            prefManager.setRideStatus(PrefManager.NO_RIDE);
+                        case 3:
+                            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(LoginActivity.this);
+                            alertBuilder.setTitle(getString(R.string.outdated_app_message));
+                            alertBuilder.setMessage(getString(R.string.outdated_app_message_body));
+                            alertBuilder.setPositiveButton(getString(R.string.done), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            });
+                            alertBuilder.show();
                             break;
                     }
-
-                    Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
-                    startActivity(intent);
-//                showProgress(false);
-                    finish();
                 } else if (response.code() == 401){
                     mPasswordView.setError(getString(R.string.error_incorrect_password));
                     mPasswordView.requestFocus();
@@ -289,7 +318,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     private boolean isPasswordValid(String password) {
-        return password.length() > 4;
+        return password.length() > 1;
     }
 
     /**

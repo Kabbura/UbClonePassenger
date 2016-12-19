@@ -8,21 +8,23 @@
             <group android:checkableBehavior="none" >
                 <item
                     android:id="@+id/nav_profile"
-                    android:title="Profile"
-                    android:icon="@drawable/ic_menu_profile"
-                    />
+                    android:title="@string/nav_profile"
+                    android:icon="@drawable/ic_menu_profile" />
                 <item
                     android:id="@+id/nav_history"
-                    android:title="Previous requests"
-                    android:icon="@drawable/ic_menu_previous"
-                    />
+                    android:title="@string/nav_previous_requests"
+                    android:icon="@drawable/ic_menu_previous" />
                 <item
                     android:id="@+id/nav_about"
-                    android:title="About"
+                    android:title="@string/nav_about"
                     android:icon="@drawable/ic_menu_about"/>
                 <item
+                    android:id="@+id/nav_change_lang"
+                    android:title="@string/language"
+                    android:icon="@drawable/ic_menu_logout"/>
+                <item
                     android:id="@+id/nav_logout"
-                    android:title="Logout"
+                    android:title="@string/nav_logout"
                     android:icon="@drawable/ic_menu_logout"/>
             </group>
         </menu>

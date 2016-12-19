@@ -60,7 +60,7 @@ public class RegisterActivity extends AppCompatActivity {
                     fullname.getText().toString(),
                     password.getText().toString(),
                     phone.getText().toString(),
-                    (genderSpinner.getSelectedItem().toString().equals("Male")?"male":"female"),
+                    (genderSpinner.getSelectedItem().toString().equals(getString(R.string.male))?"male":"female"),
                     prefManager.getRegistrationToken()
             );
             call.enqueue(new Callback<SimpleResponse>() {
@@ -86,14 +86,14 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(RegisterActivity.this, response.body().getErrorMessage(), Toast.LENGTH_SHORT).show();
                         showProgress(false);
                     } else {
-                        Toast.makeText(RegisterActivity.this, "Unknown error occurred", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterActivity.this, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
                         showProgress(false);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<SimpleResponse> call, Throwable t) {
-                    Toast.makeText(RegisterActivity.this, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, R.string.failed_to_connect_to_the_server, Toast.LENGTH_SHORT).show();
                     showProgress(false);
                     Log.w(TAG, "onFailure: " + t.toString() );
                     Log.w(TAG, "onFailure: " + call.request().toString() );
@@ -106,14 +106,14 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void showProgress(boolean b) {
-        if (b) progressDialog = ProgressDialog.show(this, "Registering..", "Please wait");
+        if (b) progressDialog = ProgressDialog.show(this, getString(R.string.registering), getString(R.string.please_wait));
         else if(progressDialog != null) progressDialog.dismiss();
     }
 
     private Boolean checkFields() {
         // Check fields
 
-        /*if (email == null ||
+        if (email == null ||
                 fullname == null ||
                 phone == null ||
                 password == null ||
@@ -126,20 +126,20 @@ public class RegisterActivity extends AppCompatActivity {
         if (email.getText().toString().length() == 0 ||
                 fullname.getText().toString().length() == 0 ||
                 phone.getText().toString().length() == 0 ) {
-            Toast.makeText(this, "Please fill all fields.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.fill_all_fields, Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if ( password.getText().toString().length() < 4) {
 
-            Toast.makeText(this, "Password should at least be 4 characters.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.password_should_be_at_least_4, Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if (!password.getText().toString().equals(confirmPassword.getText().toString())) {
-            Toast.makeText(this, "Passwords do not match.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.passwords_do_not_match, Toast.LENGTH_SHORT).show();
             return false;
-        }*/
+        }
         return true;
     }
 }

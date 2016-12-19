@@ -24,7 +24,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Account info"
+                        android:text="@string/account_info"
                         android:textColor="@color/colorPrimary"
                         android:textSize="18sp"
                         android:paddingLeft="16dp"
@@ -41,7 +41,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Full name"
+                            android:text="@string/full_name"
                             android:textSize="16sp"
                             android:textColor="#444"
 
@@ -49,7 +49,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Full Name"
+                            android:text=""
                             android:textSize="14sp"
                             android:paddingBottom="10dp"
                             android:textColor="#666"
@@ -73,7 +73,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Email"
+                            android:text="@string/email"
                             android:textSize="16sp"
                             android:textColor="#444"
 
@@ -81,7 +81,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="user email"
+                            android:text=""
                             android:textSize="14sp"
                             android:paddingBottom="10dp"
                             android:textColor="#666"
@@ -107,7 +107,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Gender"
+                            android:text="@string/gender"
                             android:textSize="16sp"
                             android:textColor="#444"
 
@@ -115,7 +115,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="gender"
+                            android:text=""
                             android:textSize="14sp"
                             android:paddingBottom="10dp"
                             android:textColor="#666"
@@ -141,7 +141,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Phone number"
+                            android:text="@string/phone_number"
                             android:textSize="16sp"
                             android:textColor="#444"
 
@@ -149,7 +149,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0912341234"
+                            android:text=""
                             android:textSize="14sp"
                             android:paddingBottom="10dp"
                             android:textColor="#666"

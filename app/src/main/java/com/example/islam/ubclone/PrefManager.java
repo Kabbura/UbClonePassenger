@@ -25,6 +25,7 @@ public class PrefManager {
     // Shared preferences file name
     private static final String PREF_NAME = "main_pref";
 
+    private static final String OTHER_LANGUAGE = "OtherLanguage";
     private static final String IS_FIRST_TIME_LAUNCHED = "IsFirstTimeLaunch";
     private static final String IS_LOGGED_IN = "IsLoggedIn";
     private static final String REGISTRATION_TOKEN = "registrationToken";
@@ -161,6 +162,17 @@ public class PrefManager {
         json = pref.getString(RIDE_DETAILS, json);
         return gson.fromJson(json, Ride.RideDetails.class);
     }
+
+
+    public void setOtherLanguage(boolean otherLanguage) {
+        editor.putBoolean(OTHER_LANGUAGE, otherLanguage);
+        editor.commit();
+    }
+
+    public boolean usingOtherLanguage() {
+        return pref.getBoolean(OTHER_LANGUAGE, false);
+    }
+
 
 //    public void setTicketsList(String ticketsList){
 //        editor.putString(TICKETS_LIST, ticketsList);

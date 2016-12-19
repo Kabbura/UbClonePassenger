@@ -26,7 +26,8 @@ public interface RestService {
     @FormUrlEncoded
     @POST("passenger_api/login/")
     Call<LoginResponse> login(@Header("Authorization") String authorization,
-                              @Field("registration_token") String registrationToken );
+                              @Field("registration_token") String registrationToken,
+                              @Field("version_code") Integer versionCode);
 
     @FormUrlEncoded
     @POST("passenger_api/register/")
@@ -79,6 +80,6 @@ public interface RestService {
                                      @Field("request_id") String requestId );
 
     @GET("price/")
-    Call<PriceResponse> getPrice();
+    Call<PriceResponse> getPrice(@Query("time") String time);
 }
 

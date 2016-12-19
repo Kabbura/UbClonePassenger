@@ -62,7 +62,7 @@
                     android:layout_toRightOf="@+id/pickup_icon"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Pick up"
+                    android:text="@string/pick_up"
                     android:textColor="@color/colorPrimary"/>
                 <TextView
                     android:id="@+id/pickup_value"
@@ -71,7 +71,7 @@
                     android:layout_below="@+id/pickup_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Click to search"
+                    android:text="@string/search_placeholder"
                     android:textSize="18sp"
                     android:lines="1"/>
             </RelativeLayout>
@@ -107,7 +107,7 @@
                     android:layout_toRightOf="@+id/destination_icon"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Destination"
+                    android:text="@string/destination"
                     android:layout_marginTop="8dp"
                     android:textColor="@color/colorRed"
                     />
@@ -118,7 +118,7 @@
                     android:layout_below="@+id/destination_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Click to search"
+                    android:text="@string/search_placeholder"
                     android:textSize="18sp"
                     android:lines="1"
                     />
@@ -165,6 +165,7 @@
                     android:text="@string/price"
                     android:textSize="16sp"
                     android:layout_marginLeft="12dp"
+                    android:layout_marginStart="12dp"
                     android:maxLines="1"/>
 
                 <TextView
@@ -174,9 +175,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="Calculating.."
+                    android:text="@string/calculating_price"
                     android:textSize="16sp"
                     android:layout_marginLeft="12dp"
+                    android:layout_marginStart="12dp"
                     android:maxLines="1"
                     android:textColor="@color/colorPrimary"/>
             </RelativeLayout>
@@ -207,7 +209,9 @@
                     android:layout_centerVertical="true"
                     android:text="@string/now"
                     android:textSize="16sp"
-                    android:layout_marginLeft="12dp"/>
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginStart="12dp"
+                    />
             </RelativeLayout>
             <View
                 android:layout_width="match_parent"
@@ -235,6 +239,7 @@
                     android:text="@string/note_place_holder"
                     android:textSize="16sp"
                     android:layout_marginLeft="12dp"
+                    android:layout_marginStart="12dp"
                     />
             </RelativeLayout>
 
@@ -450,14 +455,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="--"
+                    android:text="@string/dashes"
                     android:textSize="38sp"
                     android:textColor="@color/colorPrimary"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="SDG"
+                    android:text="@string/currency"
                     android:textSize="24sp"
                     android:textColor="@color/colorPrimary"/>
             </LinearLayout>
@@ -492,7 +497,7 @@
                     android:id="@+id/action_btn_bottom"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Do action"
+                    android:text=""
                     android:textSize="20sp"
                     android:textColor="@android:color/white"
                     android:gravity="center"
@@ -508,7 +513,7 @@
                         android:id="@+id/pickup_in_bottom"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pick up in "
+                        android:text="@string/pick_up_in"
                         android:textSize="14sp"
                         android:textColor="@android:color/white"
                         android:padding="2dp"
@@ -517,7 +522,7 @@
                         android:id="@+id/pickup_time_bottom"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="-- minutes"
+                        android:text="@string/dash_minutes"
                         android:textSize="14sp"
                         android:textColor="@android:color/white"
                         android:gravity="center"

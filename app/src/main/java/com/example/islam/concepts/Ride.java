@@ -73,14 +73,8 @@ public class Ride {
                     //TODO: Check if drivers is null
                     Log.d(TAG, "getDriver: onResponse: raw: " + response.raw());
                     Log.d(TAG, "getDriver: onResponse: Retrofit response success: Got "+ response.body().drivers.size());
-                    List<RideLocation> drivers = new ArrayList<RideLocation>();
-                    for (int index = 0; index < response.body().drivers.size(); index++) {
-                        drivers.add(new RideLocation(response.body().drivers.get(index).lng, response.body().drivers.get(index).lat));
-                        Log.d(TAG, "onResponse: driver lat: " + response.body().drivers.get(index).lat + " and lng "+ response.body().drivers.get(index).lng);
-
-                    }
                     mapsActivity.clearDriversMarkers();
-                    mapsActivity.setDriversMarkers(drivers);
+                    mapsActivity.setDriversMarkers(response.body().drivers);
                 }
             }
 
@@ -98,7 +92,7 @@ public class Ride {
         if(details.isSet()){
             progressDialog   = new ProgressDialog(mapsActivity);
             progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Connecting");
+            progressDialog.setMessage(mapsActivity.getString(R.string.connecting));
             progressDialog.show();
 
             // Validate date
@@ -106,7 +100,7 @@ public class Ride {
 
 
         } else {
-            Toast.makeText(mapsActivity, "Error sending request", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mapsActivity, R.string.error_sending_request, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -124,14 +118,14 @@ public class Ride {
                             Long requestTime = details.time.getTime().getTime()/1000;
                             Long diff = requestTime - currentTime;
                             if (diff < -300) {
-                                Toast.makeText(mapsActivity, "Invalid date", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mapsActivity, R.string.invalid_date, Toast.LENGTH_SHORT).show();
                                 if (progressDialog.isShowing()) progressDialog.dismiss();
                                 return;
                             }
 
                             // If request is after more than 72 hours
                             if (diff > (72*3600)) {
-                                Toast.makeText(mapsActivity, "Time is too far. Please choose an earlier date.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mapsActivity, R.string.time_too_far, Toast.LENGTH_SHORT).show();
                                 if (progressDialog.isShowing()) progressDialog.dismiss();
                                 return;
                             }
@@ -143,18 +137,18 @@ public class Ride {
                             requestDriver(mapsActivity);
                         }
                     } else {
-                        Toast.makeText(mapsActivity, "Unknown error occurred", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mapsActivity, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<TimeResponse> call, Throwable t) {
-                    Toast.makeText(mapsActivity, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mapsActivity, R.string.failed_to_connect_to_the_server, Toast.LENGTH_SHORT).show();
                     if (progressDialog.isShowing()) progressDialog.dismiss();
                 }
             });
         } else {
-            Toast.makeText(mapsActivity, "Error setting date. Try again", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mapsActivity, R.string.error_setting_date, Toast.LENGTH_SHORT).show();
         }
 
 
@@ -184,7 +178,7 @@ public class Ride {
                 Log.d(TAG, "onResponse: " + response.raw());
                 Log.d(TAG, "onResponse: " + response.toString());
                 if (response.isSuccessful()){
-                   // Toast.makeText(mapsActivity, "Successful. Status: "+response.body().getStatus(), Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(mapsActivity, "Successful. Status: "+response.body().getStatus(), Toast.LENGTH_SHORT).show();
                     // There are 4 situations here:
                     // Status 0: When request is pending. request_id is returned.
                     // Status 1: No driver found
@@ -198,7 +192,7 @@ public class Ride {
                             if (mapsActivity.startService(intent) == null) {
                                 //Toast.makeText(mapsActivity, "Failed to start the service", Toast.LENGTH_SHORT).show();
                             } else {
-                               // Toast.makeText(mapsActivity, "Service started", Toast.LENGTH_SHORT).show();
+                                // Toast.makeText(mapsActivity, "Service started", Toast.LENGTH_SHORT).show();
                             }
                             prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
                             prefManager.setRideId(response.body().getRequestID());
@@ -210,7 +204,7 @@ public class Ride {
 
                             break;
                         case 3:
-                            mapsActivity.toast.setText("Sorry, all drivers are busy. Try again later.");
+                            mapsActivity.toast.setText(R.string.all_drivers_are_busy);
                             mapsActivity.toast.show();
                             break;
                         case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
@@ -235,13 +229,13 @@ public class Ride {
                     }
 
                 } else {
-                    Toast.makeText(mapsActivity, "Unknown error occurred", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mapsActivity, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<DriverResponse> call, Throwable t) {
-                Toast.makeText(mapsActivity, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mapsActivity, R.string.failed_to_connect_to_the_server, Toast.LENGTH_SHORT).show();
                 if (progressDialog.isShowing()) progressDialog.dismiss();
             }
         });
@@ -266,7 +260,7 @@ public class Ride {
         Log.d(TAG, "cancelRequest: "+call.request().toString());
         progressDialog   = new ProgressDialog(mapsActivity);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Connecting");
+        progressDialog.setMessage(mapsActivity.getString(R.string.connecting));
         progressDialog.show();
         call.enqueue(new Callback<SimpleResponse>() {
             @Override
@@ -275,7 +269,7 @@ public class Ride {
                     Log.i(TAG, "onResponse: Request has been canceled");
                     EventBus.getDefault().post(new RequestCanceled());
                 }else {
-                    Toast.makeText(mapsActivity, "Unknown error occurred", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mapsActivity, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
                 }
                 if (progressDialog.isShowing()) progressDialog.dismiss();
             }
@@ -283,7 +277,7 @@ public class Ride {
             @Override
             public void onFailure(Call<SimpleResponse> call, Throwable t) {
                 Log.d(TAG, "onFailure: "+t.toString());
-                Toast.makeText(mapsActivity, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mapsActivity, R.string.failed_to_connect_to_the_server, Toast.LENGTH_SHORT).show();
                 if (progressDialog.isShowing()) progressDialog.dismiss();
             }
         });
@@ -305,16 +299,16 @@ public class Ride {
                 if (response.isSuccessful()){
                     Log.i(TAG, "onResponse: Passenger has arrived");
                     EventBus.getDefault().post(new RequestCanceled());
-                    Toast.makeText(mapsActivity, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mapsActivity, R.string.thank_you_for_booking, Toast.LENGTH_LONG).show();
                 }else {
-                    Toast.makeText(mapsActivity, "Unknown error occurred", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mapsActivity, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
                 }
                 if (progressDialog.isShowing()) progressDialog.dismiss();
             }
 
             @Override
             public void onFailure(Call<SimpleResponse> call, Throwable t) {
-                Toast.makeText(mapsActivity, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mapsActivity, R.string.failed_to_connect_to_the_server, Toast.LENGTH_SHORT).show();
                 if (progressDialog.isShowing()) progressDialog.dismiss();
 
             }
@@ -333,6 +327,8 @@ public class Ride {
         public String requestID;
         public String pickupText;
         public String destText;
+        public Integer distance;
+        public Integer duration;
 
         public RideDetails() {
         }
@@ -369,6 +365,8 @@ public class Ride {
             now = true;
             pickupText = null;
             destText = null;
+            distance = null;
+            duration = null;
         }
     }
 }

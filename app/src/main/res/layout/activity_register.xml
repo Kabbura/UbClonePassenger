@@ -22,7 +22,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.75"
-            android:hint="Email"
+            android:hint="@string/email"
             android:inputType="textEmailAddress" />
     </LinearLayout>
     <LinearLayout
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.75"
             android:inputType="textPersonName"
-            android:hint="Full name"/>
+            android:hint="@string/full_name"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.75"
             android:inputType="phone"
-            android:hint="Phone number"/>
+            android:hint="@string/phone_number"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -75,7 +75,7 @@
             android:inputType="textPassword"
             android:layout_weight="0.7"
             android:fontFamily="sans-serif"
-            android:hint="Password"
+            android:hint="@string/prompt_password"
             />
     </LinearLayout>
     <LinearLayout
@@ -89,7 +89,7 @@
             android:inputType="textPassword"
             android:layout_weight="0.75"
             android:fontFamily="sans-serif"
-            android:hint="Confirm Password"/>
+            android:hint="@string/confirm_password"/>
     </LinearLayout>
 
     <Button
@@ -97,7 +97,12 @@
         android:layout_height="wrap_content"
         android:text="@string/register"
         android:padding="10dp"
+        style="?android:textAppearanceSmall"
         android:layout_marginTop="16dp"
+        android:background="@color/colorPrimary"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:textSize="18sp"
         android:onClick="register"/>
 
 </LinearLayout>

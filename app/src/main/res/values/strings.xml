@@ -6,8 +6,8 @@
     <string name="title_activity_location_picker">LocationPicker</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Google Places API</string>
-    <string name="hello_second_fragment">Second Fragment</string>
+    <string name="hello_blank_fragment" translatable="false">Google Places API</string>
+    <string name="hello_second_fragment" translatable="false">Second Fragment</string>
     <string name="note_place_holder">Note to driver</string>
     <string name="finding_a_driver">Finding a driver..</string>
     <string name="title_activity_login">Sign in</string>
@@ -59,17 +59,61 @@
     <string name="price_failed_to_connect">Failed to connect. Retrying..</string>
     <string name="logged_in_from_another_device">You\'ve logged in from another device.</string>
     <string name="ic_desc_call_driver">Call Driver</string>
-    <string name="dash">-</string>
+    <string name="dash" translatable="false">-</string>
     <string name="call_driver">Call driver</string>
     <string name="call_driver_message">Do you want to call the driver?</string>
     <string name="cancel">Cancel</string>
     <string name="from">From</string>
     <string name="to">To</string>
     <string name="note">Note</string>
+    <string name="language">عربي</string>
+    <string name="nav_logout">Logout</string>
+    <string name="nav_about">About</string>
+    <string name="nav_previous_requests">Previous requests</string>
+    <string name="nav_profile">Profile</string>
+    <string name="time_too_far">Time is too far. Please choose an earlier date.</string>
+    <string name="invalid_date">Invalid date</string>
+    <string name="unkown_error_occured">Unknown error occurred</string>
+    <string name="error_setting_date">Error setting date. Try again</string>
+    <string name="all_drivers_are_busy">Sorry, all drivers are busy. Try again later.</string>
+    <string name="failed_to_connect_to_the_server">Failed to connect to the server</string>
+    <string name="thank_you_for_booking">Thank you for booking with us.</string>
+    <string name="connecting">Connecting</string>
+    <string name="error_sending_request">Error sending request</string>
+    <string name="done">Done</string>
+    <string name="dash_minutes">-- minutes</string>
+    <string name="route_successfully_computed">"Route successfully computed "</string>
+    <string name="route_failed">"Route Failed "</string>
+    <string name="wait_until_price_is_calculating">Wait until price is calculated</string>
+    <string name="pick_time">Pick Time</string>
+    <string name="any_note_or_incentive">Any note or incentive for the driver</string>
+    <string name="update">Update</string>
+    <string name="please_login_again">Please login again</string>
+    <string name="don_t_have_an_account_yet_register">Don\'t have an account yet? Register.</string>
+    <string name="pick_up">Pick up</string>
+    <string name="destination">Destination</string>
+    <string name="dashes">--</string>
+    <string name="currency">SDG</string>
+    <string name="pick_up_in">Pick up in</string>
+    <string name="account_info">Account info</string>
+    <string name="full_name">Full name</string>
+    <string name="email">Email</string>
+    <string name="gender">Gender</string>
+    <string name="phone_number">Phone number</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="registering">Registering..</string>
+    <string name="please_wait">Please wait</string>
+    <string name="password_should_be_at_least_4">Password should at least be 4 characters.</string>
+    <string name="passwords_do_not_match">Passwords do not match.</string>
+    <string name="fill_all_fields">Please fill all fields.</string>
+    <string name="outdated_app_message">Your app is outdated!</string>
+    <string name="outdated_app_message_body">Please update your application to continue using this app.</string>
 
 
     <string-array name="gender_array">
-        <item>Male</item>
-        <item>Female</item>
+        <item>@string/male</item>
+        <item>@string/female</item>
     </string-array>
 </resources>

@@ -3,13 +3,16 @@ package com.example.islam.ubclone;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -101,6 +104,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -188,7 +192,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         alertDialogBuilder.setView(dialogView)
 
-                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
@@ -227,7 +231,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onCameraMove() {
 //        Log.i(TAG, "onCameraMove: called");
-        pickupTimeText.setText("-- minutes");
+        pickupTimeText.setText(R.string.dash_minutes);
     }
 
     private enum PriceSet {
@@ -292,9 +296,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             TextView driverStatus = (TextView) findViewById(R.id.driver_status);
             TextView driverName = (TextView) findViewById(R.id.driver_name);
             TextView vehicleNo = (TextView) findViewById(R.id.vehicle_no);
+            TextView vehicle = (TextView) findViewById(R.id.vehicle_name);
             driverStatus.setText(message);
             driverName.setText(driver.getName());
-            vehicleNo.setText(driver.getPlate());
+            vehicleNo.setText(driver.getPlate());;
+            vehicle.setText(driver.getVehicle());
 
             // Setting button:
             if (message.equals(getString(R.string.passenger_onboard)) ||
@@ -662,6 +668,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             );
             driversMarkers.add(driver);
         }
+
+        onCameraIdle();
     }
 
     @Override
@@ -675,7 +683,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -694,7 +701,43 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }else if (id == R.id.nav_logout){
             logout();
+        }else if (id == R.id.nav_change_lang){
+            Configuration config = new Configuration();
+            if(item.getTitle().equals("English")){
+                String languageToLoad = "en";
+                Locale locale = new Locale(languageToLoad);
+                Locale.setDefault(locale);
+                config.locale = locale;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    config.setLayoutDirection(locale);
+                }
+//                item.setTitle("عربي");
+                if(item.getTitle().equals(getString(R.string.language)))
+                    prefManager.setOtherLanguage(true);
+                else
+                    prefManager.setOtherLanguage(false);
+            }
+            else {
+                String languageToLoad = "ar";
+                Locale locale = new Locale(languageToLoad);
+                Locale.setDefault(locale);
+                config.locale = locale;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    config.setLayoutDirection(locale);
+                }
+//                item.setTitle("English");
+                if(item.getTitle().equals(getString(R.string.language)))
+                    prefManager.setOtherLanguage(true);
+                else
+                    prefManager.setOtherLanguage(false);
+            }
 
+            Context context = getApplicationContext();
+            context.getResources().updateConfiguration(config,context.getResources().getDisplayMetrics());
+            Intent intent = new Intent(MapsActivity.this, MapsActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -707,7 +750,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         finish();
-
     }
 
     /**
@@ -733,7 +775,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(KHARTOUM_CORDS, 12.0f));
 
-
+        onCameraIdle();
         // Get the button view
         locationButton = ((View) findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
 
@@ -819,14 +861,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void getLocation(View view) {
-        Log.d(TAG, "getLocation: Called");
-//        Intent intent = new Intent(this, LocationPicker.class);
-        // TODO: get latitude and longitude crashes the system when the GPS is off
-//        intent.putExtra("lat",mCurrentLocation.getLatitude());
-//        intent.putExtra("ltd",mCurrentLocation.getLongitude());
-
-
-
         try {
             LatLngBounds bounds = new LatLngBounds(new LatLng(11.616428, 24.326453), new LatLng(21.381160, 36.991820));
             Intent intent =
@@ -862,8 +896,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.i(TAG, "Place: " + place.getName());
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                     Status status = PlaceAutocomplete.getStatus(this, data);
-                    // TODO: Handle the error.
-                    Log.i(TAG, status.getStatusMessage());
+                    Log.e(TAG, status.getStatusMessage());
 
                 } else if (resultCode == RESULT_CANCELED) {
                     // The user canceled the operation.
@@ -875,24 +908,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     setDestinationPointUI(place);
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                     Status status = PlaceAutocomplete.getStatus(this, data);
-                    // TODO: Handle the error.
-                    Log.i(TAG, status.getStatusMessage());
-
+                    Log.e(TAG, status.getStatusMessage());
                 } else if (resultCode == RESULT_CANCELED) {
                     // The user canceled the operation.
                 }
                 break;
         }
-
     }
 
-    private void setPrice(PriceSet set, String priceString){
+    private void setPrice(PriceSet set, String priceString) {
         TextView priceValue = (TextView) findViewById(R.id.price_value);
         priceSet = set;
         if (set == PriceSet.SUCCESS) {
-            //TODO: handle number properly
-//            priceString = priceString + "SDG";
-//            priceValue.setText(priceString);
             ride.details.price = priceString;
             priceTextBottom.setText(priceString);
             priceProgressBar.setVisibility(View.GONE);
@@ -900,9 +927,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else if (set == PriceSet.NOTYET){
             priceValue.setText(R.string.calculating_price);
             ride.details.price = null;
+            priceProgressBar.setVisibility(View.VISIBLE);
+            priceTextBottomView.setVisibility(View.GONE);
         } else if (set == PriceSet.FAILURE){
             priceValue.setText(R.string.price_failed_to_connect);
             ride.details.price = null;
+            priceProgressBar.setVisibility(View.VISIBLE);
+            priceTextBottomView.setVisibility(View.GONE);
         }
     }
 
@@ -915,60 +946,75 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .execute(new DirectionCallback() {
                     @Override
                     public void onDirectionSuccess(Direction direction, String rawBody) {
-                        // Do something here
+
+                        if (UIState == UI_STATE.DETAILED) {
+                            // Do something here
 //                        Toast.makeText(MapsActivity.this, "Route successfully computed ", Toast.LENGTH_SHORT).show();
-                        toast.setText("Route successfully computed ");
-                        toast.show();
-                        Log.d(TAG, "showRoute: Route successfully computed ");
+                            toast.setText(R.string.route_successfully_computed);
+                            toast.show();
+                            Log.d(TAG, "showRoute: Route successfully computed ");
 
-                        if(direction.isOK()) {
-                            // Check if user hasn't cancelled:
-                            if (UIState != UI_STATE.DETAILED){
-                                return;
-                            }
+                            if (direction.isOK()) {
+                                // Check if user hasn't cancelled:
+                                if (UIState != UI_STATE.DETAILED) {
+                                    return;
+                                }
 
-                            // Do
-                            Route route = direction.getRouteList().get(0);
-                            Leg leg = route.getLegList().get(0);
+                                // Do
+                                Route route = direction.getRouteList().get(0);
+                                Leg leg = route.getLegList().get(0);
 
 
 //                            Double priceValue = (double) (Integer.valueOf(distance) *  Integer.valueOf(duration) / 3/60/1000);
-                            ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
-                            PolylineOptions polylineOptions = DirectionConverter.createPolyline(MapsActivity.this, directionPositionList, 5, getResources().getColor(R.color.colorPrimary));
-                            if (routePolyline != null) {
-                                routePolyline.remove();
+                                ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
+                                PolylineOptions polylineOptions = DirectionConverter.createPolyline(MapsActivity.this, directionPositionList, 5, getResources().getColor(R.color.colorPrimary));
+                                if (routePolyline != null) {
+                                    routePolyline.remove();
+                                }
+                                routePolyline = mMap.addPolyline(polylineOptions);
+
+
+                                // Distance info
+                                Info distanceInfo = leg.getDistance();
+                                Info durationInfo = leg.getDuration();
+                                String distance = distanceInfo.getValue();
+                                String duration = durationInfo.getValue();
+
+                                ride.details.distance = Integer.valueOf(distance);
+                                ride.details.duration = Integer.valueOf(duration);
+                                calculatePrice();
                             }
-                            routePolyline = mMap.addPolyline(polylineOptions);
-
-
-                            // Distance info
-                            Info distanceInfo = leg.getDistance();
-                            Info durationInfo = leg.getDuration();
-                            String distance = distanceInfo.getValue();
-                            String duration = durationInfo.getValue();
-                            calculatePrice(Integer.valueOf(duration), Integer.valueOf(distance));
                         }
                     }
 
                     @Override
                     public void onDirectionFailure(Throwable t) {
                         // Do something here
-                        toast.setText( "Route Failed ");
-                        toast.show();
-                        showRoute();
-                        Log.d(TAG, "showRoute: Route Failed ");
+                        if (UIState == UI_STATE.DETAILED){
+                            toast.setText( R.string.route_failed);
+                            toast.show();
+                            showRoute();
+                            Log.d(TAG, "showRoute: Route Failed ");
+                        }
                     }
                 });
     }
 
-    public void calculatePrice(Integer duration, Integer distance){
+    public void calculatePrice(){
+        Integer duration = ride.details.duration;
+        Integer distance = ride.details.distance;
+        if (distance == null || duration == null) {
+            Log.e(TAG, "calculatePrice: distance or duration is null.");
+            return;
+        }
+
         if (priceSettings.isUpdatedFromServer()){
             Double priceValue = priceSettings.getPrice(duration, distance);
 //            price = String.format("%s",  priceValue.intValue()) ;
             price = String.valueOf(priceValue.intValue());
             setPrice(PriceSet.SUCCESS, price);
         } else {
-            priceSettings.updateFromServer(duration, distance, true);
+            priceSettings.updateFromServer(true, "now");
         }
     }
 
@@ -1068,7 +1114,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ride.details.femaleOnly = femaleOnlyBox.isChecked();
                     ride.makeRequest(MapsActivity.this);
                 } else {
-                    toast.setText("Connecting...");
+                    toast.setText(R.string.connecting);
                     toast.show();
                     if (!pickupTextSet){
                         // Get text
@@ -1087,7 +1133,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 }
             } else {
-                toast.setText("Wait until price is calculated");
+                toast.setText(R.string.wait_until_price_is_calculating);
                 toast.show();
             }
         }
@@ -1099,7 +1145,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             ride.arrived(this);
         }  else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
             EventBus.getDefault().post(new RequestCanceled());
-            Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.thank_you_for_booking, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -1131,6 +1177,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (pickupMarker != null) {
             pickupMarker.remove();
         }
+        if (driverMarker != null) driverMarker.remove();
         ((TextView) findViewById(R.id.pickup_value)).setText(R.string.search_placeholder);
 
         destinationSelected = false;
@@ -1194,7 +1241,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         dateSet = true;
                         timePicker.setVisibility(View.VISIBLE);
                         datePicker.setVisibility(View.GONE);
-                        pickButton.setText("Pick Time");
+                        pickButton.setText(R.string.pick_time);
                         requestDate =  Calendar.getInstance(TimeZone.getTimeZone("Africa/Khartoum"));
                         //new Date(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
                     } else {
@@ -1210,13 +1257,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                         requestDate.set(datePicker.getYear(),datePicker.getMonth(), datePicker.getDayOfMonth(),hour,min);
                         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                        SimpleDateFormat formatForServer = new SimpleDateFormat("HH:mm:ss");
+
                         format.setTimeZone(TimeZone.getTimeZone("Africa/Khartoum"));
+                        formatForServer.setTimeZone(TimeZone.getTimeZone("Africa/Khartoum"));
+
                         String formatted = format.format(requestDate.getTime());
                         timeTextView.setText(formatted);
 //                        timeTextView.setText(String.valueOf(requestDate.getTime().getTime()/1000));
 
                         ride.details.now = false;
                         ride.details.time = requestDate;
+
+                        updatePrice(formatForServer.format(requestDate.getTime()));
                         dialog.dismiss();
                     }
                 }
@@ -1235,6 +1288,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         dialog.show();
     }
 
+    private void updatePrice(String time) {
+        setPrice(PriceSet.NOTYET,"0.0");
+        Log.d(TAG, "updatePrice: time: " + time);
+        priceSettings.updateFromServer(true, time);
+    }
+
 
     public void writeNote(View view) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -1243,16 +1302,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LayoutInflater inflater = getLayoutInflater();
 
 
-        alertDialogBuilder.setMessage("Note to driver");
+        alertDialogBuilder.setMessage(R.string.note_place_holder);
         dialogView = inflater.inflate(R.layout.update_dialog, null);
         EditText driverNoteInput = (EditText)dialogView.findViewById(R.id.dialog_input);
-        driverNoteInput.setHint("Any note or incentive for the driver");
+        driverNoteInput.setHint(R.string.any_note_or_incentive);
         assert noteTextView != null;
 
         if (!noteTextView.getText().equals(getString(R.string.note_place_holder))) driverNoteInput.setText(noteTextView.getText());
         driverNoteInput.setSingleLine(false);
         alertDialogBuilder.setView(dialogView);
-        alertDialogBuilder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 noteTextView.setText(((EditText)dialogView.findViewById(R.id.dialog_input)).getText().toString());
@@ -1260,7 +1319,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
@@ -1355,13 +1414,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         validateSession();
         ride.setDriver(driverAccepted.getDriver());
         setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.accepted_request), driverAccepted.getDriver());
-
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     private void validateSession() {
         if (!prefManager.isLoggedIn()){
-            Toast.makeText(this, "Please login again", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.please_login_again, Toast.LENGTH_LONG).show();
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -1410,7 +1468,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.i(TAG, "onDriverCanceled: called");
         Toast.makeText(this, R.string.driver_canceled_message, Toast.LENGTH_LONG).show();
         EventBus.getDefault().post(new RequestCanceled());
-
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1426,8 +1483,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPriceUpdated(PriceUpdated priceUpdated){
-        calculatePrice(priceUpdated.getDuration(), priceUpdated.getDistance());
+        calculatePrice();
     }
-
-
 }

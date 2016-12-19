@@ -69,6 +69,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     break;
                 case 1: // Driver accepted
                     Log.d(TAG, "onMessageReceived: 1 status");
+
                     // This message stops the RideRequestService and update the UI
                     EventBus.getDefault().post(new DriverAccepted(new Driver(
                             remoteMessage.getData().get("name"),

@@ -81,5 +81,13 @@ public interface RestService {
 
     @GET("price/")
     Call<PriceResponse> getPrice(@Query("time") String time);
+
+
+    @GET("passenger_api/update/")
+    Call<SimpleResponse> updateProfile(@Header("Authorization") String authorization,
+                                      @Query("fullname") String fullname,
+                                      @Query("phone") String phone,
+                                      @Query("password") String pasword
+                                       );
 }
 

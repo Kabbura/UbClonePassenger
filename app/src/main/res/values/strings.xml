@@ -110,6 +110,16 @@
     <string name="fill_all_fields">Please fill all fields.</string>
     <string name="outdated_app_message">Your app is outdated!</string>
     <string name="outdated_app_message_body">Please update your application to continue using this app.</string>
+    <string name="update_your_password_message">Update your password</string>
+    <string name="old_password">Old password</string>
+    <string name="new_password">New password</string>
+    <string name="update_your_phone_message">Update your phone</string>
+    <string name="update_your_fullname">Update your full name</string>
+    <string name="wrong_password">Wrong password</string>
+    <string name="password_updated">Password updated</string>
+    <string name="update_data">Update data</string>
+    <string name="profile_updated_successfully">Profile updated successfully</string>
+    <string name="updating_profile_data">Updating profile data</string>
 
 
     <string-array name="gender_array">

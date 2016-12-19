@@ -20,13 +20,14 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name="android.support.multidex.MultiDexApplication"
+        android:name="com.example.islam.ubclone.CoreApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:installLocation="auto"
+
         >
         <service
             android:name=".MyFirebaseMessagingService"

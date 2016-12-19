@@ -72,7 +72,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/search_placeholder"
-                    android:textSize="18sp"
+                    android:textSize="18dp"
                     android:lines="1"/>
             </RelativeLayout>
             <View
@@ -119,7 +119,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/search_placeholder"
-                    android:textSize="18sp"
+                    android:textSize="18dp"
                     android:lines="1"
                     />
             </RelativeLayout>
@@ -163,7 +163,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:text="@string/price"
-                    android:textSize="16sp"
+                    android:textSize="16dp"
                     android:layout_marginLeft="12dp"
                     android:layout_marginStart="12dp"
                     android:maxLines="1"/>
@@ -176,7 +176,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:text="@string/calculating_price"
-                    android:textSize="16sp"
+                    android:textSize="16dp"
                     android:layout_marginLeft="12dp"
                     android:layout_marginStart="12dp"
                     android:maxLines="1"
@@ -208,7 +208,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:text="@string/now"
-                    android:textSize="16sp"
+                    android:textSize="16dp"
                     android:layout_marginLeft="12dp"
                     android:layout_marginStart="12dp"
                     />
@@ -237,7 +237,7 @@
                     android:layout_width="match_parent"
                     android:layout_centerVertical="true"
                     android:text="@string/note_place_holder"
-                    android:textSize="16sp"
+                    android:textSize="16dp"
                     android:layout_marginLeft="12dp"
                     android:layout_marginStart="12dp"
                     />
@@ -252,7 +252,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/female_driver_only"
-                android:textSize="16sp"
+                android:textSize="16dp"
                 android:textColor="@android:color/tab_indicator_text"/>
 
         </LinearLayout>
@@ -296,7 +296,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/arrived_safely"
-                android:textSize="16sp"
+                android:textSize="16dp"
                 android:textColor="@android:color/white"
                 android:padding="10dp"
                 android:visibility="visible"
@@ -320,7 +320,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/cancel_request"
-                android:textSize="16sp"
+                android:textSize="16dp"
                 android:textColor="@color/colorRed"
                 android:padding="10dp"
                 android:visibility="visible"
@@ -373,7 +373,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/now"
-                    android:textSize="14sp"
+                    android:textSize="14dp"
                     android:layout_gravity="center_vertical"
                     android:maxLines="1"/>
 
@@ -403,7 +403,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/note_place_holder"
-                    android:textSize="14sp"
+                    android:textSize="14dp"
                     android:layout_gravity="center_vertical"
                     android:maxLines="1"/>
             </LinearLayout>
@@ -423,7 +423,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/female_driver_only"
-                    android:textSize="14sp"
+                    android:textSize="14dp"
                     android:textColor="@android:color/tab_indicator_text"/>
             </LinearLayout>
 
@@ -456,14 +456,14 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/dashes"
-                    android:textSize="38sp"
+                    android:textSize="38dp"
                     android:textColor="@color/colorPrimary"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/currency"
-                    android:textSize="24sp"
+                    android:textSize="24dp"
                     android:textColor="@color/colorPrimary"/>
             </LinearLayout>
 
@@ -498,7 +498,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="20sp"
+                    android:textSize="20dp"
                     android:textColor="@android:color/white"
                     android:gravity="center"
                     />
@@ -514,7 +514,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/pick_up_in"
-                        android:textSize="14sp"
+                        android:textSize="14dp"
                         android:textColor="@android:color/white"
                         android:padding="2dp"
                         />
@@ -523,7 +523,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dash_minutes"
-                        android:textSize="14sp"
+                        android:textSize="14dp"
                         android:textColor="@android:color/white"
                         android:gravity="center"
                         />
@@ -550,7 +550,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/finding_a_driver"
                 android:gravity="center"
-                android:textSize="20sp"
+                android:textSize="20dp"
                 android:textColor="@color/colorAccent"
                 android:padding="10dp"
                 />
@@ -563,7 +563,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/dash"
-                android:textSize="14sp"
+                android:textSize="14dp"
                 android:textColor="@color/colorAccent"
                 android:padding="10dp"
                 />
@@ -586,7 +586,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/dash"
-                        android:textSize="14sp"
+                        android:textSize="14dp"
                         android:textColor="@color/colorAccent"
                         />
                     <TextView
@@ -594,7 +594,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/dash"
-                        android:textSize="14sp"
+                        android:textSize="14dp"
                         android:textColor="@color/colorAccent"
                         android:paddingTop="2dp"
                         />
@@ -696,7 +696,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Price:"
-                        android:textSize="16sp"
+                        android:textSize="16dp"
                         android:textColor="@android:color/white"
                         />
                     <View
@@ -706,7 +706,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="65"
-                        android:textSize="18sp"
+                        android:textSize="18dp"
                         android:textColor="@color/colorAccent"
                         />
                     <View
@@ -716,7 +716,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="SDG"
-                        android:textSize="12sp"
+                        android:textSize="12dp"
                         android:textColor="@color/colorAccent"
                         />
                 </LinearLayout>
@@ -754,7 +754,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/finding_a_driver"
-                        android:textSize="20sp"
+                        android:textSize="20dp"
                         android:textColor="@color/colorAccent"
                         android:gravity="center_horizontal"
                         android:layout_marginBottom="4dp"
@@ -768,7 +768,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Driver name"
-                            android:textSize="14sp"
+                            android:textSize="14dp"
                             android:textColor="@color/colorAccent"
                             />
 
@@ -777,7 +777,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Driver Placeholder Name"
-                            android:textSize="14sp"
+                            android:textSize="14dp"
                             android:textColor="@android:color/white"
                             />
 
@@ -792,7 +792,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Vehicle NO. "
-                            android:textSize="14sp"
+                            android:textSize="14dp"
                             android:textColor="@color/colorAccent"
                             />
 
@@ -801,7 +801,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="KH00000"
-                            android:textSize="14sp"
+                            android:textSize="14dp"
                             android:textColor="@android:color/white"
                             />
 

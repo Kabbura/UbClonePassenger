@@ -107,6 +107,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
         NavigationView.OnNavigationItemSelectedListener,
         GoogleApiClient.ConnectionCallbacks,
@@ -1405,6 +1407,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
     }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
 
     // ==================== FCM Events ==================== //:
 

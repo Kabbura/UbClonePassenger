@@ -132,6 +132,7 @@
     <string name="plate_no">Plate No.</string>
     <string name="details_icon">details icon</string>
     <string name="click_to_update_password">Click to update password</string>
+    <string name="spaced_minutes">" minutes"</string>
 
 
     <string-array name="gender_array">

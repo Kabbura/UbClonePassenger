@@ -65,7 +65,7 @@ public class RideRequestService extends Service {
     }
 
     @Subscribe
-    protected void onRideStarted(RideStarted rideStarted) {
+    public void onRideStarted(RideStarted rideStarted) {
         if (!prefManager.isLoggedIn() || prefManager.getRideStatus().equals(PrefManager.NO_RIDE)){
             Log.i(TAG, "onHandleIntent: No ride is ongoing");
             return;
@@ -79,7 +79,6 @@ public class RideRequestService extends Service {
                 activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // This always shows up in the notifications area when this Service is running.
-        // TODO: String localization
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setContentTitle(getText(R.string.app_name));
@@ -154,14 +153,14 @@ public class RideRequestService extends Service {
             @Override
             public void run() {
                 Log.d(TAG, "run: I am called for "+ callCounter++ +" service: "+call.request().toString());
-                Toast.makeText(RideRequestService.this, "Request sent: " + callCounter, Toast.LENGTH_LONG).show();
+//                Toast.makeText(RideRequestService.this, "Request sent: " + callCounter, Toast.LENGTH_LONG).show();
 
                 call.enqueue(new Callback<DriverResponse>() {
                    @Override
                    public void onResponse(Call<DriverResponse> call, Response<DriverResponse> response) {
                        if (response.isSuccessful()){
                            Log.d(TAG, "onResponse: is successful");
-                           Toast.makeText(RideRequestService.this, "Successful. Status: "+response.body().getStatus(), Toast.LENGTH_LONG).show();
+//                           Toast.makeText(RideRequestService.this, "Successful. Status: "+response.body().getStatus(), Toast.LENGTH_LONG).show();
                            // There are 4 situations here:
                            // Status 0: When request is pending. request_id is returned.
                            // Status 1: No driver found
@@ -210,7 +209,7 @@ public class RideRequestService extends Service {
                    }
                });
             }
-        }, 7000);
+        }, 30000);
     }
 
 

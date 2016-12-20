@@ -122,4 +122,5 @@
     <string name="status_no_driver">لا يوجد سائق</string>
     <string name="time">الزمن</string>
     <string name="click_to_update_password">اضغط لتحديث كلمة السر</string>
+    <string name="spaced_minutes"> دقيقة</string>
 </resources>

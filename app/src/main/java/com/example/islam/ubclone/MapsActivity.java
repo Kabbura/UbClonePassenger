@@ -224,8 +224,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             Float min = Collections.min(locations);
             Integer minutes = Math.round(min / 1000 * 5);
-            //TODO: globalize string
-            String pickupIn = minutes  + " minutes";
+            String pickupIn = minutes  + getString(R.string.spaced_minutes);
             pickupTimeText.setText(pickupIn);
         }
     }
@@ -705,8 +704,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             logout();
         }else if (id == R.id.nav_change_lang){
             Configuration config = new Configuration();
-                String languageToLoad;
-            if (prefManager.usingEnglish()){
+            String languageToLoad;
+            String deviceLocale = Locale.getDefault().getLanguage();
+            if (deviceLocale.equals("en")){
                 languageToLoad = "ar";
                 prefManager.setUsingEnglish(false);
             } else {

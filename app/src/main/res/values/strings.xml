@@ -133,6 +133,8 @@
     <string name="details_icon">details icon</string>
     <string name="click_to_update_password">Click to update password</string>
     <string name="spaced_minutes">" minutes"</string>
+    <string name="nav_ongoing_requests">Ongoing requests</string>
+    <string name="nav_new_request">New request</string>
 
 
     <string-array name="gender_array">

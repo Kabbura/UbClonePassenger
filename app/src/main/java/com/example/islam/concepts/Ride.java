@@ -25,9 +25,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -188,20 +186,15 @@ public class Ride {
                     // Status 6: When a request is already accepted. Return request id in the error_msg
                     switch (response.body().getStatus()){
                         case 0:
-                            Log.d(TAG, "onResponse: status 0");
-
                             Intent intent = new Intent(mapsActivity, RideRequestService.class);
-                            if (mapsActivity.startService(intent) == null) {
-                                //Toast.makeText(mapsActivity, "Failed to start the service", Toast.LENGTH_SHORT).show();
-                            } else {
-                                // Toast.makeText(mapsActivity, "Service started", Toast.LENGTH_SHORT).show();
-                            }
-                            prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
-                            prefManager.setRideId(response.body().getRequestID());
+                            mapsActivity.startService(intent);
+                            Log.d(TAG, "onResponse: status 0");
                             details.requestID = response.body().getRequestID();
-                            prefManager.setRideDetails(details);
+                            details.setStatus(PrefManager.FINDING_DRIVER);
+                            prefManager.setCurrentRide(details);
+                            Log.d(TAG, "onResponse: Request ID: " + response.body().getRequestID());
 
-                            EventBus.getDefault().post(new RideStarted());
+                            EventBus.getDefault().post(new RideStarted(details));
                             mapsActivity.setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, mapsActivity.getString(R.string.finding_a_driver));
 
                             break;
@@ -210,11 +203,15 @@ public class Ride {
                             mapsActivity.toast.show();
                             break;
                         case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
-                            EventBus.getDefault().post(new RequestCanceled());
-                            prefManager.setRideStatus(PrefManager.NO_RIDE);
+                            EventBus.getDefault().post(new RequestCanceled(details.requestID));
+                            details.setStatus(PrefManager.NO_RIDE);
+                            prefManager.setCurrentRide(details);
+//                            prefManager.setRideStatus(PrefManager.NO_RIDE);
                             break;
                         case 6: // When a request is already accepted.Return request id in the error_msg
-                            prefManager.setRideId(response.body().getErrorMessage());
+                            details.requestID = response.body().getErrorMessage();
+                            prefManager.setCurrentRide(details);
+//                            prefManager.setRideId(response.body().getErrorMessage());
                             Log.d(TAG, "onResponse: id: " + response.body().getErrorMessage());
                             EventBus.getDefault().post(new DriverAccepted(new Driver(
                                     "unknown",
@@ -254,11 +251,15 @@ public class Ride {
     public void cancelRequest(final MapsActivity mapsActivity) {
 
         final PrefManager prefManager = new PrefManager(mapsActivity);
-        Log.d(TAG, "cancelRequest: id: " + prefManager.getRideId());
+        if (prefManager.getCurrentRide().requestID.equals("-1")) {
+            Log.w(TAG, "cancelRequest: -1 id");
+            return;
+        }
+        Log.d(TAG, "cancelRequest: id: " + prefManager.getCurrentRide().requestID);
         String email = prefManager.getUser().getEmail();
         String password = prefManager.getUser().getPassword();
         Call<SimpleResponse> call = service.cancelRequest("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
-                prefManager.getRideId());
+                details.requestID);
         Log.d(TAG, "cancelRequest: "+call.request().toString());
         progressDialog   = new ProgressDialog(mapsActivity);
         progressDialog.setIndeterminate(true);
@@ -269,7 +270,8 @@ public class Ride {
             public void onResponse(Call<SimpleResponse> call, Response<SimpleResponse> response) {
                 if (response.isSuccessful()){
                     Log.i(TAG, "onResponse: Request has been canceled");
-                    EventBus.getDefault().post(new RequestCanceled());
+                    prefManager.clearCurrentRide();
+                    EventBus.getDefault().post(new RequestCanceled(prefManager.getCurrentRide().requestID));
                 }else {
                     Toast.makeText(mapsActivity, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
                 }
@@ -286,11 +288,15 @@ public class Ride {
     }
 
     public void arrived(final MapsActivity mapsActivity) {
+        if (details.requestID.equals("-1")) {
+            Log.w(TAG, "cancelRequest: -1 id");
+            return;
+        }
         final PrefManager prefManager = new PrefManager(mapsActivity);
         String email = prefManager.getUser().getEmail();
         String password = prefManager.getUser().getPassword();
         Call<SimpleResponse> call = service.postArrived("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
-                prefManager.getRideId());
+                details.requestID);
         progressDialog   = new ProgressDialog(mapsActivity);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Connecting");
@@ -300,7 +306,7 @@ public class Ride {
             public void onResponse(Call<SimpleResponse> call, Response<SimpleResponse> response) {
                 if (response.isSuccessful()){
                     Log.i(TAG, "onResponse: Passenger has arrived");
-                    EventBus.getDefault().post(new RequestCanceled());
+                    EventBus.getDefault().post(new RequestCanceled(details.requestID));
                     Toast.makeText(mapsActivity, R.string.thank_you_for_booking, Toast.LENGTH_LONG).show();
                 }else {
                     Toast.makeText(mapsActivity, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
@@ -331,8 +337,14 @@ public class Ride {
         public String destText;
         public Integer distance;
         public Integer duration;
+        private Integer status;
+        private Driver driver;
 
         public RideDetails() {
+            status = PrefManager.NO_RIDE;
+            requestID = "-1";
+            now = true;
+            driver = new Driver("-","","-","-","");
         }
         public boolean isSet(){
             if (pickup == null) Log.d(TAG, "isSet: Pickup is null");
@@ -369,6 +381,47 @@ public class Ride {
             destText = null;
             distance = null;
             duration = null;
+            status = PrefManager.NO_RIDE;
+            driver = new Driver("-","","-","-","");
+        }
+
+        public boolean isVoid(){
+            return status.equals(PrefManager.NO_RIDE);
+        }
+
+
+        public void setStatus(Integer status){
+            if (status.equals(PrefManager.COMPLETED) ||
+                    status.equals(PrefManager.NO_RIDE) ||
+                    status.equals(PrefManager.PASSENGER_ONBOARD) ||
+                    status.equals(PrefManager.ARRIVED_PICKUP) ||
+                    status.equals(PrefManager.ARRIVED_DEST) ||
+                    status.equals(PrefManager.DRIVER_ACCEPTED) ||
+                    status.equals(PrefManager.FINDING_DRIVER) ||
+                    status.equals(PrefManager.ON_GOING_RIDE) ||
+                    status.equals(PrefManager.ON_THE_WAY)){
+                this.status = status;
+            }
+            else {
+                this.status = PrefManager.ON_GOING_RIDE;
+            }
+        }
+
+        public void setStatus(Integer status, Driver driver){
+            this.driver = driver;
+            setStatus(status);
+        }
+
+        public Integer getStatus() {
+            return (status == null)? PrefManager.NO_RIDE: status;
+        }
+
+        public Driver getDriver() {
+            return (driver == null)?new Driver("-","","-","-",""): driver ;
+        }
+
+        public void setDriver(Driver driver){
+            this.driver = (driver == null)? new Driver("-","","-","-",""): driver ;
         }
     }
 }

@@ -7,13 +7,21 @@
         <menu>
             <group android:checkableBehavior="none" >
                 <item
-                    android:id="@+id/nav_profile"
-                    android:title="@string/nav_profile"
-                    android:icon="@drawable/ic_menu_profile" />
+                    android:id="@+id/nav_new_request"
+                    android:title="@string/nav_new_request"
+                    android:icon="@drawable/ic_menu_previous" />
+                <item
+                    android:id="@+id/nav_ongoing_requests"
+                    android:title="@string/nav_ongoing_requests"
+                    android:icon="@drawable/ic_menu_previous" />
                 <item
                     android:id="@+id/nav_history"
                     android:title="@string/nav_previous_requests"
                     android:icon="@drawable/ic_menu_previous" />
+                <item
+                    android:id="@+id/nav_profile"
+                    android:title="@string/nav_profile"
+                    android:icon="@drawable/ic_menu_profile" />
                 <item
                     android:id="@+id/nav_about"
                     android:title="@string/nav_about"

@@ -173,7 +173,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:".concat(prefManager.getRideDriver().getPhone())));
+                intent.setData(Uri.parse("tel:".concat(prefManager.getCurrentRide().getDriver().getPhone())));
                 startActivity(intent);
             }
         });
@@ -288,7 +288,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void setUI(UI_STATE state, String message) {
-        setUI( state,  message,  prefManager.getRideDriver());
+        setUI( state,  message,  prefManager.getCurrentRide().getDriver());
     }
 
     public void setUI(UI_STATE state, String message, Driver driver){
@@ -692,6 +692,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (id == R.id.nav_profile) {
             Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
+        } else if (id == R.id.nav_ongoing_requests){
+            Intent intent = new Intent(this, HistoryActivity.class);
+            startActivity(intent);
+
+        } else if (id == R.id.nav_new_request){
+            startNewRequest();
+
         } else if (id == R.id.nav_history){
             Intent intent = new Intent(this, HistoryActivity.class);
             startActivity(intent);
@@ -700,18 +707,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
 
-        }else if (id == R.id.nav_logout){
+        } else if (id == R.id.nav_logout){
             logout();
-        }else if (id == R.id.nav_change_lang){
+        } else if (id == R.id.nav_change_lang){
             Configuration config = new Configuration();
             String languageToLoad;
             String deviceLocale = Locale.getDefault().getLanguage();
             if (deviceLocale.equals("en")){
                 languageToLoad = "ar";
-                prefManager.setUsingEnglish(false);
             } else {
                 languageToLoad = "en";
-                prefManager.setUsingEnglish(true);
             }
 
             Locale locale = new Locale(languageToLoad);
@@ -732,6 +737,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void startNewRequest() {
+        // reset UI and sharedPreferences
+
     }
 
     private void logout() {
@@ -786,7 +796,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             relocateButtonLayoutParams.setMargins(0, 0, right, bottom);
             locationButton.requestLayout();
 
-            Log.d(TAG, "setRelocateButtonLocation: bottomMargin: "+ bottomDimension);
+//            Log.d(TAG, "setRelocateButtonLocation: bottomMargin: "+ bottomDimension);
         }
     }
 
@@ -799,7 +809,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onConnected(@Nullable Bundle bundle) {
 
-        Log.d(TAG, "onConnected: I am connected");
+//        Log.d(TAG, "onConnected: I am connected");
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
 
@@ -809,7 +819,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
-        Log.d(TAG, "onConnected: Connected");
+//        Log.d(TAG, "onConnected: Connected");
         if (mLastLocation != null) {
             mCurrentLocation = mLastLocation;
 //            Toast.makeText(this, "Connected GPlServices "+mLastLocation.getLatitude()+" "+mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
@@ -960,8 +970,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 if (routePolyline != null) {
                                     routePolyline.remove();
                                 }
+                                
                                 routePolyline = mMap.addPolyline(polylineOptions);
-
+                                Log.d(TAG, "onDirectionSuccess: Route Displayed");
 
                                 // Distance info
                                 Info distanceInfo = leg.getDistance();
@@ -972,6 +983,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 ride.details.distance = Integer.valueOf(distance);
                                 ride.details.duration = Integer.valueOf(duration);
                                 calculatePrice();
+                            }else {
+                                Log.w(TAG, "onDirectionSuccess: Directions failed");
+                                Log.w(TAG, "onDirectionSuccess: " + rawBody);
                             }
                         }
                     }
@@ -1092,10 +1106,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             startIntentService(RestServiceConstants.DEST, location);
 
             priceSettings.updateFromServer();
-            showRoute();
+            //showRoute();
             setUI(UI_STATE.DETAILED);
         } else if (UIState == UI_STATE.DETAILED)
         {
+            // TESTING
+            priceSet = PriceSet.SUCCESS;
+            ride.details.price = "4";
+            ////////////////////////////////////
+
             //Check if request is ready:
             if (priceSet == PriceSet.SUCCESS ){
 //                ride.details.price="4";
@@ -1129,11 +1148,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void setArrived(View view) {
-        if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
-                prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
+        if (prefManager.getCurrentRide().getStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
+                prefManager.getCurrentRide().getStatus().equals(PrefManager.ARRIVED_DEST)) {
             ride.arrived(this);
-        }  else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
-            EventBus.getDefault().post(new RequestCanceled());
+        }  else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.COMPLETED)) {
+            EventBus.getDefault().post(new RequestCanceled(prefManager.getCurrentRide().requestID));
             Toast.makeText(this, R.string.thank_you_for_booking, Toast.LENGTH_LONG).show();
         }
     }
@@ -1142,17 +1161,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void cancelRequest(View view) {
         // The cancel button behavior depends on the UI state:
         Log.i(TAG, "cancelRequest");
-        if (prefManager.getRideStatus().equals(PrefManager.NO_RIDE)){
+        if (prefManager.getCurrentRide().getStatus().equals(PrefManager.NO_RIDE)){
 //            resetRequest();
-            EventBus.getDefault().post(new RequestCanceled());
-        } else if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_PICKUP)){
+            prefManager.clearCurrentRide();
+            EventBus.getDefault().post(new RequestCanceled(prefManager.getCurrentRide().requestID));
+        } else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.ARRIVED_PICKUP)){
             Toast.makeText(this, "Driver has arrived. Contact driver to cancel.", Toast.LENGTH_LONG).show();
-//        } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD) ||
-//                prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)) {
-//            ride.arrived(this);
-//        } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)) {
-//            resetRequest();
-//            Toast.makeText(this, "Thank you for booking with us.", Toast.LENGTH_LONG).show();
         } else {
             ride.cancelRequest(this);
         }
@@ -1333,30 +1347,34 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onResume() {
         validateSession();
-        Log.i(TAG, "onResume: RideStatus: "+ prefManager.getRideStatus());
-        if (prefManager.getRideStatus().equals(PrefManager.FINDING_DRIVER)) {
-            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.finding_a_driver), prefManager.getRideDriver());
-            EventBus.getDefault().post(new RideStarted());
-        } else if (prefManager.getRideStatus().equals(PrefManager.DRIVER_ACCEPTED)){
+        super.onResume();
+        Log.i(TAG, "onResume: RideStatus: "+ prefManager.getCurrentRide().getStatus());
+        if (prefManager.getCurrentRide().getStatus() == null || prefManager.getCurrentRide().requestID == null) {
+                EventBus.getDefault().post(new RequestCanceled("-1"));
+            return;
+        }
+        if (prefManager.getCurrentRide().getStatus().equals(PrefManager.FINDING_DRIVER)) {
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.finding_a_driver), prefManager.getCurrentRide().getDriver());
+//            EventBus.getDefault().post(new RideStarted());
+        } else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.DRIVER_ACCEPTED)){
             clearDriversMarkers();
-            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.accepted_request), prefManager.getRideDriver());
-        } else if (prefManager.getRideStatus().equals(PrefManager.ON_THE_WAY)){
-            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.on_the_way), prefManager.getRideDriver());
-        } else if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_PICKUP)){
-            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_pickup), prefManager.getRideDriver());
-        } else if (prefManager.getRideStatus().equals(PrefManager.PASSENGER_ONBOARD)){
-            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.passenger_onboard), prefManager.getRideDriver());
-        } else if (prefManager.getRideStatus().equals(PrefManager.ARRIVED_DEST)){
-            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_dest), prefManager.getRideDriver());
-        } else if (prefManager.getRideStatus().equals(PrefManager.COMPLETED)){
-            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.completed), prefManager.getRideDriver());
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.accepted_request), prefManager.getCurrentRide().getDriver());
+        } else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.ON_THE_WAY)){
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.on_the_way), prefManager.getCurrentRide().getDriver());
+        } else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.ARRIVED_PICKUP)){
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_pickup), prefManager.getCurrentRide().getDriver());
+        } else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.PASSENGER_ONBOARD)){
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.passenger_onboard), prefManager.getCurrentRide().getDriver());
+        } else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.ARRIVED_DEST)){
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_dest), prefManager.getCurrentRide().getDriver());
+        } else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.COMPLETED)){
+            setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.completed), prefManager.getCurrentRide().getDriver());
         } else {
             // When the activity is resuming after onActivityResults, we do not want to reset it.
             if (UIState != UI_STATE.CONFIRM_PICKUP && UIState != UI_STATE.CONFIRM_DESTINATION){
-                EventBus.getDefault().post(new RequestCanceled());
+                EventBus.getDefault().post(new RequestCanceled("-1"));
             }
         }
-        super.onResume();
     }
 
     protected void startIntentService(Boolean point, Location location) {
@@ -1405,6 +1423,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDriverAccepted(DriverAccepted driverAccepted){
+
+        if (!prefManager.getCurrentRide().requestID.equals(driverAccepted.getRequestID())) {
+            return;
+        }
+
         Log.d(TAG, "onDriverAccepted: A driver has accepted");
         validateSession();
         ride.setDriver(driverAccepted.getDriver());
@@ -1423,25 +1446,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDriverUpdatedStatus(DriverUpdatedStatus driverUpdatedStatus){
+        if (!prefManager.getCurrentRide().requestID.equals(driverUpdatedStatus.getRequestID())) {
+            return;
+        }
         Log.i(TAG, "onDriverUpdatedStatus: called");
         validateSession();
         switch (driverUpdatedStatus.getMessage()){
             case RestServiceConstants.ON_THE_WAY:
-                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.on_the_way), prefManager.getRideDriver());
+                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.on_the_way), prefManager.getCurrentRide().getDriver());
                 break;
             case RestServiceConstants.ARRIVED_PICKUP:
 
                 if (driverMarker != null) driverMarker.remove();
-                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_pickup), prefManager.getRideDriver());
+                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_pickup), prefManager.getCurrentRide().getDriver());
                 break;
             case RestServiceConstants.PASSENGER_ONBOARD:
-                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.passenger_onboard), prefManager.getRideDriver());
+                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.passenger_onboard), prefManager.getCurrentRide().getDriver());
                 break;
             case RestServiceConstants.ARRIVED_DEST:
-                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_dest), prefManager.getRideDriver());
+                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.arrived_dest), prefManager.getCurrentRide().getDriver());
                 break;
             case RestServiceConstants.COMPLETED:
-                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.completed), prefManager.getRideDriver());
+                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.completed), prefManager.getCurrentRide().getDriver());
                 break;
         }
 
@@ -1449,6 +1475,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDriverLocation(DriverLocation driverLocation){
+        if (!prefManager.getCurrentRide().requestID.equals(driverLocation.getRequestID())) {
+            return;
+        }
         Log.i(TAG, "onDriverLocation: called");
         if (driverMarker != null) driverMarker.remove();
 
@@ -1460,9 +1489,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDriverCanceled(DriverCanceled driverCanceled){
+        if (!prefManager.getCurrentRide().requestID.equals(driverCanceled.getRequestID())) {
+            return;
+        }
         Log.i(TAG, "onDriverCanceled: called");
         Toast.makeText(this, R.string.driver_canceled_message, Toast.LENGTH_LONG).show();
-        EventBus.getDefault().post(new RequestCanceled());
+        EventBus.getDefault().post(new RequestCanceled(driverCanceled.getRequestID()));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1473,6 +1505,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onRequestCanceled(RequestCanceled requestCanceled) {
+        if (!prefManager.getCurrentRide().requestID.equals(requestCanceled.getRequestID())) {
+            return;
+        }
         resetRequestUI();
     }
 

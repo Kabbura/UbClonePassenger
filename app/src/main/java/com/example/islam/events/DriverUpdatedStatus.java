@@ -5,11 +5,18 @@ package com.example.islam.events;
  */
 public class DriverUpdatedStatus {
     private String message;
-    public DriverUpdatedStatus(String mMessage){
+    private String requestID;
+    public DriverUpdatedStatus(String mMessage, String requestID){
         message = mMessage;
+        this.requestID = requestID;
     }
 
     public String getMessage() {
         return message;
     }
+
+    public String getRequestID() {
+        return requestID;
+    }
+
 }

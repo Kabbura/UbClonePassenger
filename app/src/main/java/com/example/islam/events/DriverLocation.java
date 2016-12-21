@@ -7,8 +7,15 @@ import com.google.android.gms.maps.model.LatLng;
  */
 public class DriverLocation {
     private LatLng driverLocation;
-    public DriverLocation(LatLng mDriverLocation) {
+    private String requestID;
+
+    public String getRequestID() {
+        return requestID;
+    }
+
+    public DriverLocation(LatLng mDriverLocation, String requestID) {
         driverLocation = mDriverLocation;
+        this.requestID = requestID;
     }
 
     public LatLng getDriverLocation() {

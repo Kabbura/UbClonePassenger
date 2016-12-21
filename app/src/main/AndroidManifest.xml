@@ -20,15 +20,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name="com.example.islam.ubclone.CoreApplication"
+        android:name=".CoreApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
+        android:installLocation="auto"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:installLocation="auto"
-
-        >
+        android:theme="@style/AppTheme">
         <service
             android:name=".MyFirebaseMessagingService"
             android:exported="false">
@@ -126,7 +124,9 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.islam.ubclone.HistoryActivity" /></activity>
+                android:value="com.example.islam.ubclone.HistoryActivity" />
+        </activity>
+
     </application>
 
 </manifest>

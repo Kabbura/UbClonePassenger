@@ -65,7 +65,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 case 0: // Driver reject:
 
                     Log.i(TAG, "onMessageReceived: 0 status");
-                    EventBus.getDefault().post(new DriverRejected());
+                    EventBus.getDefault().post(new DriverRejected(
+                            remoteMessage.getData().get("request_id")));
                     break;
                 case 1: // Driver accepted
                     Log.d(TAG, "onMessageReceived: 1 status");
@@ -85,10 +86,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     String location = remoteMessage.getData().get("location");
                     String[] locations = location.split(Pattern.quote(","));
                     LatLng driverLocation = new LatLng(Double.valueOf(locations[0]),Double.valueOf(locations[1]));
-                    EventBus.getDefault().post(new DriverLocation(driverLocation));
+                    EventBus.getDefault().post(new DriverLocation(driverLocation,remoteMessage.getData().get("request_id")));
                     break;
                 case 3: // Driver status
-                    EventBus.getDefault().post(new DriverUpdatedStatus(remoteMessage.getData().get("message")));
+                    EventBus.getDefault().post(new DriverUpdatedStatus(remoteMessage.getData().get("message"),remoteMessage.getData().get("request_id") ));
                     switch (remoteMessage.getData().get("message")){
                         case RestServiceConstants.ON_THE_WAY:
                             sendNotification(getString(R.string.on_the_way));
@@ -108,7 +109,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     }
                     break;
                 case 4: // Driver canceled
-                    EventBus.getDefault().post(new DriverCanceled());
+                    EventBus.getDefault().post(new DriverCanceled(remoteMessage.getData().get("request_id")));
                     sendNotification(getString(R.string.driver_canceled_message));
                     break;
                 case 5: // Logout

@@ -244,7 +244,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         assert pInfo != null;
         Integer versionCode = pInfo.versionCode;
 
-        Call<LoginResponse> call = service.login("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP), prefManager.getRegistrationToken(), versionCode);
+        Call<LoginResponse> call = service.login("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
+                prefManager.getRegistrationToken(),
+                versionCode);
         Log.d(TAG, "loginRequest: "+call.request().toString());
         call.enqueue(new Callback<LoginResponse>() {
             @Override
@@ -259,19 +261,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             prefManager.setIsLoggedIn(true);
                             prefManager.setUser(user);
 
-                            switch (response.body().getOnGoingRequest()){
-                                case "pending":
-                                    prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
-                                    prefManager.setRideId(response.body().getRequestID());
-                                    break;
-                                case "accepted":
-                                    prefManager.setRideStatus(PrefManager.DRIVER_ACCEPTED);
-                                    prefManager.setRideId(response.body().getRequestID());
-                                    break;
-                                default:
-                                    prefManager.setRideStatus(PrefManager.NO_RIDE);
-                                    break;
-                            }
+//                            switch (response.body().getOnGoingRequest()){
+//                                case "pending":
+//                                    prefManager.setRideStatus(PrefManager.FINDING_DRIVER);
+//                                    prefManager.setRideId(response.body().getRequestID());
+//                                    break;
+//                                case "accepted":
+//                                    prefManager.setRideStatus(PrefManager.DRIVER_ACCEPTED);
+//                                    prefManager.setRideId(response.body().getRequestID());
+//                                    break;
+//                                default:
+//                                    prefManager.setRideStatus(PrefManager.NO_RIDE);
+//                                    break;
+//                            }
 
                             Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
                             startActivity(intent);

@@ -1,5 +1,7 @@
 package com.example.islam.events;
 
+import android.util.Log;
+
 import com.example.islam.POJO.Driver;
 
 /**
@@ -7,11 +9,15 @@ import com.example.islam.POJO.Driver;
  */
 public class DriverAccepted {
     private Driver driver;
-    public DriverAccepted() {
+    private String requestID;
+    public DriverAccepted(String requestID) {
+        this.requestID = requestID;
     }
 
     public DriverAccepted(Driver mDriver) {
         driver = mDriver;
+        requestID = driver.getRequest_id();
+        Log.d("TEST", "DriverAccepted: id: " + requestID);
     }
 
 
@@ -21,5 +27,9 @@ public class DriverAccepted {
 
     public void setDriver(Driver driver) {
         this.driver = driver;
+    }
+
+    public String getRequestID() {
+        return requestID;
     }
 }

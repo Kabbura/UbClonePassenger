@@ -10,11 +10,16 @@ import com.example.islam.POJO.User;
 import com.example.islam.concepts.Ride;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by islam on 9/27/16.
  */
 public class PrefManager {
+    private static final String TAG = "PrefManager";
     SharedPreferences pref;
     SharedPreferences.Editor editor;
     Context _context;
@@ -40,16 +45,8 @@ public class PrefManager {
     private static final String USER_PHONE = "UserPhone";
     private static final String USER_GENDER = "UserGender";
 
-    // Ride details
-//    private static final String RIDE_PICKUP = "RidePickup";
-//    private static final String RIDE_DEST = "RideDest";
-//    private static final String RIDE_TIME = "RideTime";
-//    private static final String RIDE_FEMALE_DRIVER = "RideFemaleDriver";
-//    private static final String RIDE_NOTES = "RideNotes";
-//    private static final String RIDE_PRICE = "RidePrice";
-//    private static final String RIDE_PICKUP_TEXT = "RidePickupText";
-//    private static final String RIDE_DEST_TEXT = "RideDestText";
-    private static final String RIDE_DETAILS = "RideDetails";
+    private static final String CURRENT_RIDE = "RideDetails";
+    private static final String ONGOING_RIDES = "OngoingRides";
 
     public static final Integer NO_RIDE = 0,
             FINDING_DRIVER = 1,
@@ -116,61 +113,140 @@ public class PrefManager {
         return pref.getString(REGISTRATION_TOKEN, FirebaseInstanceId.getInstance().getToken());
     }
 
-    public void setRideStatus(Integer status){
+    private void setRideStatus(Integer status){
         editor.putInt(RIDE_STATUS, status);
         editor.apply();
     }
-    public Integer getRideStatus(){
+    private Integer getRideStatus(){
         return pref.getInt(RIDE_STATUS, NO_RIDE);
     }
 
-    public void setRideId(String rideId){
+    private void setRideId(String rideId){
         editor.putString(RIDE_ID, rideId);
         editor.apply();
     }
-    public String getRideId(){
+    private String getRideId(){
         return pref.getString(RIDE_ID, null);
     }
 
-    public void setRideDriver(Driver driver) {
+    private void setRideDriver(Driver driver) {
         Gson gson = new Gson();
         String json = gson.toJson(driver);
         editor.putString(RIDE_DRIVER, json);
         editor.apply();
     }
 
-    public Driver getRideDriver(){
+    private Driver getRideDriver(){
         Gson gson = new Gson();
         String json = gson.toJson(new Driver("---","","---","---",""));
         json = pref.getString(RIDE_DRIVER, json);
         return gson.fromJson(json, Driver.class);
     }
 
-    public void setRideDetails(Ride.RideDetails rideDetails) {
-        Log.d("PrefManager", "setRideDetails: Called");
+
+
+    public void setCurrentRide(Ride.RideDetails rideDetails) {
+//        Log.d("PrefManager", "setCurrentRide: Called");
         Gson gson = new Gson();
         String json = gson.toJson(rideDetails);
-        editor.putString(RIDE_DETAILS, json);
+        editor.putString(CURRENT_RIDE, json);
         editor.apply();
+        updateOngoingRide(rideDetails);
     }
 
-    public Ride.RideDetails getRideDetails(){
-        Log.d("PrefManager", "getRideDetails: Called");
+    public Ride.RideDetails getCurrentRide(){
+//        Log.d("PrefManager", "getCurrentRide: Called");
         Gson gson = new Gson();
         Ride ride = new Ride();
         String json = gson.toJson(ride.details);
-        json = pref.getString(RIDE_DETAILS, json);
+        json = pref.getString(CURRENT_RIDE, json);
         return gson.fromJson(json, Ride.RideDetails.class);
     }
 
-
-    public void setUsingEnglish(boolean otherLanguage) {
-        editor.putBoolean(OTHER_LANGUAGE, otherLanguage);
-        editor.commit();
+    public void clearCurrentRide(){
+//        Log.d(TAG, "clearCurrentRide: called: ");
+        Gson gson = new Gson();
+        Ride ride = new Ride();
+        String json = gson.toJson(ride.details);
+        editor.putString(CURRENT_RIDE, json);
+        editor.apply();
     }
 
-    public boolean usingEnglish() {
-        return pref.getBoolean(OTHER_LANGUAGE, true);
+
+
+    public void setOngoingRides(List<Ride.RideDetails> ongoingRides) {
+//        Log.d("PrefManager", "setOngoingRides: Called");
+        Gson gson = new Gson();
+        String json = gson.toJson(ongoingRides);
+        editor.putString(ONGOING_RIDES, json);
+        editor.apply();
+    }
+    public List<Ride.RideDetails> getOngoingRides(){
+//        Log.d("PrefManager", "getOngoingRides: Called");
+        Gson gson = new Gson();
+        Ride ride = new Ride();
+        List<Ride.RideDetails> ongoingRides = new ArrayList<>();
+
+        String json = gson.toJson(ongoingRides);
+        json = pref.getString(ONGOING_RIDES, json);
+        return gson.fromJson(json, new TypeToken<List<Ride.RideDetails>>(){}.getType());
+    }
+
+    // Ride is saved when the user orders a ride and the response is successful.
+    private void addOngoingRide(Ride.RideDetails rideDetails){
+//        Log.d(TAG, "addOngoingRide: called");
+        List<Ride.RideDetails> ongoingRides = getOngoingRides();
+        ongoingRides.add(rideDetails);
+        setOngoingRides(ongoingRides);
+    }
+
+    public void removeOngoingRide(String requestID){
+//        Log.d(TAG, "removeOngoingRide: called");
+        List<Ride.RideDetails> ongoingRides = getOngoingRides();
+        for (Ride.RideDetails ride : ongoingRides) {
+            if (ride.requestID.equals(requestID)) {
+                ongoingRides.remove(ride);
+                break;
+            }
+        }
+        setOngoingRides(ongoingRides);
+
+        if (requestID.equals(getCurrentRide().requestID)) {
+            clearCurrentRide();
+        }
+    }
+
+    public Ride.RideDetails getRide(String requestID){
+//        Log.d(TAG, "getRide: called");
+        List<Ride.RideDetails> ongoingRides = getOngoingRides();
+        for (Ride.RideDetails ride : ongoingRides) {
+            if (ride.requestID.equals(requestID)) {
+                return ride;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Update a ride, add it if does not exist.
+     * @param rideDetails new ride
+     */
+    public void updateOngoingRide(Ride.RideDetails rideDetails){
+//        Log.d(TAG, "updateOngoingRide: called");
+        boolean found = false;
+        List<Ride.RideDetails> ongoingRides = getOngoingRides();
+        for (Ride.RideDetails ride : ongoingRides) {
+            if (ride.requestID.equals(rideDetails.requestID)) {
+                found = true;
+                ongoingRides.add(ongoingRides.indexOf(ride), rideDetails);
+                ongoingRides.remove(ride);
+                break;
+            }
+        }
+        if (!found){
+            ongoingRides.add(rideDetails);
+        }
+        setOngoingRides(ongoingRides);
     }
 
 

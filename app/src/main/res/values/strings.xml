@@ -135,6 +135,9 @@
     <string name="spaced_minutes">" minutes"</string>
     <string name="nav_ongoing_requests">Ongoing requests</string>
     <string name="nav_new_request">New request</string>
+    <string name="ongoing_requests_activity_name">Ongoing Requests</string>
+    <string name="selected_request_details">Request details</string>
+    <string name="set_current_ride">Set current ride</string>
 
 
     <string-array name="gender_array">

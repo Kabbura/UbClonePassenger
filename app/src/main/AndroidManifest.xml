@@ -126,7 +126,22 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.islam.ubclone.HistoryActivity" />
         </activity>
+        <activity
+            android:name=".OngoingRequestsActivity"
+            android:label="@string/ongoing_requests_activity_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.islam.ubclone.MapsActivity" />
+        </activity>
+        <activity android:name=".SelectedOngoingRequestActivity"
+            android:label="@string/selected_request_details"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.islam.ubclone.OngoingRequestsActivity" />
 
+        </activity>
     </application>
 
 </manifest>

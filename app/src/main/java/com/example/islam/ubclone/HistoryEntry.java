@@ -1,6 +1,14 @@
 package com.example.islam.ubclone;
 
+import android.text.format.DateUtils;
+
+import com.example.islam.concepts.RideLocation;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.regex.Pattern;
 
 /**
  * Created by islam on 10/27/16.
@@ -39,6 +47,7 @@ public class HistoryEntry {
     @SerializedName(value = "driver_plate")
     private String plateNo;
 
+    @SerializedName(value = "driver_vehicle")
     private String driverVehicle;
 
 
@@ -137,5 +146,28 @@ public class HistoryEntry {
 
     public String getPlateNo() {
         return (plateNo == null )?"unknown": plateNo;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public RideLocation getPickupPointAsRideLocation() {
+        String[] locations = pickupPoint.split(Pattern.quote(","));
+        LatLng driverLocation = new LatLng(Double.valueOf(locations[0]),Double.valueOf(locations[1]));
+        return new RideLocation(driverLocation);
+    }
+
+    public RideLocation getDestPointAsRideLocation() {
+        String[] locations = destinationPoint.split(Pattern.quote(","));
+        LatLng driverLocation = new LatLng(Double.valueOf(locations[0]),Double.valueOf(locations[1]));
+        return new RideLocation(driverLocation);
+    }
+
+    public Calendar getTimeAsCalendar(){
+        Long unixTime = Long.valueOf(getTime()) * 1000; // In this case, the server sends the date in seconds while unix date needs milliseconds
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(unixTime);
+        return calendar;
     }
 }

@@ -11,10 +11,8 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.islam.POJO.DriversResponse;
 import com.example.islam.POJO.RequestsResponse;
-import com.example.islam.POJO.SimpleResponse;
-import com.example.islam.POJO.User;
+import com.example.islam.concepts.Ride;
 import com.example.islam.events.LogoutRequest;
 
 import org.greenrobot.eventbus.EventBus;
@@ -30,40 +28,37 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class HistoryActivity extends AppCompatActivity {
-    private static final String TAG = "HistoryActivity";
-    private RecyclerView historyEntriesRecyclerView;
-    private HistoryEntriesAdapter historyEntriesAdapter;
-    private RecyclerView.LayoutManager historyEntriesLayoutManager;
-    private ArrayList<HistoryEntry> historyEntriesList;
+public class OngoingRequestsActivity extends AppCompatActivity {
+    private static final String TAG = "OngoingRequestsActivity";
+    private RecyclerView ongoingRequestRecyclerView;
+    private OngoingRequestAdapter ongoingRequestAdapter;
+    private RecyclerView.LayoutManager ongoingRequestLayoutManager;
+    private List<Ride.RideDetails> ongoingRequestList;
     private PrefManager prefManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_history);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.history_toolbar);
+        setContentView(R.layout.activity_ongoing_requests);
+        prefManager = new PrefManager(this);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.incoming_toolbar);
         toolbar.setTitleTextColor(getResources().getColor(R.color.colorPrimary));
         setSupportActionBar(toolbar);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ongoingRequestRecyclerView = (RecyclerView) findViewById(R.id.future_requests);
+        ongoingRequestRecyclerView.setHasFixedSize(true);
+        ongoingRequestLayoutManager = new LinearLayoutManager(this);
+        ongoingRequestRecyclerView.setLayoutManager(ongoingRequestLayoutManager);
 
+        ongoingRequestList = new ArrayList<>();
+        ongoingRequestList = prefManager.getOngoingRides();
+        ongoingRequestAdapter = new OngoingRequestAdapter(ongoingRequestList, this);
 
-
-        prefManager = new PrefManager(this);
-        
-        historyEntriesRecyclerView = (RecyclerView) findViewById(R.id.history_rec_view);
-        ArrayList<HistoryEntry> historyEntries = new ArrayList<HistoryEntry>();
-
-        historyEntriesRecyclerView.setHasFixedSize(true);
-
-        // Use linear layout manager
-        historyEntriesLayoutManager = new LinearLayoutManager(this);
-        historyEntriesRecyclerView.setLayoutManager(historyEntriesLayoutManager);
-
-        // specify an adapter (See also next example)
-        historyEntriesAdapter = new HistoryEntriesAdapter(this, historyEntries);
-        historyEntriesRecyclerView.setAdapter(historyEntriesAdapter);
+        ongoingRequestRecyclerView.setAdapter(ongoingRequestAdapter);
 
         String email = "";
         String password = "";
@@ -77,6 +72,7 @@ public class HistoryActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+
 
         // Server request
         Retrofit retrofit = new Retrofit.Builder()
@@ -93,31 +89,30 @@ public class HistoryActivity extends AppCompatActivity {
                 Log.d(TAG, "onResponse: raw: " + response.body());
                 if (response.isSuccessful() && response.body() != null){
                     List <HistoryEntry> rides = response.body().getRides();
-                    List <HistoryEntry> history = new ArrayList<HistoryEntry>(){{}};
+                    List <HistoryEntry> acceptedRequests = new ArrayList<HistoryEntry>(){{}};
                     for (HistoryEntry entry : rides){
-                        if (entry.getStatus().equals("completed") ||
-                                entry.getStatus().equals("canceled") ||
-                                entry.getStatus().equals("noDriver")) {
+                        if (entry.getStatus().equals("accepted")) {
                             long unixTime;
                             Log.d(TAG,"Time is :" + entry.getTime());
                             unixTime = Long.valueOf(entry.getTime()) * 1000; // In this case, the server sends the date in seconds while unix date needs milliseconds
 
-                            entry.setTime(String.valueOf(DateUtils.getRelativeTimeSpanString(unixTime, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)));
-                            entry.setPrice(entry.getPrice() + " " + getString(R.string.currency));
-                            history.add(0, entry);
+//                            entry.setTime(String.valueOf(DateUtils.getRelativeTimeSpanString(unixTime, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)));
+//                            entry.setPrice(entry.getPrice() + " " + getString(R.string.currency));
+                            acceptedRequests.add(0, entry);
                         }
                     }
-                    HistoryActivity.this.setHistoryEntries(history);
+                    prefManager.setOngoingRidesAsHistoryEntries(acceptedRequests);
+                    OngoingRequestsActivity.this.setHistoryEntries(prefManager.getOngoingRides());
                 } else if (response.code() == 401){
-                    Toast.makeText(HistoryActivity.this, "Please login to continue", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(OngoingRequestsActivity.this, "Please login to continue", Toast.LENGTH_SHORT).show();
                     Log.i(TAG, "onCreate: User not logged in");
                     prefManager.setIsLoggedIn(false);
-                    Intent intent = new Intent(HistoryActivity.this, LoginActivity.class);
+                    Intent intent = new Intent(OngoingRequestsActivity.this, LoginActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
                     clearHistoryEntries();
-                    Toast.makeText(HistoryActivity.this, "Unknown error occurred", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(OngoingRequestsActivity.this, "Unknown error occurred", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -128,26 +123,25 @@ public class HistoryActivity extends AppCompatActivity {
             }
         });
 
-    }
 
-    public void setHistoryEntries(List<HistoryEntry> historyEntries) {
-        Log.i(TAG, "setTickets: Set");
+
+
+    }
+    public void setHistoryEntries(List<Ride.RideDetails> historyEntries) {
+        Log.i(TAG, "setHistoryEntries: Set");
 //        if (historyEntries.isEmpty()) showNoTicketsIndicator();
 //        else hideNoTicketsIndicator();
         if (historyEntries != null) {
-            historyEntriesAdapter.updateDataSet((ArrayList<HistoryEntry>) historyEntries);
-            historyEntriesAdapter.notifyDataSetChanged();
+            ongoingRequestAdapter.updateDataSet((ArrayList<Ride.RideDetails>) historyEntries);
+            ongoingRequestAdapter.notifyDataSetChanged();
         }
 //        swipeRefreshLayout.setRefreshing(false);
     }
-
     public void clearHistoryEntries(){
         Log.i(TAG, "clearTickets: Cleared first called");
-        historyEntriesAdapter.clearDataSet();
+        ongoingRequestAdapter.clearDataSet();
 //        showNoTicketsIndicator();
-    }
-
-    @Override
+    }    @Override
     protected void onStop() {
         EventBus.getDefault().unregister(this);
         super.onStop();
@@ -159,7 +153,6 @@ public class HistoryActivity extends AppCompatActivity {
         super.onStart();
 
     }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onLogoutRequest(LogoutRequest logoutRequest){
         Intent intent = new Intent(this, LoginActivity.class);

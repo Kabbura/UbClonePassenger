@@ -32,10 +32,9 @@ public class SelectedRequestActivity extends AppCompatActivity {
         setContentView(R.layout.activity_selected_request);
         Toolbar toolbar = (Toolbar) findViewById(R.id.request_details_toolbar);
         ((TextView) findViewById(R.id.request_details_toolbar_title)).setTextColor(getResources().getColor(android.R.color.white));
-//        toolbar.setTitleTextColor(getResources().getColor(R.color.colorPrimary));
+        toolbar.setTitleTextColor(getResources().getColor(R.color.colorPrimary));
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         prefManager = new PrefManager(this);
 

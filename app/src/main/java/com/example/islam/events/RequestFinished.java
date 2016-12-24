@@ -3,9 +3,9 @@ package com.example.islam.events;
 /**
  * Created by islam on 11/23/16.
  */
-public class RequestCanceled {
+public class RequestFinished {
     private String requestID;
-    public RequestCanceled(String requestID){
+    public RequestFinished(String requestID){
         this.requestID = requestID;
     }
 

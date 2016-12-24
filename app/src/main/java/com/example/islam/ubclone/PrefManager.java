@@ -14,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by islam on 9/27/16.
@@ -172,8 +173,6 @@ public class PrefManager {
         editor.apply();
     }
 
-
-
     public void setOngoingRides(List<Ride.RideDetails> ongoingRides) {
 //        Log.d("PrefManager", "setOngoingRides: Called");
         Gson gson = new Gson();
@@ -181,6 +180,54 @@ public class PrefManager {
         editor.putString(ONGOING_RIDES, json);
         editor.apply();
     }
+
+
+    public void setOngoingRidesAsHistoryEntries(List<HistoryEntry> acceptedRequests) {
+        // The plan goes as this:
+        // - if the requests is in the accepted requests list, and in the shared preferences, do nothing.
+        // - if the requests is in the accepted requests list, and not in the shared preferences, add it, with status "on the way".
+        // - if the requests is not in the accepted requests list, and in the shared preferences, remove it.
+        //
+        // To do this, the algorithm is like this:
+        // - Copy the shared preferences list to a copy list.
+        // - Loop
+
+
+        // - Copy the shared preferences list to a copy list.
+        List<Ride.RideDetails> onGoingCopy = getOngoingRides();
+        List<Ride.RideDetails> requests = new ArrayList<>();
+
+        // Clear ongoingRequests
+        setOngoingRides(new ArrayList<Ride.RideDetails>());
+
+        Ride ride = new Ride();
+        for (HistoryEntry entry : acceptedRequests) {
+            boolean exist = false;
+            for (Ride.RideDetails savedRide : onGoingCopy) {
+                if (savedRide.requestID.equals(entry.getId())){
+                    savedRide.time = entry.getTimeAsCalendar();
+                    addOngoingRide(savedRide);
+                    exist = true;
+                }
+            }
+            if (!exist) {
+                ride.details.pickup = entry.getPickupPointAsRideLocation();
+                ride.details.dest = entry.getDestPointAsRideLocation();
+                ride.details.time = entry.getTimeAsCalendar();
+                ride.details.price = entry.getPrice();
+                ride.details.requestID = entry.getId();
+                ride.details.setStatus(ON_THE_WAY);
+                ride.details.pickupText = entry.getPickupText();
+                ride.details.destText = entry.getDestText();
+                ride.details.notes = entry.getNotes();
+                ride.details.getDriver().setName(entry.getDriverName());
+                ride.details.getDriver().setPlate(entry.getPlateNo());
+                ride.details.getDriver().setVehicle(entry.getDriverVehicle());
+                addOngoingRide(ride.details);
+            }
+        }
+    }
+
     public List<Ride.RideDetails> getOngoingRides(){
 //        Log.d("PrefManager", "getOngoingRides: Called");
         Gson gson = new Gson();
@@ -191,6 +238,28 @@ public class PrefManager {
         json = pref.getString(ONGOING_RIDES, json);
         return gson.fromJson(json, new TypeToken<List<Ride.RideDetails>>(){}.getType());
     }
+    public List<HistoryEntry> getOngoingRidesAsHistoryEntries(){
+//        Log.d("PrefManager", "getOngoingRidesAsHistoryEntries: Called");
+        List<Ride.RideDetails> ongoingDetails = getOngoingRides();
+        List<HistoryEntry> historyEntries = new ArrayList<>();
+        for (Ride.RideDetails rideDetails : ongoingDetails) {
+            HistoryEntry historyEntry = new HistoryEntry(
+                    (rideDetails.dest!= null)?rideDetails.dest.toString():"",
+                    rideDetails.getDriver().getName(),
+                    rideDetails.getDriver().getVehicle(),
+                    rideDetails.requestID,
+                    (rideDetails.pickup!= null)?rideDetails.pickup.toString():"",
+                    rideDetails.price,
+                    rideDetails.getStatus().toString(),
+                    rideDetails.getTime(),
+                    rideDetails.pickupText,
+                    rideDetails.destText
+            );
+            historyEntries.add(0,historyEntry);
+        }
+        return historyEntries;
+    }
+
 
     // Ride is saved when the user orders a ride and the response is successful.
     private void addOngoingRide(Ride.RideDetails rideDetails){
@@ -201,11 +270,12 @@ public class PrefManager {
     }
 
     public void removeOngoingRide(String requestID){
-//        Log.d(TAG, "removeOngoingRide: called");
+        Log.d(TAG, "removeOngoingRide: called");
         List<Ride.RideDetails> ongoingRides = getOngoingRides();
         for (Ride.RideDetails ride : ongoingRides) {
             if (ride.requestID.equals(requestID)) {
                 ongoingRides.remove(ride);
+                Log.d(TAG, "removeOngoingRide: found: " + requestID);
                 break;
             }
         }
@@ -248,6 +318,7 @@ public class PrefManager {
         }
         setOngoingRides(ongoingRides);
     }
+
 
 
 //    public void setTicketsList(String ticketsList){

@@ -57,13 +57,13 @@ import com.example.islam.concepts.PriceSettings;
 import com.example.islam.concepts.Ride;
 import com.example.islam.concepts.RideLocation;
 import com.example.islam.events.DriverAccepted;
-import com.example.islam.events.DriverCanceled;
+import com.example.islam.events.DriverCanceledUI;
 import com.example.islam.events.DriverLocation;
 import com.example.islam.events.DriverUpdatedStatus;
 import com.example.islam.events.LogoutRequest;
 import com.example.islam.events.PriceUpdated;
-import com.example.islam.events.RequestCanceled;
-import com.example.islam.events.RideStarted;
+import com.example.islam.events.RequestFinished;
+import com.example.islam.events.RequestFinishedUI;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -693,7 +693,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_ongoing_requests){
-            Intent intent = new Intent(this, HistoryActivity.class);
+            Intent intent = new Intent(this, OngoingRequestsActivity.class);
             startActivity(intent);
 
         } else if (id == R.id.nav_new_request){
@@ -741,7 +741,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void startNewRequest() {
         // reset UI and sharedPreferences
+        prefManager.updateOngoingRide(prefManager.getCurrentRide());
+        prefManager.clearCurrentRide();
 
+        EventBus.getDefault().post(new RequestFinishedUI("-1"));
     }
 
     private void logout() {
@@ -1152,7 +1155,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 prefManager.getCurrentRide().getStatus().equals(PrefManager.ARRIVED_DEST)) {
             ride.arrived(this);
         }  else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.COMPLETED)) {
-            EventBus.getDefault().post(new RequestCanceled(prefManager.getCurrentRide().requestID));
+            EventBus.getDefault().post(new RequestFinished(prefManager.getCurrentRide().requestID));
+            EventBus.getDefault().post(new RequestFinishedUI(prefManager.getCurrentRide().requestID));
             Toast.makeText(this, R.string.thank_you_for_booking, Toast.LENGTH_LONG).show();
         }
     }
@@ -1164,7 +1168,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (prefManager.getCurrentRide().getStatus().equals(PrefManager.NO_RIDE)){
 //            resetRequest();
             prefManager.clearCurrentRide();
-            EventBus.getDefault().post(new RequestCanceled(prefManager.getCurrentRide().requestID));
+            EventBus.getDefault().post(new RequestFinishedUI(prefManager.getCurrentRide().requestID));
+            EventBus.getDefault().post(new RequestFinished(prefManager.getCurrentRide().requestID));
         } else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.ARRIVED_PICKUP)){
             Toast.makeText(this, "Driver has arrived. Contact driver to cancel.", Toast.LENGTH_LONG).show();
         } else {
@@ -1350,7 +1355,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onResume();
         Log.i(TAG, "onResume: RideStatus: "+ prefManager.getCurrentRide().getStatus());
         if (prefManager.getCurrentRide().getStatus() == null || prefManager.getCurrentRide().requestID == null) {
-                EventBus.getDefault().post(new RequestCanceled("-1"));
+                EventBus.getDefault().post(new RequestFinished("-1"));
+                EventBus.getDefault().post(new RequestFinishedUI("-1"));
             return;
         }
         if (prefManager.getCurrentRide().getStatus().equals(PrefManager.FINDING_DRIVER)) {
@@ -1372,7 +1378,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             // When the activity is resuming after onActivityResults, we do not want to reset it.
             if (UIState != UI_STATE.CONFIRM_PICKUP && UIState != UI_STATE.CONFIRM_DESTINATION){
-                EventBus.getDefault().post(new RequestCanceled("-1"));
+                EventBus.getDefault().post(new RequestFinished("-1"));
+                EventBus.getDefault().post(new RequestFinishedUI("-1"));
             }
         }
     }
@@ -1423,7 +1430,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDriverAccepted(DriverAccepted driverAccepted){
-
         if (!prefManager.getCurrentRide().requestID.equals(driverAccepted.getRequestID())) {
             return;
         }
@@ -1488,13 +1494,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onDriverCanceled(DriverCanceled driverCanceled){
-        if (!prefManager.getCurrentRide().requestID.equals(driverCanceled.getRequestID())) {
-            return;
-        }
+    public void onDriverCanceled(DriverCanceledUI driverCanceled){
         Log.i(TAG, "onDriverCanceled: called");
         Toast.makeText(this, R.string.driver_canceled_message, Toast.LENGTH_LONG).show();
-        EventBus.getDefault().post(new RequestCanceled(driverCanceled.getRequestID()));
+//        EventBus.getDefault().post(new RequestFinishedUI(driverCanceled.getRequestID()));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1504,10 +1507,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onRequestCanceled(RequestCanceled requestCanceled) {
-        if (!prefManager.getCurrentRide().requestID.equals(requestCanceled.getRequestID())) {
-            return;
-        }
+    public void onRequestCanceled(RequestFinishedUI requestCanceled) {
         resetRequestUI();
     }
 

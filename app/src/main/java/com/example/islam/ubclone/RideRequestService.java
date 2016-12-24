@@ -17,10 +17,12 @@ import com.example.islam.POJO.DriverResponse;
 import com.example.islam.concepts.Ride;
 import com.example.islam.events.DriverAccepted;
 import com.example.islam.events.DriverCanceled;
+import com.example.islam.events.DriverCanceledUI;
 import com.example.islam.events.DriverRejected;
 import com.example.islam.events.DriverUpdatedStatus;
 import com.example.islam.events.LogoutRequest;
-import com.example.islam.events.RequestCanceled;
+import com.example.islam.events.RequestFinished;
+import com.example.islam.events.RequestFinishedUI;
 import com.example.islam.events.RideStarted;
 
 import org.greenrobot.eventbus.EventBus;
@@ -172,10 +174,10 @@ public class RideRequestService extends Service {
                                case 3:
                                    Toast.makeText(RideRequestService.this, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
                                    Log.i(TAG, "onResponse: status 1. No drivers available.");
-                                   EventBus.getDefault().post(new RequestCanceled(pendingRide.details.requestID));
+                                   EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
                                    return;
                                case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
-                                   EventBus.getDefault().post(new RequestCanceled(pendingRide.details.requestID));
+                                   EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
                                    prefManager.clearCurrentRide();
 //                                   prefManager.setRideStatus(PrefManager.NO_RIDE);
                                    return;
@@ -335,17 +337,15 @@ public class RideRequestService extends Service {
     }
 
     @Subscribe
-    public void onRequestCanceled(RequestCanceled requestCanceled){
-//        Log.d(TAG, "onRequestCanceled: service id: " + pendingRide.details.requestID + " requestCanceled request: " + requestCanceled.getRequestID());
-//
-//        if (!pendingRide.details.requestID.equals(requestCanceled.getRequestID())) {
-//            return;
-//        }
+    public void onRequestCanceled(RequestFinished requestCanceled){
+        if (prefManager.getCurrentRide().requestID.equals(requestCanceled.getRequestID()))
+            EventBus.getDefault().post(new RequestFinishedUI(requestCanceled.getRequestID()));
+
         Log.d(TAG, "onRequestCanceled: called");
         //PrefManagerRide ride = new Ride();
 //        ride.details = prefManager.getRide(requestCanceled.getRequestID());
         prefManager.removeOngoingRide(requestCanceled.getRequestID());
-
+        Log.d(TAG, "onRequestCanceled: removed: "+ requestCanceled.getRequestID());
 //        prefManager.setRideDriver(new Driver(getString(R.string.dash),"",getString(R.string.dash),getString(R.string.dash),""));
 //        prefManager.setRideStatus(PrefManager.NO_RIDE);
 //        prefManager.setRideId("");
@@ -373,13 +373,16 @@ public class RideRequestService extends Service {
 
     @Subscribe
     public void onDriverCanceled(DriverCanceled driverCanceled){
-        onRequestCanceled(new RequestCanceled(driverCanceled.getRequestID()));
+        if (prefManager.getCurrentRide().requestID.equals(driverCanceled.getRequestID()))
+            EventBus.getDefault().post(new DriverCanceledUI(driverCanceled.getRequestID()));
+
+        onRequestCanceled(new RequestFinished(driverCanceled.getRequestID()));
     }
 
     @Subscribe
     public void onLogoutRequest(LogoutRequest logoutRequest){
         prefManager.setIsLoggedIn(false);
-        onRequestCanceled(new RequestCanceled(pendingRide.details.requestID));
+        onRequestCanceled(new RequestFinished(pendingRide.details.requestID));
         stopSelf();
     }
 

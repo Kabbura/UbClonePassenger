@@ -13,7 +13,8 @@ import com.example.islam.POJO.SimpleResponse;
 import com.example.islam.POJO.TimeResponse;
 import com.example.islam.events.DriverAccepted;
 import com.example.islam.events.LogoutRequest;
-import com.example.islam.events.RequestCanceled;
+import com.example.islam.events.RequestFinished;
+import com.example.islam.events.RequestFinishedUI;
 import com.example.islam.events.RideStarted;
 import com.example.islam.ubclone.MapsActivity;
 import com.example.islam.ubclone.PrefManager;
@@ -203,7 +204,9 @@ public class Ride {
                             mapsActivity.toast.show();
                             break;
                         case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
-                            EventBus.getDefault().post(new RequestCanceled(details.requestID));
+                            if (prefManager.getCurrentRide().requestID.equals(details.requestID))
+//                                EventBus.getDefault().post(new RequestFinishedUI(details.requestID));
+                            EventBus.getDefault().post(new RequestFinished(details.requestID));
                             details.setStatus(PrefManager.NO_RIDE);
                             prefManager.setCurrentRide(details);
 //                            prefManager.setRideStatus(PrefManager.NO_RIDE);
@@ -259,7 +262,7 @@ public class Ride {
         String email = prefManager.getUser().getEmail();
         String password = prefManager.getUser().getPassword();
         Call<SimpleResponse> call = service.cancelRequest("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
-                details.requestID);
+                prefManager.getCurrentRide().requestID);
         Log.d(TAG, "cancelRequest: "+call.request().toString());
         progressDialog   = new ProgressDialog(mapsActivity);
         progressDialog.setIndeterminate(true);
@@ -270,8 +273,10 @@ public class Ride {
             public void onResponse(Call<SimpleResponse> call, Response<SimpleResponse> response) {
                 if (response.isSuccessful()){
                     Log.i(TAG, "onResponse: Request has been canceled");
-                    prefManager.clearCurrentRide();
-                    EventBus.getDefault().post(new RequestCanceled(prefManager.getCurrentRide().requestID));
+
+//                    EventBus.getDefault().post(new RequestFinishedUI(prefManager.getCurrentRide().requestID));
+                    EventBus.getDefault().post(new RequestFinished(prefManager.getCurrentRide().requestID));
+//                    prefManager.clearCurrentRide();
                 }else {
                     Toast.makeText(mapsActivity, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
                 }
@@ -296,7 +301,7 @@ public class Ride {
         String email = prefManager.getUser().getEmail();
         String password = prefManager.getUser().getPassword();
         Call<SimpleResponse> call = service.postArrived("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
-                details.requestID);
+                prefManager.getCurrentRide().requestID);
         progressDialog   = new ProgressDialog(mapsActivity);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Connecting");
@@ -306,7 +311,9 @@ public class Ride {
             public void onResponse(Call<SimpleResponse> call, Response<SimpleResponse> response) {
                 if (response.isSuccessful()){
                     Log.i(TAG, "onResponse: Passenger has arrived");
-                    EventBus.getDefault().post(new RequestCanceled(details.requestID));
+
+//                    EventBus.getDefault().post(new RequestFinishedUI(prefManager.getCurrentRide().requestID));
+                    EventBus.getDefault().post(new RequestFinished(prefManager.getCurrentRide().requestID));
                     Toast.makeText(mapsActivity, R.string.thank_you_for_booking, Toast.LENGTH_LONG).show();
                 }else {
                     Toast.makeText(mapsActivity, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
@@ -339,6 +346,11 @@ public class Ride {
         public Integer duration;
         private Integer status;
         private Driver driver;
+
+        public String getTime(){
+//            return(time == null)? "now" : time.getTime().getTime();
+            return (time == null)?"now":String.valueOf(time.getTime().getTime());
+        }
 
         public RideDetails() {
             status = PrefManager.NO_RIDE;

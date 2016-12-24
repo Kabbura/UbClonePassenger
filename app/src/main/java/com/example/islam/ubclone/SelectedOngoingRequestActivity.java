@@ -1,5 +1,6 @@
 package com.example.islam.ubclone;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +10,13 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.islam.concepts.Ride;
+import com.example.islam.events.LogoutRequest;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class SelectedOngoingRequestActivity extends AppCompatActivity {
     private PrefManager prefManager;
@@ -21,8 +29,9 @@ public class SelectedOngoingRequestActivity extends AppCompatActivity {
         setContentView(R.layout.activity_selected_ongoing_request);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.incoming_toolbar);
+        toolbar.setTitleTextColor(getResources().getColor(R.color.colorPrimary));
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         prefManager = new PrefManager(this);
         Intent intent = getIntent();
@@ -56,6 +65,30 @@ public class SelectedOngoingRequestActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        EventBus.getDefault().register(this);
+        super.onStart();
+
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLogoutRequest(LogoutRequest logoutRequest){
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
 

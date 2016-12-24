@@ -1,5 +1,6 @@
 package com.example.islam.ubclone;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,7 +11,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.islam.events.LogoutRequest;
+
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class SelectedRequestActivity extends AppCompatActivity {
 
@@ -34,7 +41,7 @@ public class SelectedRequestActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.request_details_toolbar_title)).setTextColor(getResources().getColor(android.R.color.white));
         toolbar.setTitleTextColor(getResources().getColor(R.color.colorPrimary));
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         prefManager = new PrefManager(this);
 
@@ -73,4 +80,29 @@ public class SelectedRequestActivity extends AppCompatActivity {
 
 
     }
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        EventBus.getDefault().register(this);
+        super.onStart();
+
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLogoutRequest(LogoutRequest logoutRequest){
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
 }

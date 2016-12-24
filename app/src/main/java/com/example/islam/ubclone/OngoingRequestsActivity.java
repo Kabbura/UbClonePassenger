@@ -1,5 +1,6 @@
 package com.example.islam.ubclone;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class OngoingRequestsActivity extends AppCompatActivity {
     private static final String TAG = "OngoingRequestsActivity";
@@ -141,7 +143,8 @@ public class OngoingRequestsActivity extends AppCompatActivity {
         Log.i(TAG, "clearTickets: Cleared first called");
         ongoingRequestAdapter.clearDataSet();
 //        showNoTicketsIndicator();
-    }    @Override
+    }
+    @Override
     protected void onStop() {
         EventBus.getDefault().unregister(this);
         super.onStop();
@@ -158,6 +161,11 @@ public class OngoingRequestsActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
 }

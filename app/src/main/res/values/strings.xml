@@ -138,6 +138,7 @@
     <string name="ongoing_requests_activity_name">Ongoing Requests</string>
     <string name="selected_request_details">Request details</string>
     <string name="set_current_ride">Set current ride</string>
+    <string name="wait_till_driver_accepts">You can start a new request when a driver accepts the current one.</string>
 
 
     <string-array name="gender_array">

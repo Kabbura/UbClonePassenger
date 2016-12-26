@@ -98,8 +98,9 @@ public class HistoryActivity extends AppCompatActivity {
                     List <HistoryEntry> history = new ArrayList<HistoryEntry>(){{}};
                     for (HistoryEntry entry : rides){
                         if (entry.getStatus().equals("completed") ||
-                                entry.getStatus().equals("canceled") ||
-                                entry.getStatus().equals("noDriver")) {
+                                entry.getStatus().equals("canceled")
+//                                || entry.getStatus().equals("noDriver")
+                                ) {
                             long unixTime;
                             Log.d(TAG,"Time is :" + entry.getTime());
                             unixTime = Long.valueOf(entry.getTime()) * 1000; // In this case, the server sends the date in seconds while unix date needs milliseconds

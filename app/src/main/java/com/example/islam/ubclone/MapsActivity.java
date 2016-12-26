@@ -309,8 +309,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     message.equals(getString(R.string.completed))){
 
                 setUI(UI_STATE.FINISHED);
-//                cancelButton.setText(R.string.arrived_safely);
-//                cancelButton.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
             } else {
                 setUI(UI_STATE.STATUS_MESSAGE);
                 cancelButton.setText(R.string.cancel_request);
@@ -323,10 +321,76 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 clearDriversMarkers();
             }
 
+            // Show pickup and destination points
+//            showPickupAndDestPoints();
+
         } else {
             setUI(state);
 
         }
+    }
+
+    private void showPickupAndDestPoints() {
+
+        if (prefManager.getCurrentRide().getStatus().equals(PrefManager.NO_RIDE)) {
+            return;
+        }
+        LatLng newPickup = new LatLng(prefManager.getCurrentRide().pickup.lat,prefManager.getCurrentRide().pickup.lng);
+        LatLng newDest = new LatLng(prefManager.getCurrentRide().dest.lat,prefManager.getCurrentRide().dest.lng);
+        Boolean update = false;
+        if (pickupMarker == null) {
+            update = true;
+        } else {
+            if (!pickupMarker.getPosition().equals(newPickup)) update = true;
+        }
+
+        if (update) {
+            clearDriversMarkers();
+            if (pickupMarker != null) {
+                pickupMarker.remove();
+            }
+            pickupSelected = true;
+            pickupPoint = new LatLng(prefManager.getCurrentRide().pickup.lat,prefManager.getCurrentRide().pickup.lng);
+            ride.details.pickup = new RideLocation(pickupPoint);
+
+            pickupMarker = mMap.addMarker(new MarkerOptions()
+                            .position(pickupPoint)
+//                    .title(data.getStringExtra("name"))
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.pickup_loc_ic_small))
+                            .draggable(false)
+            );
+
+            // For zooming automatically to the location of the marker
+            LatLng newCameraLocation = new LatLng(pickupPoint.latitude+0.01, pickupPoint.longitude+0.01);
+            CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLocation).zoom(mMap.getCameraPosition().zoom).build();
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+           if (destinationMarker != null) {
+                destinationMarker.remove();
+            }
+            destinationSelected = true;
+            destinationPoint = newDest;
+            ride.details.dest = new RideLocation(destinationPoint);
+            destinationMarker = mMap.addMarker(new MarkerOptions()
+                            .position(destinationPoint)
+//                    .title(data.getStringExtra("name"))
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.dest_loc_ic_small))
+                            .draggable(false)
+            );
+
+            // Showing route:
+
+            if (prefManager.getCurrentRide().getRoutePolylineOptions() != null) {
+                if (routePolyline != null) {
+                    routePolyline.remove();
+                }
+
+                routePolyline = mMap.addPolyline(prefManager.getCurrentRide().getRoutePolylineOptions());
+//            showRoute();
+            }
+
+            }
+
     }
 
     public void setUI(UI_STATE state){
@@ -336,13 +400,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 locationsCard.setVisibility(View.VISIBLE);
                 pickupLayout.setVisibility(View.VISIBLE);
                 destinationLayout.setVisibility(View.GONE);
-//                detailsCard.setVisibility(View.GONE);
-//                statusCard.setVisibility(View.VISIBLE);
-//                statusCard.setVisibility(View.GONE);
-//                bookLayout.setVisibility(View.VISIBLE);
-//                statusLayout.setVisibility(View.INVISIBLE);
-//                cancelButton.setVisibility(View.INVISIBLE);
-//                bookButton.setText(R.string.confirm_pickup);
                 constStartIcon.setVisibility(View.VISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
 
@@ -403,12 +460,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
 
             case STATUS_MESSAGE:
-//                locationsCard.setVisibility(View.GONE);
-//                detailsCard.setVisibility(View.GONE);
-//                statusCard.setVisibility(View.GONE);
-//                bookLayout.setVisibility(View.INVISIBLE);
-//                statusLayout.setVisibility(View.VISIBLE);
-//                cancelButton.setVisibility(View.VISIBLE);
+                locationsCard.setVisibility(View.GONE);
+                detailsCard.setVisibility(View.GONE);
 
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
@@ -424,6 +477,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
 
             case FINISHED:
+                locationsCard.setVisibility(View.GONE);
+                detailsCard.setVisibility(View.GONE);
                 constStartIcon.setVisibility(View.INVISIBLE);
                 constStopIcon.setVisibility(View.INVISIBLE);
 
@@ -741,6 +796,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void startNewRequest() {
         // reset UI and sharedPreferences
+        if (prefManager.getCurrentRide().getStatus().equals(PrefManager.FINDING_DRIVER)){
+            toast.setText(R.string.wait_till_driver_accepts);
+            toast.show();
+            return;
+        }
         prefManager.updateOngoingRide(prefManager.getCurrentRide());
         prefManager.clearCurrentRide();
 
@@ -774,7 +834,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnCameraIdleListener(this);
         mMap.setOnCameraMoveListener(this);
         mMap.setMyLocationEnabled(true);
-//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(KHARTOUM_CORDS, 12.0f));
 
         onCameraIdle();
@@ -789,6 +848,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         int bottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, getResources().getDisplayMetrics());
         int right = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics());
         relocateButtonLayoutParams.setMargins(0, 0, right, bottom);
+        showPickupAndDestPoints();
     }
 
     public void setRelocateButtonLocation(int bottomDimension){
@@ -985,6 +1045,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                 ride.details.distance = Integer.valueOf(distance);
                                 ride.details.duration = Integer.valueOf(duration);
+                                ride.details.setRoutePolylineOptions(polylineOptions);
+
                                 calculatePrice();
                             }else {
                                 Log.w(TAG, "onDirectionSuccess: Directions failed");
@@ -1109,13 +1171,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             startIntentService(RestServiceConstants.DEST, location);
 
             priceSettings.updateFromServer();
-            //showRoute();
+            showRoute();
             setUI(UI_STATE.DETAILED);
         } else if (UIState == UI_STATE.DETAILED)
         {
             // TESTING
-            priceSet = PriceSet.SUCCESS;
-            ride.details.price = "4";
+//            priceSet = PriceSet.SUCCESS;
+//            ride.details.price = "4";
             ////////////////////////////////////
 
             //Check if request is ready:
@@ -1156,7 +1218,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             ride.arrived(this);
         }  else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.COMPLETED)) {
             EventBus.getDefault().post(new RequestFinished(prefManager.getCurrentRide().requestID));
-            EventBus.getDefault().post(new RequestFinishedUI(prefManager.getCurrentRide().requestID));
+//            EventBus.getDefault().post(new RequestFinishedUI(prefManager.getCurrentRide().requestID));
             Toast.makeText(this, R.string.thank_you_for_booking, Toast.LENGTH_LONG).show();
         }
     }

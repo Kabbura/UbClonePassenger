@@ -314,36 +314,10 @@ public class PrefManager {
             }
         }
         if (!found){
+            if (!rideDetails.getStatus().equals(NO_RIDE))
             ongoingRides.add(rideDetails);
         }
         setOngoingRides(ongoingRides);
     }
-
-
-
-//    public void setTicketsList(String ticketsList){
-//        editor.putString(TICKETS_LIST, ticketsList);
-//        editor.apply();
-//    }
-
-//    public String getTicketsList(){
-//        ArrayList<EventTicket> eventsList = new ArrayList<>();
-//        Gson gson = new Gson();
-//        String json = gson.toJson(eventsList);
-//        return pref.getString(TICKETS_LIST,json);
-//    }
-
-
-//    public void setPlacesList(String placesList){
-//        editor.putString(PLACES_LIST, placesList);
-//        editor.apply();
-//    }
-//
-//    public String getPlacesList(){
-//        ArrayList<MapPlace> placesList = new ArrayList<>();
-//        Gson gson = new Gson();
-//        String json = gson.toJson(placesList);
-//        return pref.getString(PLACES_LIST,json);
-//    }
 
 }

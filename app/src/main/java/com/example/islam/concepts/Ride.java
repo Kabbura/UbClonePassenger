@@ -23,6 +23,8 @@ import com.example.islam.ubclone.RestService;
 import com.example.islam.ubclone.RestServiceConstants;
 import com.example.islam.ubclone.RideRequestService;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -293,11 +295,11 @@ public class Ride {
     }
 
     public void arrived(final MapsActivity mapsActivity) {
-        if (details.requestID.equals("-1")) {
+        final PrefManager prefManager = new PrefManager(mapsActivity);
+        if (prefManager.getCurrentRide().requestID.equals("-1")) {
             Log.w(TAG, "cancelRequest: -1 id");
             return;
         }
-        final PrefManager prefManager = new PrefManager(mapsActivity);
         String email = prefManager.getUser().getEmail();
         String password = prefManager.getUser().getPassword();
         Call<SimpleResponse> call = service.postArrived("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
@@ -346,6 +348,7 @@ public class Ride {
         public Integer duration;
         private Integer status;
         private Driver driver;
+        private PolylineOptions routePolylineOptions;
 
         public String getTime(){
 //            return(time == null)? "now" : time.getTime().getTime();
@@ -434,6 +437,14 @@ public class Ride {
 
         public void setDriver(Driver driver){
             this.driver = (driver == null)? new Driver("-","","-","-",""): driver ;
+        }
+
+        public PolylineOptions getRoutePolylineOptions() {
+            return routePolylineOptions;
+        }
+
+        public void setRoutePolylineOptions(PolylineOptions routePolyline) {
+            this.routePolylineOptions = routePolyline;
         }
     }
 }

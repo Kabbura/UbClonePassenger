@@ -42,6 +42,7 @@ public class RideRequestService extends Service {
     int validCode = 0;
     private Ride pendingRide;
 
+
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
@@ -80,6 +81,11 @@ public class RideRequestService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
                 activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+
+
+        // One request can be pending:
+        pendingRide.details = prefManager.getCurrentRide();
+
         // This always shows up in the notifications area when this Service is running.
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.mipmap.ic_launcher);
@@ -110,7 +116,7 @@ public class RideRequestService extends Service {
         if (pendingRide.details.femaleOnly == null) Log.d(TAG, "isSet: femaleOnly is null");
         if (pendingRide.details.notes == null) Log.d(TAG, "isSet: notes is null");
         if (pendingRide.details.price == null) Log.d(TAG, "isSet: price is null");
-        if (pendingRide.details.requestID == null) Log.d(TAG, "isSet: requestID is null");
+        if (pendingRide.details.requestID.equals("-1")) Log.w(TAG, "isSet: requestID is -1");
         if (pendingRide.details.pickupText == null) Log.d(TAG, "isSet: pickupText is null");
         if (pendingRide.details.destText == null) Log.d(TAG, "isSet: destText is null");
 
@@ -134,7 +140,7 @@ public class RideRequestService extends Service {
         callable(call, validCode);
     }
     public void callable(final Call<DriverResponse> call, final int mValidCode){
-//        Log.d(TAG, "callable: call: "+call.request().toString());
+        Log.d(TAG, "callable: call: "+call.request().toString());
         // Check if user logged in: and if request hasn't been updated:
         if (!prefManager.isLoggedIn()){
             Log.i(TAG, "callable: user is not logged in");
@@ -143,16 +149,17 @@ public class RideRequestService extends Service {
         if (mValidCode != validCode) {
             // Special case when the handler callback is removed but the request was ongoing. In its
             // response it will call this function with an outdated valid code
-            Log.d(TAG, "callable: valid code: "+mValidCode+" ");
+            Log.d(TAG, "callable: Not matching valid code: "+mValidCode+" ");
             return;
         }
 
+        Log.d(TAG, "callable: posting delayed at valid code " + mValidCode);
         handler.postDelayed( new Runnable() {
 
             @Override
             public void run() {
                 Log.d(TAG, "run: I am called for "+ callCounter++ +" service: "+call.request().toString());
-                Log.d(TAG, "run: pending request id is  "+ pendingRide.details.requestID);
+                Log.d(TAG, "run: pending request id is  "+ pendingRide.details.requestID + " and valid code is " + mValidCode);
 //                Toast.makeText(RideRequestService.this, "Request sent: " + callCounter, Toast.LENGTH_LONG).show();
 
                 call.enqueue(new Callback<DriverResponse>() {
@@ -160,6 +167,9 @@ public class RideRequestService extends Service {
                    public void onResponse(Call<DriverResponse> call, Response<DriverResponse> response) {
                        if (response.isSuccessful()){
                            Log.d(TAG, "onResponse: is successful");
+
+        // One request can be pending:
+        pendingRide.details = prefManager.getCurrentRide();
 //                           Toast.makeText(RideRequestService.this, "Successful. Status: "+response.body().getStatus(), Toast.LENGTH_LONG).show();
                            // There are 4 situations here:
                            // Status 0: When request is pending. request_id is returned.
@@ -179,7 +189,6 @@ public class RideRequestService extends Service {
                                case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
                                    EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
                                    prefManager.clearCurrentRide();
-//                                   prefManager.setRideStatus(PrefManager.NO_RIDE);
                                    return;
                                case 6: // When a request is already accepted.Return request id in the error_msg
                                    pendingRide.details.requestID = response.body().getErrorMessage();
@@ -223,13 +232,85 @@ public class RideRequestService extends Service {
     }
 
 
+    private void recursiveServerCall(final Call<DriverResponse> call, final int mValidCode, final String rideRequest){
+        call.enqueue(new Callback<DriverResponse>() {
+            @Override
+            public void onResponse(Call<DriverResponse> call, Response<DriverResponse> response) {
+                Log.d(TAG, "onResponse: " + response.raw());
+                Log.d(TAG, "onResponse: " + response.toString());
+                if (response.isSuccessful()){
+                    // Toast.makeText(mapsActivity, "Successful. Status: "+response.body().getStatus(), Toast.LENGTH_SHORT).show();
+                    // There are 4 situations here:
+                    // Status 0: When request is pending. request_id is returned.
+                    // Status 1: No driver found
+                    // Status 5: When this request has a non pending status. Return status in the error_msg
+                    // Status 6: When a request is already accepted. Return request id in the error_msg
+                    switch (response.body().getStatus()){
+                        case 0:
+                            Log.i(TAG, "onResponse: status 0. Trying again in 30 seconds");
+                            callable(call.clone(), validCode);
+                            Log.d(TAG, "onDriverReject: Restarted successfully");
+                            break;
+                        case 3:
+                            Toast.makeText(RideRequestService.this, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
+                            Log.i(TAG, "onResponse: status 1. No drivers available.");
+                            EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
+                            break;
+                        case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
+                            EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
+                            prefManager.clearCurrentRide();
+                            break;
+                        case 6: // When a request is already accepted.Return request id in the error_msg
+                            pendingRide.details.requestID = response.body().getErrorMessage();
+                            prefManager.setCurrentRide(pendingRide.details);
+//                                   prefManager.setRideId(response.body().getErrorMessage());
 
+                            if (mValidCode != validCode) {
+                                // Special case when the handler callback is removed but the request was ongoing. In its
+                                // response it will call this function with an outdated valid code
+                                Log.d(TAG, "callable: valid code: "+mValidCode+" ");
+                                return;
+                            }
+                            EventBus.getDefault().post(new DriverAccepted(new Driver(
+                                    "unknown",
+                                    "unknown",
+                                    "unknown",
+                                    "unknown",
+                                    "unknown"
+                            )));
+                            break;
+                        case 1:
+                            EventBus.getDefault().post(new LogoutRequest());
+                            break;
+                    }
+
+                } else {
+                    Toast.makeText(RideRequestService.this, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DriverResponse> call, Throwable t) {
+                Toast.makeText(RideRequestService.this, R.string.failed_to_connect_to_the_server, Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "onFailure: Failed to connect. Trying again in 30 seconds");
+                onDriverReject(new DriverRejected(rideRequest));
+            }
+        });
+    }
 
     @Subscribe
-    public void onDriverReject(DriverRejected driverRejected){
-        Log.d(TAG, "restartCallable: Restarting");
+    public void onDriverReject(final DriverRejected driverRejected){
+        Log.d(TAG, "restartCallable: called. current id: " + prefManager.getCurrentRide().requestID + " Rejected id: " + driverRejected.getRequestID());
 
         if (!prefManager.getCurrentRide().requestID.equals(driverRejected.getRequestID())) {
+            Log.e(TAG, "onDriverReject: Driver reject a not-current-ride" );
+            return;
+        }
+        // One request can be pending:
+        pendingRide.details = prefManager.getCurrentRide();
+
+        if (!prefManager.isLoggedIn() || !pendingRide.details.getStatus().equals(PrefManager.FINDING_DRIVER) ){
+            Log.w(TAG, "onDriverReject: Ride status is not finding driver");
             return;
         }
 
@@ -240,6 +321,8 @@ public class RideRequestService extends Service {
             Log.i(TAG, "onRequestCanceled: handler messages removed");
         }
         validCode++;
+        Log.d(TAG, "onDriverReject: new Valid code is " + validCode);
+
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(RestServiceConstants.BASE_URL)
@@ -247,10 +330,6 @@ public class RideRequestService extends Service {
                 .build();
         String email, password;
 
-        pendingRide.details = prefManager.getRide(driverRejected.getRequestID());
-        if (!prefManager.isLoggedIn() || !pendingRide.details.getStatus().equals(PrefManager.FINDING_DRIVER) ){
-            return;
-        }
         email = prefManager.getUser().getEmail();
         password = prefManager.getUser().getPassword();
         RestService service = retrofit.create(RestService.class);
@@ -265,7 +344,65 @@ public class RideRequestService extends Service {
                 pendingRide.details.pickupText,
                 pendingRide.details.destText);
 
-        callable(call, validCode);
+        // Calling the function first here:
+//        call.enqueue(new Callback<DriverResponse>() {
+//            @Override
+//            public void onResponse(Call<DriverResponse> call, Response<DriverResponse> response) {
+//                Log.d(TAG, "onResponse: " + response.raw());
+//                Log.d(TAG, "onResponse: " + response.toString());
+//                if (response.isSuccessful()){
+//                    // Toast.makeText(mapsActivity, "Successful. Status: "+response.body().getStatus(), Toast.LENGTH_SHORT).show();
+//                    // There are 4 situations here:
+//                    // Status 0: When request is pending. request_id is returned.
+//                    // Status 1: No driver found
+//                    // Status 5: When this request has a non pending status. Return status in the error_msg
+//                    // Status 6: When a request is already accepted. Return request id in the error_msg
+//                    switch (response.body().getStatus()){
+//                        case 0:
+//                            Log.i(TAG, "onResponse: status 0. Trying again in 30 seconds");
+//                            callable(call.clone(), validCode);
+//                            Log.d(TAG, "onDriverReject: Restarted successfully");
+//                            break;
+//                        case 3:
+//                            Toast.makeText(RideRequestService.this, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
+//                            Log.i(TAG, "onResponse: status 1. No drivers available.");
+//                            EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
+//                            break;
+//                        case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
+//                        EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
+//                        prefManager.clearCurrentRide();
+//                        break;
+//                        case 6: // When a request is already accepted.Return request id in the error_msg
+//                            pendingRide.details.requestID = response.body().getErrorMessage();
+//                            prefManager.setCurrentRide(pendingRide.details);
+////                                   prefManager.setRideId(response.body().getErrorMessage());
+//                            EventBus.getDefault().post(new DriverAccepted(new Driver(
+//                                    "unknown",
+//                                    "unknown",
+//                                    "unknown",
+//                                    "unknown",
+//                                    "unknown"
+//                            )));
+//                            break;
+//                        case 1:
+//                            EventBus.getDefault().post(new LogoutRequest());
+//                            break;
+//                    }
+//
+//                } else {
+//                    Toast.makeText(RideRequestService.this, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<DriverResponse> call, Throwable t) {
+//                Toast.makeText(RideRequestService.this, R.string.failed_to_connect_to_the_server, Toast.LENGTH_SHORT).show();
+//                onDriverReject(new DriverRejected(driverRejected.getRequestID()));
+//            }
+//        });
+
+//        callable(call, validCode);
+        recursiveServerCall(call, validCode, driverRejected.getRequestID());
     }
 
     @Subscribe

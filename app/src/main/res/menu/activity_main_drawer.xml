@@ -9,11 +9,11 @@
                 <item
                     android:id="@+id/nav_new_request"
                     android:title="@string/nav_new_request"
-                    android:icon="@drawable/ic_menu_previous" />
+                    android:icon="@drawable/ic_menu_add" />
                 <item
                     android:id="@+id/nav_ongoing_requests"
                     android:title="@string/nav_ongoing_requests"
-                    android:icon="@drawable/ic_menu_previous" />
+                    android:icon="@drawable/ic_menu_incoming" />
                 <item
                     android:id="@+id/nav_history"
                     android:title="@string/nav_previous_requests"
@@ -29,7 +29,7 @@
                 <item
                     android:id="@+id/nav_change_lang"
                     android:title="@string/language"
-                    android:icon="@drawable/ic_menu_logout"/>
+                    android:icon="@drawable/ic_menu_lang_simple"/>
                 <item
                     android:id="@+id/nav_logout"
                     android:title="@string/nav_logout"

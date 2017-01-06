@@ -153,6 +153,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Boolean pickupTextSet;
     private Boolean destTextSet;
+    private int showRouteValidCode;
 
     // ============ Time ====================//
     private Calendar requestDate;
@@ -161,6 +162,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // ============ Price ====================//
     public String price;
+
+
 
     public Toast toast;
     RelativeLayout.LayoutParams relocateButtonLayoutParams;
@@ -538,6 +541,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         driversMarkers = new ArrayList<>();
         driversList = new ArrayList<>();
+        showRouteValidCode = 0;
 
 
         locationsCard = (CardView) findViewById(R.id.locations_card);
@@ -999,13 +1003,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void showRoute() {
+    private void showRoute(final int mValidCode) {
         Log.d(TAG, "showRoute: Called");
         setPrice(PriceSet.NOTYET, "0.0");
         GoogleDirection.withServerKey(GOOGLE_DIRECTIONS_API)
                 .from(pickupPoint)
                 .to(destinationPoint)
                 .execute(new DirectionCallback() {
+
                     @Override
                     public void onDirectionSuccess(Direction direction, String rawBody) {
 
@@ -1018,7 +1023,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                             if (direction.isOK()) {
                                 // Check if user hasn't cancelled:
-                                if (UIState != UI_STATE.DETAILED) {
+                                if (UIState != UI_STATE.DETAILED || mValidCode != showRouteValidCode) {
                                     return;
                                 }
 
@@ -1036,6 +1041,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 
                                 routePolyline = mMap.addPolyline(polylineOptions);
                                 Log.d(TAG, "onDirectionSuccess: Route Displayed");
+
+
 
                                 // Distance info
                                 Info distanceInfo = leg.getDistance();
@@ -1058,12 +1065,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onDirectionFailure(Throwable t) {
                         // Do something here
-                        if (UIState == UI_STATE.DETAILED){
-                            toast.setText( R.string.route_failed);
-                            toast.show();
-                            showRoute();
-                            Log.d(TAG, "showRoute: Route Failed ");
+                        if (UIState != UI_STATE.DETAILED || mValidCode != showRouteValidCode) {
+                            return;
                         }
+                        toast.setText( R.string.route_failed);
+                        toast.show();
+                        showRoute(showRouteValidCode);
+                        Log.d(TAG, "showRoute: Route Failed ");
+
                     }
                 });
     }
@@ -1171,7 +1180,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             startIntentService(RestServiceConstants.DEST, location);
 
             priceSettings.updateFromServer();
-            showRoute();
+            showRoute(showRouteValidCode);
             setUI(UI_STATE.DETAILED);
         } else if (UIState == UI_STATE.DETAILED)
         {
@@ -1283,6 +1292,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Reset cancel button
         cancelButton.setText(R.string.cancel_request);
         cancelButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
+
+        showRouteValidCode++;
 
 
     }

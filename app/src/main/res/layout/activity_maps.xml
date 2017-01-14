@@ -10,7 +10,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.example.islam.ubclone.MapsActivity" />
+        tools:context="com.wisam.driver.ubclone.MapsActivity" />
     <View
         android:id="@+id/start_view"
         android:layout_width="match_parent"

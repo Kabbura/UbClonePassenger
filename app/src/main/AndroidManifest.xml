@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.islam.ubclone">
+    package="com.wisam.driver.ubclone">
 
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -20,27 +20,27 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".CoreApplication"
+        android:name="com.wisam.driver.ubclone.CoreApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_new"
         android:installLocation="auto"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".MyFirebaseMessagingService"
+            android:name="com.wisam.driver.ubclone.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service android:name=".MyFirebaseInstanceIDService">
+        <service android:name="com.wisam.driver.ubclone.MyFirebaseInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
         <service
-            android:name=".RideRequestService"
+            android:name="com.wisam.driver.ubclone.RideRequestService"
             android:exported="false" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -58,21 +58,21 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name="com.wisam.driver.ubclone.MapsActivity"
             android:label="@string/title_activity_maps"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.MainActivity" />
         <activity
-            android:name=".LocationPicker"
+            android:name="com.wisam.driver.ubclone.LocationPicker"
             android:label="@string/title_activity_location_picker"
-            android:parentActivityName=".MapsActivity"
+            android:parentActivityName="com.wisam.driver.ubclone.MapsActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.islam.ubclone.MapsActivity" />
+                android:value="com.wisam.driver.ubclone.MapsActivity" />
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name="com.wisam.driver.ubclone.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/LoginTheme">
             <intent-filter android:label="@string/app_name">
@@ -82,64 +82,64 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".HistoryActivity"
+            android:name="com.wisam.driver.ubclone.HistoryActivity"
             android:label="@string/history_activity_name"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.islam.ubclone.MapsActivity" />
+                android:value="com.wisam.driver.ubclone.MapsActivity" />
         </activity>
         <activity
-            android:name=".RegisterActivity"
+            android:name="com.wisam.driver.ubclone.RegisterActivity"
             android:label="@string/register_activity_name" />
 
         <service
-            android:name=".FetchAddressIntentService"
+            android:name="com.wisam.driver.ubclone.FetchAddressIntentService"
             android:exported="false" />
 
         <activity
-            android:name=".ProfileActivity"
+            android:name="com.wisam.driver.ubclone.ProfileActivity"
             android:label="@string/profile_activity_name">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.islam.ubclone.MapsActivity" />
+                android:value="com.wisam.driver.ubclone.MapsActivity" />
         </activity>
         <activity
-            android:name=".AboutActivity"
+            android:name="com.wisam.driver.ubclone.AboutActivity"
             android:label="@string/about_activity_name"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.islam.ubclone.MapsActivity" />
+                android:value="com.wisam.driver.ubclone.MapsActivity" />
         </activity>
 
-        <receiver android:name=".OnBootBroadcastReceiver">
+        <receiver android:name="com.wisam.driver.ubclone.OnBootBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
         <activity
-            android:name=".SelectedRequestActivity"
+            android:name="com.wisam.driver.ubclone.SelectedRequestActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.islam.ubclone.HistoryActivity" />
+                android:value="com.wisam.driver.ubclone.HistoryActivity" />
         </activity>
         <activity
-            android:name=".OngoingRequestsActivity"
+            android:name="com.wisam.driver.ubclone.OngoingRequestsActivity"
             android:label="@string/ongoing_requests_activity_name"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.islam.ubclone.MapsActivity" />
+                android:value="com.wisam.driver.ubclone.MapsActivity" />
         </activity>
-        <activity android:name=".SelectedOngoingRequestActivity"
+        <activity android:name="com.wisam.driver.ubclone.SelectedOngoingRequestActivity"
             android:label="@string/selected_request_details"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.islam.ubclone.OngoingRequestsActivity" />
+                android:value="com.wisam.driver.ubclone.OngoingRequestsActivity" />
 
         </activity>
     </application>

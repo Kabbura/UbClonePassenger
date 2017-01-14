@@ -83,7 +83,7 @@
     <string name="done">Done</string>
     <string name="dash_minutes">-- minutes</string>
     <string name="route_successfully_computed">"Route successfully computed "</string>
-    <string name="route_failed">"Route Failed "</string>
+    <string name="route_failed">"Failed to connect. Check your internet connection"</string>
     <string name="wait_until_price_is_calculating">Wait until price is calculated</string>
     <string name="pick_time">Pick Time</string>
     <string name="any_note_or_incentive">Any note or incentive for the driver</string>
@@ -139,6 +139,7 @@
     <string name="selected_request_details">Request details</string>
     <string name="set_current_ride">Set current ride</string>
     <string name="wait_till_driver_accepts">You can start a new request when a driver accepts the current one.</string>
+    <string name="user_password_incorrect">Email or password are incorrect</string>
 
 
     <string-array name="gender_array">

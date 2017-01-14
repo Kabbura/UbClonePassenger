@@ -5,7 +5,7 @@
     android:id="@+id/activity_selected_request"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.islam.ubclone.SelectedOngoingRequestActivity"
+    tools:context="com.wisam.driver.ubclone.SelectedOngoingRequestActivity"
     android:orientation="vertical">
 
 

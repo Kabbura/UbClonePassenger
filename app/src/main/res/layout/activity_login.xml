@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="80dp"
-    tools:context="com.example.islam.ubclone.LoginActivity"
+    tools:context="com.wisam.driver.ubclone.LoginActivity"
     android:background="@android:color/white">
 
     <!-- Login progress -->

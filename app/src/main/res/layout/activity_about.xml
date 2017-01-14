@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.example.islam.ubclone.ProfileActivity"
+    tools:context="com.wisam.driver.ubclone.ProfileActivity"
     android:background="@android:color/white">
 
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -22,7 +22,7 @@
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/activity_vertical_margin"
-            tools:context="com.example.islam.ubclone.AboutActivity"
+            tools:context="com.wisam.driver.ubclone.AboutActivity"
             android:orientation="vertical">
 
             <!--<ImageView-->

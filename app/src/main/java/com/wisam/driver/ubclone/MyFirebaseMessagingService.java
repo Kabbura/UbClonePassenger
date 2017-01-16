@@ -111,9 +111,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     sendNotification(getString(R.string.driver_canceled_message));
                     break;
                 case 5: // Logout
+                    prefManager.setIsLoggedIn(false);
                     EventBus.getDefault().post(new LogoutRequest());
                     sendNotification(getString(R.string.logged_in_from_another_device));
                     break;
+                case 10: // Update BASEURL
+                                String baseURL = remoteMessage.getData().get("base_url");
+                                if(baseURL != null) {
+                                        prefManager = new PrefManager(MyFirebaseMessagingService.this);
+                                        prefManager.setBaseUrl(baseURL);
+                                    }
+                    break;
+
                 default:
                     Log.d(TAG, "onMessageReceived: No status");
             }

@@ -1,6 +1,7 @@
 package com.wisam.driver.concepts;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
@@ -45,12 +46,15 @@ public class Ride {
     ProgressDialog progressDialog;
 
 
-    public Ride() {
+    public Ride(Context context) {
         //Creating Rest Services
+
+        RestServiceConstants constants = new RestServiceConstants();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(RestServiceConstants.BASE_URL)
+                .baseUrl(constants.getBaseUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
         service = retrofit.create(RestService.class);
 
         // Initialize details
@@ -195,7 +199,7 @@ public class Ride {
                             prefManager.setCurrentRide(details);
                             Log.d(TAG, "onResponse: Request ID: " + response.body().getRequestID());
 
-                            EventBus.getDefault().post(new RideStarted(details));
+                            EventBus.getDefault().post(new RideStarted(details, mapsActivity));
                             mapsActivity.setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, mapsActivity.getString(R.string.finding_a_driver));
 
                             break;

@@ -78,9 +78,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         prefManager = new PrefManager(this);
         // Open maps!
         if (prefManager.isLoggedIn()){
-        Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
-        startActivity(intent);
-        finish();
+            Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+            startActivity(intent);
+            finish();
 
         }
 
@@ -168,7 +168,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the date of the login attempt.
-        String email = mEmailView.getText().toString();
+        String email = mEmailView.getText().toString().toLowerCase();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -214,9 +214,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private void loginRequest(final String email, final String password) {
         showProgress(true);
-
+        RestServiceConstants constants = new RestServiceConstants();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(RestServiceConstants.BASE_URL)
+                .baseUrl(constants.getBaseUrl(LoginActivity.this))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -279,11 +279,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(LoginActivity.this);
                             alertBuilder.setTitle(getString(R.string.outdated_app_message));
                             alertBuilder.setMessage(getString(R.string.outdated_app_message_body));
-                            alertBuilder.setPositiveButton(getString(R.string.done), new DialogInterface.OnClickListener() {
+                            alertBuilder.setPositiveButton(getString(R.string.update), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
+                                    final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
+                                    try {
+                                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                                    } catch (android.content.ActivityNotFoundException anfe) {
+                                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                                    }
                                 }
                             });
+                            alertBuilder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+
+
+
                             alertBuilder.show();
 
                             break;
@@ -294,7 +309,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     mPasswordView.setText("");
                     mEmailView.requestFocus();
                     Toast.makeText(LoginActivity.this, "Authentication failure", Toast.LENGTH_SHORT).show();
-                showProgress(false);
+                    showProgress(false);
                 } else {
                     Toast.makeText(LoginActivity.this, "Unknown error occurred", Toast.LENGTH_SHORT).show();
                     showProgress(false);

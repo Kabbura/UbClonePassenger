@@ -1,5 +1,7 @@
 package com.wisam.driver.events;
 
+import android.content.Context;
+
 import com.wisam.driver.concepts.Ride;
 
 /**
@@ -7,8 +9,8 @@ import com.wisam.driver.concepts.Ride;
  */
 public class RideStarted {
     private Ride ride;
-    public RideStarted(Ride.RideDetails details ){
-        ride = new Ride();
+    public RideStarted(Ride.RideDetails details, Context context ){
+        ride = new Ride(context);
         ride.details = details;
     }
     public Ride.RideDetails getDetails(){

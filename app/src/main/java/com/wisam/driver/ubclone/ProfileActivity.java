@@ -58,8 +58,9 @@ public class ProfileActivity extends AppCompatActivity {
         prefManager = new PrefManager(this);
         updated = false;
 
+        RestServiceConstants constants = new RestServiceConstants();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(RestServiceConstants.BASE_URL)
+                .baseUrl(constants.getBaseUrl(this))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         service = retrofit.create(RestService.class);

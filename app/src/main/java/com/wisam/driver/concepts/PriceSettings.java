@@ -1,5 +1,6 @@
 package com.wisam.driver.concepts;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.wisam.driver.POJO.PriceResponse;
@@ -24,13 +25,16 @@ public class PriceSettings {
     private PriceResponse priceConstants;
     private Boolean updatedFromServer;
 
-    public PriceSettings(){
+    public PriceSettings(Context context){
         updatedFromServer = false;
         //Creating Rest Services
+
+        RestServiceConstants constants = new RestServiceConstants();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(RestServiceConstants.BASE_URL)
+                .baseUrl(constants.getBaseUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
         service = retrofit.create(RestService.class);
     }
 

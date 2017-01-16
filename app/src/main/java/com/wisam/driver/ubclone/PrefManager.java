@@ -29,6 +29,7 @@ public class PrefManager {
 
     // Shared preferences file name
     private static final String PREF_NAME = "main_pref";
+    private static final String BASE_URL = "BaseURL";
 
     private static final String OTHER_LANGUAGE = "OtherLanguage";
     private static final String IS_FIRST_TIME_LAUNCHED = "IsFirstTimeLaunch";
@@ -157,7 +158,7 @@ public class PrefManager {
     public Ride.RideDetails getCurrentRide(){
 //        Log.d("PrefManager", "getCurrentRide: Called");
         Gson gson = new Gson();
-        Ride ride = new Ride();
+        Ride ride = new Ride(_context);
         String json = gson.toJson(ride.details);
         json = pref.getString(CURRENT_RIDE, json);
         return gson.fromJson(json, Ride.RideDetails.class);
@@ -166,7 +167,7 @@ public class PrefManager {
     public void clearCurrentRide(){
 //        Log.d(TAG, "clearCurrentRide: called: ");
         Gson gson = new Gson();
-        Ride ride = new Ride();
+        Ride ride = new Ride(_context);
         String json = gson.toJson(ride.details);
         editor.putString(CURRENT_RIDE, json);
         editor.apply();
@@ -199,7 +200,7 @@ public class PrefManager {
         // Clear ongoingRequests
         setOngoingRides(new ArrayList<Ride.RideDetails>());
 
-        Ride ride = new Ride();
+        Ride ride = new Ride(_context);
         for (HistoryEntry entry : acceptedRequests) {
             boolean exist = false;
             for (Ride.RideDetails savedRide : onGoingCopy) {
@@ -230,7 +231,7 @@ public class PrefManager {
     public List<Ride.RideDetails> getOngoingRides(){
 //        Log.d("PrefManager", "getOngoingRides: Called");
         Gson gson = new Gson();
-        Ride ride = new Ride();
+        Ride ride = new Ride(_context);
         List<Ride.RideDetails> ongoingRides = new ArrayList<>();
 
         String json = gson.toJson(ongoingRides);
@@ -318,5 +319,14 @@ public class PrefManager {
         }
         setOngoingRides(ongoingRides);
     }
+
+   public void setBaseUrl(String baseUrl) {
+           editor.putString(BASE_URL, baseUrl);
+           editor.apply();
+       }
+
+    public String getBaseUrl() {
+           return pref.getString(BASE_URL, "http://wissamapps.esy.es/public/");
+       }
 
 }

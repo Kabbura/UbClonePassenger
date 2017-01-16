@@ -140,6 +140,7 @@
     <string name="set_current_ride">Set current ride</string>
     <string name="wait_till_driver_accepts">You can start a new request when a driver accepts the current one.</string>
     <string name="user_password_incorrect">Email or password are incorrect</string>
+    <string name="unable_to_get_version">Driver</string>
 
 
     <string-array name="gender_array">

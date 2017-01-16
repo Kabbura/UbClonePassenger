@@ -61,7 +61,7 @@ public class RideRequestService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         prefManager = new PrefManager(this);
-        pendingRide = new Ride();
+        pendingRide = new Ride(this);
         return START_STICKY;
     }
 
@@ -96,8 +96,9 @@ public class RideRequestService extends Service {
         startForeground(1, not);
 
 
+        RestServiceConstants constants = new RestServiceConstants();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(RestServiceConstants.BASE_URL)
+                .baseUrl(constants.getBaseUrl(this))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -228,7 +229,7 @@ public class RideRequestService extends Service {
                    }
                });
             }
-        }, 30000);
+        }, 36000);
     }
 
 
@@ -324,8 +325,9 @@ public class RideRequestService extends Service {
         Log.d(TAG, "onDriverReject: new Valid code is " + validCode);
 
 
+        RestServiceConstants constants = new RestServiceConstants();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(RestServiceConstants.BASE_URL)
+                .baseUrl(constants.getBaseUrl(this))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         String email, password;
@@ -413,7 +415,7 @@ public class RideRequestService extends Service {
         }
         validCode++;
         Log.d(TAG, "onDriverAccepted: A driver has accepted");
-        Ride ride = new Ride();
+        Ride ride = new Ride(this);
         ride.details = prefManager.getRide(driverAccepted.getRequestID());
         ride.details.setStatus(PrefManager.DRIVER_ACCEPTED);
         ride.details.setDriver(driverAccepted.getDriver());
@@ -431,7 +433,7 @@ public class RideRequestService extends Service {
     @Subscribe
     public void onDriverUpdatedStatus(DriverUpdatedStatus driverUpdatedStatus){
 
-        Ride ride = new Ride();
+        Ride ride = new Ride(this);
         ride.details = prefManager.getRide(driverUpdatedStatus.getRequestID());
         if (ride.details == null){
             Log.w(TAG, "onDriverUpdatedStatus: No ride found matching the request id: " + driverUpdatedStatus.getRequestID());

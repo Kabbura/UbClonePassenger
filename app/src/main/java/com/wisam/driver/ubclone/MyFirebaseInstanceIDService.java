@@ -32,10 +32,14 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
         prefManager = new PrefManager(this);
         if (prefManager.isLoggedIn()){
+
+            RestServiceConstants constants = new RestServiceConstants();
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(RestServiceConstants.BASE_URL)
+                    .baseUrl(constants.getBaseUrl(MyFirebaseInstanceIDService.this))
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
+
+            prefManager.setRegistrationToken(refreshedToken);
 
             RestService service = retrofit.create(RestService.class);
             Call<SimpleResponse> call = service.updateToken("Basic "+ Base64.encodeToString((prefManager.getUser().getEmail() + ":" + prefManager.getUser().getPassword()).getBytes(),Base64.NO_WRAP)

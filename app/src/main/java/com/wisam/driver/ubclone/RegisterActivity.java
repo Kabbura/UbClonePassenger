@@ -50,8 +50,9 @@ public class RegisterActivity extends AppCompatActivity {
         if(checkFields()){
             showProgress(true);
 
+            RestServiceConstants constants = new RestServiceConstants();
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(RestServiceConstants.BASE_URL)
+                    .baseUrl(constants.getBaseUrl(this))
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 

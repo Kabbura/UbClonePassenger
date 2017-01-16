@@ -530,7 +530,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         destinationSelected = false;
         dateSet = false;
         priceSet = PriceSet.NOTYET;
-        priceSettings = new PriceSettings();
+        priceSettings = new PriceSettings(this);
         firstMove = true;
 
         pickupTextSet = false;
@@ -680,7 +680,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Set UI
         setUI(UI_STATE.CONFIRM_PICKUP);
 
-        ride = new Ride();
+        ride = new Ride(this);
 
 
         // getDrivers

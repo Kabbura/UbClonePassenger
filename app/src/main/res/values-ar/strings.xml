@@ -128,4 +128,6 @@
     <string name="selected_request_details">تفاصيل الطلب</string>
     <string name="set_current_ride">وضع الطلب كالطلب الحالي</string>
     <string name="wait_till_driver_accepts">يمكنك بدء طلب جديد عندما يتم ايجاد سائق للطلب الحالي</string>
+    <string name="user_password_incorrect">الايميل او كلمة السر غير صحيحتان</string>
+    <string name="unable_to_get_version">Driver</string>
 </resources>

@@ -77,11 +77,14 @@ public class HistoryActivity extends AppCompatActivity {
             finish();
         }
 
-        // Server request
+
+        RestServiceConstants constants = new RestServiceConstants();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(RestServiceConstants.BASE_URL)
+                .baseUrl(constants.getBaseUrl(HistoryActivity.this))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
+        // Server request
 
         RestService service = retrofit.create(RestService.class);
         Call<RequestsResponse> call = service.getRequests("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP));

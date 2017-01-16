@@ -76,10 +76,13 @@ public class OngoingRequestsActivity extends AppCompatActivity {
 
 
         // Server request
+
+        RestServiceConstants constants = new RestServiceConstants();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(RestServiceConstants.BASE_URL)
+                .baseUrl(constants.getBaseUrl(this))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
 
         RestService service = retrofit.create(RestService.class);
         Call<RequestsResponse> call = service.getRequests("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP));

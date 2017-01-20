@@ -3,10 +3,12 @@ package com.wisam.driver.ubclone;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
@@ -27,6 +29,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -52,7 +55,9 @@ import com.akexorcist.googledirection.model.Info;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
+import com.wisam.driver.POJO.AddressResponse;
 import com.wisam.driver.POJO.Driver;
+import com.wisam.driver.POJO.LoginResponse;
 import com.wisam.driver.concepts.PriceSettings;
 import com.wisam.driver.concepts.Ride;
 import com.wisam.driver.concepts.RideLocation;
@@ -105,8 +110,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -624,6 +635,34 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             initializeLocation();
         }
+
+
+
+
+
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://maps.googleapis.com/maps/api/geocode/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        RestService service = retrofit.create(RestService.class);
+
+        Call<AddressResponse> call = service.fetchAddress("15.592791,32.534134", GOOGLE_DIRECTIONS_API);
+        call.enqueue(new Callback<AddressResponse>() {
+            @Override
+            public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
+                if (response.body().getAddress() != null)
+                Log.d(TAG, "onResponse: Geocoding: " + response.body().getAddress());
+                else Log.d(TAG, "onResponse: Geocoding Null: " + response.raw());
+            }
+
+            @Override
+            public void onFailure(Call<AddressResponse> call, Throwable t) {
+                Log.d(TAG, "onFailure: Geocoding Error: " + t.getMessage());
+
+            }
+        });
 
     }
 
@@ -1153,7 +1192,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Location location = new Location("");
         location.setLatitude(point.latitude);
         location.setLongitude(point.longitude);
-        startIntentService(RestServiceConstants.PICKUP, location);
+        //startIntentService(RestServiceConstants.PICKUP, location);
+        getAddress(point, true, false);
     }
 
     public void getNextAction(View view) {
@@ -1180,7 +1220,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Location location = new Location("");
             location.setLatitude(destinationPoint.latitude);
             location.setLongitude(destinationPoint.longitude);
-            startIntentService(RestServiceConstants.DEST, location);
+//            startIntentService(RestServiceConstants.DEST, location);
+            getAddress(destinationPoint, false, false);
 
             priceSettings.updateFromServer();
             showRoute(showRouteValidCode);
@@ -1199,21 +1240,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ride.details.femaleOnly = femaleOnlyBox.isChecked();
                     ride.makeRequest(MapsActivity.this);
                 } else {
-                    toast.setText(R.string.connecting);
-                    toast.show();
+//                    toast.setText(R.string.connecting);
+//                    toast.show();
                     if (!pickupTextSet){
                         // Get text
-                        Location location = new Location("");
-                        location.setLatitude(pickupPoint.latitude);
-                        location.setLongitude(pickupPoint.longitude);
-                        startIntentService(RestServiceConstants.PICKUP, location);
+//                        Location location = new Location("");
+//                        location.setLatitude(pickupPoint.latitude);
+//                        location.setLongitude(pickupPoint.longitude);
+//                        startIntentService(RestServiceConstants.PICKUP, location);
+
+                        getAddress(new LatLng(ride.details.pickup.lat, ride.details.pickup.lng), true, true);
                     }
                     if (!destTextSet){
-                        // Get text
-                        Location location = new Location("");
-                        location.setLatitude(destinationPoint.latitude);
-                        location.setLongitude(destinationPoint.longitude);
-                        startIntentService(RestServiceConstants.DEST, location);
+//                        // Get text
+//                        Location location = new Location("");
+//                        location.setLatitude(destinationPoint.latitude);
+//                        location.setLongitude(destinationPoint.longitude);
+//                        startIntentService(RestServiceConstants.DEST, location);
+                        getAddress(new LatLng(ride.details.dest.lat, ride.details.dest.lng), false, true);
 
                     }
                 }
@@ -1314,7 +1358,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         datePicker.setVisibility(View.VISIBLE);
         timePicker.setVisibility(View.GONE);
 
-        timePicker.setIs24HourView(true);
+        timePicker.setIs24HourView(false);
 
         final Button pickButton = (Button)  dialog.findViewById(R.id.pick_btn);
         if (pickButton != null) {
@@ -1499,6 +1543,66 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    private void getAddress(LatLng latLng, final boolean pickup, final boolean showProgressAndRequestRide){
+        Log.d(TAG, "getAddress: Geocoding pickup: " + pickup + " Showing Progress: " + showProgressAndRequestRide);
+
+        final ProgressDialog progressDialog;
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://maps.googleapis.com/maps/api/geocode/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        RestService service = retrofit.create(RestService.class);
+
+        Call<AddressResponse> call = service.fetchAddress(latLng.latitude+","+latLng.longitude, GOOGLE_DIRECTIONS_API);
+        progressDialog   = new ProgressDialog(this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage(getString(R.string.connecting));
+        if (showProgressAndRequestRide)
+        progressDialog.show();
+        call.enqueue(new Callback<AddressResponse>() {
+            @Override
+            public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
+                if (response.body().getAddress() != null){
+                    Log.d(TAG, "onResponse: Geocoding: " + response.body().getAddress());
+                    if (pickup) {
+                        pickupTextSet = true;
+                        ride.details.pickupText = response.body().getAddress();
+
+                    } else {
+                        destTextSet = true;
+                        ride.details.destText = response.body().getAddress();
+                    }
+
+                }
+                else Log.d(TAG, "onResponse: Geocoding Null: " + response.raw());
+                if (progressDialog.isShowing()) progressDialog.dismiss();
+
+                if (showProgressAndRequestRide) {
+                    if (pickupTextSet && destTextSet){
+                        ride.details.femaleOnly = femaleOnlyBox.isChecked();
+                        ride.makeRequest(MapsActivity.this);
+
+                    } else if (!pickupTextSet){
+                        Log.d(TAG, "onResponse: Getting address for pickup");
+                        getAddress(new LatLng(ride.details.pickup.lat, ride.details.pickup.lng), true, true);
+                    }else if (!destinationSelected){
+                        Log.d(TAG, "onResponse: Getting address for dest");
+                        getAddress(new LatLng(ride.details.dest.lat, ride.details.dest.lng), false, true);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AddressResponse> call, Throwable t) {
+                Log.d(TAG, "onFailure: Geocoding Error: " + t.getMessage());
+                Toast.makeText(MapsActivity.this, R.string.failed_to_connect_to_the_server, Toast.LENGTH_SHORT).show();
+                if (progressDialog.isShowing()) progressDialog.dismiss();
+
+            }
+        });
     }
 
 

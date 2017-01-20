@@ -68,7 +68,7 @@
     <string name="done">انهاء</string>
     <string name="error_sending_request">حدث خطأ اثناء ارسال الطلب</string>
     <string name="error_setting_date">حدث خطأ اثناء تحديد الزمن، أعد المحاولة مجددا</string>
-    <string name="failed_to_connect_to_the_server">حدث خطأ اثناء الاتصال بالخادم</string>
+    <string name="failed_to_connect_to_the_server">لا يوجد اتصال بالانترنت</string>
     <string name="invalid_date">الزمن غير صالح</string>
     <string name="pick_time">اختيار الزمن</string>
     <string name="please_login_again">الرجاء تسجيل الدخول</string>

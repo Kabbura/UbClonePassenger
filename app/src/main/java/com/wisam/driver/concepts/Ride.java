@@ -118,10 +118,12 @@ public class Ride {
                     Log.d(TAG, "onResponse: " + response.raw());
                     if (response.isSuccessful() && response.body() != null){
                         if (response.body().getTime() != null){
-                            Log.d(TAG, "onResponse: time: "+ response.body().getTime()/1000);
+                            Log.d(TAG, "onResponse: server time: "+ response.body().getTime());
+                            Log.d(TAG, "onResponse: c-norm time: "+ (details.time.getTime().getTime()/1000));
                             Long currentTime = response.body().getTime();
-                            Long requestTime = details.time.getTime().getTime()/1000;
+                            Long requestTime = (details.time.getTime().getTime()/1000);
                             Long diff = requestTime - currentTime;
+                            Log.d(TAG, "onResponse: time difference: "+ diff);
                             if (diff < -300) {
                                 Toast.makeText(mapsActivity, R.string.invalid_date, Toast.LENGTH_SHORT).show();
                                 if (progressDialog.isShowing()) progressDialog.dismiss();
@@ -139,7 +141,8 @@ public class Ride {
                                 details.now = true;
                             }
 
-                            requestDriver(mapsActivity);
+                            //requestDriver(mapsActivity);
+                            if (progressDialog.isShowing()) progressDialog.dismiss();
                         }
                     } else {
                         Toast.makeText(mapsActivity, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();

@@ -103,4 +103,5 @@ public class FetchAddressIntentService extends IntentService {
         mReceiver.send(resultCode, bundle);
     }
 
+
 }

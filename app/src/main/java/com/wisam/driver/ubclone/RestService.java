@@ -1,5 +1,6 @@
 package com.wisam.driver.ubclone;
 
+import com.wisam.driver.POJO.AddressResponse;
 import com.wisam.driver.POJO.DriverResponse;
 import com.wisam.driver.POJO.DriversResponse;
 import com.wisam.driver.POJO.LoginResponse;
@@ -86,5 +87,9 @@ public interface RestService {
                                       @Query("phone") String phone,
                                       @Query("password") String pasword
                                        );
+
+    @GET("json")
+    Call<AddressResponse> fetchAddress(@Query("latlng") String latLng,
+                                       @Query("key") String key);
 }
 

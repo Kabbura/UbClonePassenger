@@ -76,7 +76,7 @@
     <string name="unkown_error_occured">Unknown error occurred</string>
     <string name="error_setting_date">Error setting date. Try again</string>
     <string name="all_drivers_are_busy">Sorry, all drivers are busy. Try again later.</string>
-    <string name="failed_to_connect_to_the_server">Failed to connect to the server</string>
+    <string name="failed_to_connect_to_the_server">No Internet connection</string>
     <string name="thank_you_for_booking">Thank you for booking with us.</string>
     <string name="connecting">Connecting</string>
     <string name="error_sending_request">Error sending request</string>

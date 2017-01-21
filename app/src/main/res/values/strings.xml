@@ -141,6 +141,7 @@
     <string name="wait_till_driver_accepts">You can start a new request when a driver accepts the current one.</string>
     <string name="user_password_incorrect">Email or password are incorrect</string>
     <string name="unable_to_get_version">Driver</string>
+    <string name="failed_to_get_location">Failed to get location address. Try a different location.</string>
 
 
     <string-array name="gender_array">

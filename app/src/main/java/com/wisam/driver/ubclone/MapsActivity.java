@@ -641,28 +641,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://maps.googleapis.com/maps/api/geocode/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        RestService service = retrofit.create(RestService.class);
-
-        Call<AddressResponse> call = service.fetchAddress("15.592791,32.534134", GOOGLE_DIRECTIONS_API);
-        call.enqueue(new Callback<AddressResponse>() {
-            @Override
-            public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
-                if (response.body().getAddress() != null)
-                Log.d(TAG, "onResponse: Geocoding: " + response.body().getAddress());
-                else Log.d(TAG, "onResponse: Geocoding Null: " + response.raw());
-            }
-
-            @Override
-            public void onFailure(Call<AddressResponse> call, Throwable t) {
-                Log.d(TAG, "onFailure: Geocoding Error: " + t.getMessage());
-
-            }
-        });
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl("https://maps.googleapis.com/maps/api/geocode/")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//
+//        RestService service = retrofit.create(RestService.class);
+//
+//        Call<AddressResponse> call = service.fetchAddress("15.592791,32.534134", GOOGLE_DIRECTIONS_API);
+//        call.enqueue(new Callback<AddressResponse>() {
+//            @Override
+//            public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
+//                if (response.body().getAddress() != null)
+//                Log.d(TAG, "onResponse: Geocoding: " + response.body().getAddress());
+//                else Log.d(TAG, "onResponse: Geocoding Null: " + response.raw());
+//            }
+//
+//            @Override
+//            public void onFailure(Call<AddressResponse> call, Throwable t) {
+//                Log.d(TAG, "onFailure: Geocoding Error: " + t.getMessage());
+//
+//            }
+//        });
 
     }
 
@@ -929,8 +929,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (mLastLocation != null) {
             mCurrentLocation = mLastLocation;
 //            Toast.makeText(this, "Connected GPlServices "+mLastLocation.getLatitude()+" "+mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+
             // Get drivers
-            ride.getDrivers(MapsActivity.this, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+//            ride.getDrivers(MapsActivity.this, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+
         }
 //        else {
 //            Toast.makeText(this, "Sorry, it's null", Toast.LENGTH_SHORT).show();
@@ -1577,7 +1579,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
 
                 }
-                else Log.d(TAG, "onResponse: Geocoding Null: " + response.raw());
+                else {
+                    Log.d(TAG, "onResponse: Geocoding Null: " + response.raw());
+                    Toast.makeText(MapsActivity.this, R.string.failed_to_get_location, Toast.LENGTH_SHORT).show();
+                }
                 if (progressDialog.isShowing()) progressDialog.dismiss();
 
                 if (showProgressAndRequestRide) {
@@ -1669,7 +1674,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         driverMarker = mMap.addMarker(new MarkerOptions()
                 .position(driverLocation.getDriverLocation())
-                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.driver_coming_icon_smaller))
+                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.driver_coming_icon_new_small))
         );
     }
 

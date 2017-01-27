@@ -59,6 +59,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //                Log.w(TAG, "onMessageReceived: wrong request_id");
 //                return;
 //            }
+            Intent intent = new Intent(this, RideRequestService.class);
+            startService(intent);
             switch (status){
                 case 0: // Driver reject:
 

@@ -71,7 +71,7 @@ public class RegisterActivity extends AppCompatActivity {
                     Log.d(TAG, "onResponse: " + response.raw());
                     Log.d(TAG, "onResponse: " + response.toString());
                     if (response.isSuccessful() && response.body() != null && response.body().getStatus() == 0){
-                        User user = new User(email.getText().toString(),
+                        User user = new User(email.getText().toString().toLowerCase(),
                                 fullname.getText().toString(),
                                 genderSpinner.getSelectedItem().toString(),
                                 password.getText().toString(),

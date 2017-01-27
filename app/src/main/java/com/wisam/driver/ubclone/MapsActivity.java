@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
@@ -29,7 +28,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -57,7 +55,6 @@ import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.wisam.driver.POJO.AddressResponse;
 import com.wisam.driver.POJO.Driver;
-import com.wisam.driver.POJO.LoginResponse;
 import com.wisam.driver.concepts.PriceSettings;
 import com.wisam.driver.concepts.Ride;
 import com.wisam.driver.concepts.RideLocation;
@@ -110,7 +107,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 
 import retrofit2.Call;
@@ -285,6 +281,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private TextView priceTextBottom;
     private LinearLayout pickupInBottomView;
     private TextView pickupTimeText;
+
+    private boolean comingFromOnActivityResult;
 
 
     private UI_STATE UIState;
@@ -553,6 +551,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         driversMarkers = new ArrayList<>();
         driversList = new ArrayList<>();
         showRouteValidCode = 0;
+
+        comingFromOnActivityResult = false;
 
 
         locationsCard = (CardView) findViewById(R.id.locations_card);
@@ -998,6 +998,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         switch (requestCode) {
             case GET_PICKUP_POINT:
                 if (resultCode == RESULT_OK) {
+                    comingFromOnActivityResult = true;
                     Place place = PlaceAutocomplete.getPlace(this, data);
                     setPickupPointUI(place);
                     Log.i(TAG, "Place: " + place.getName());
@@ -1011,6 +1012,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case GET_DESTINATION_POINT:
                 if (resultCode == RESULT_OK) {
+                    comingFromOnActivityResult = true;
                     Place place = PlaceAutocomplete.getPlace(this, data);
                     setDestinationPointUI(place);
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -1293,7 +1295,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else if (prefManager.getCurrentRide().getStatus().equals(PrefManager.ARRIVED_PICKUP)){
             Toast.makeText(this, "Driver has arrived. Contact driver to cancel.", Toast.LENGTH_LONG).show();
         } else {
-            ride.cancelRequest(this);
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setMessage(R.string.cancel_request_dialog_message);
+            alertDialogBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    ride.cancelRequest(MapsActivity.this);
+
+                }
+            });
+
+            alertDialogBuilder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+            alertDialogBuilder.show();
+
+
         }
     }
 
@@ -1335,6 +1357,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             newCameraLocation = KHARTOUM_CORDS;
         }
         ride.getDrivers(this, newCameraLocation);
+
         CameraPosition cameraPosition = new CameraPosition.Builder().target(newCameraLocation).zoom(14).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
@@ -1343,6 +1366,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         cancelButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
 
         showRouteValidCode++;
+        comingFromOnActivityResult = false;
 
 
     }
@@ -1476,7 +1500,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         validateSession();
         super.onResume();
         Log.i(TAG, "onResume: RideStatus: "+ prefManager.getCurrentRide().getStatus());
-        if (prefManager.getCurrentRide().getStatus() == null || prefManager.getCurrentRide().requestID == null) {
+        if (prefManager.getCurrentRide().getStatus() == null ||
+                prefManager.getCurrentRide().requestID == null) {
                 EventBus.getDefault().post(new RequestFinished("-1"));
                 EventBus.getDefault().post(new RequestFinishedUI("-1"));
             return;
@@ -1499,11 +1524,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.completed), prefManager.getCurrentRide().getDriver());
         } else {
             // When the activity is resuming after onActivityResults, we do not want to reset it.
-            if (UIState != UI_STATE.CONFIRM_PICKUP && UIState != UI_STATE.CONFIRM_DESTINATION){
+            if (!isComingFromOnActivityResult()){
+                comingFromOnActivityResult = false;
                 EventBus.getDefault().post(new RequestFinished("-1"));
                 EventBus.getDefault().post(new RequestFinishedUI("-1"));
             }
         }
+    }
+
+    private boolean isComingFromOnActivityResult() {
+        return comingFromOnActivityResult;
     }
 
     protected void startIntentService(Boolean point, Location location) {
@@ -1560,6 +1590,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Call<AddressResponse> call = service.fetchAddress(latLng.latitude+","+latLng.longitude, GOOGLE_DIRECTIONS_API);
         progressDialog   = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage(getString(R.string.connecting));
         if (showProgressAndRequestRide)

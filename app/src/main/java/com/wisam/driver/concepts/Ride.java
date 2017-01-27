@@ -95,6 +95,7 @@ public class Ride {
         if(details.isSet()){
             progressDialog   = new ProgressDialog(mapsActivity);
             progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
             progressDialog.setMessage(mapsActivity.getString(R.string.connecting));
             progressDialog.show();
 
@@ -272,6 +273,7 @@ public class Ride {
                 prefManager.getCurrentRide().requestID);
         Log.d(TAG, "cancelRequest: "+call.request().toString());
         progressDialog   = new ProgressDialog(mapsActivity);
+        progressDialog.setCancelable(false);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage(mapsActivity.getString(R.string.connecting));
         progressDialog.show();
@@ -310,6 +312,7 @@ public class Ride {
         Call<SimpleResponse> call = service.postArrived("Basic "+ Base64.encodeToString((email + ":" + password).getBytes(),Base64.NO_WRAP),
                 prefManager.getCurrentRide().requestID);
         progressDialog   = new ProgressDialog(mapsActivity);
+        progressDialog.setCancelable(false);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Connecting");
         progressDialog.show();

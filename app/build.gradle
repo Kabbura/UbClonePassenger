@@ -8,8 +8,8 @@ android {
         applicationId "com.wisam.driver.ubclone"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 6
-        versionName "1.2.3"
+        versionCode 8
+        versionName "1.2.5"
         multiDexEnabled true
     }
     buildTypes {

@@ -142,6 +142,8 @@
     <string name="user_password_incorrect">Email or password are incorrect</string>
     <string name="unable_to_get_version">Driver</string>
     <string name="failed_to_get_location">Failed to get location address. Try a different location.</string>
+    <string name="cancel_request_dialog_message">Are you sure you want to cancel this request?</string>
+    <string name="no_requests_found">No requests found</string>
 
 
     <string-array name="gender_array">

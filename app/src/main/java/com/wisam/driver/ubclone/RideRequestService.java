@@ -183,9 +183,9 @@ public class RideRequestService extends Service {
                                    callable(call.clone(), mValidCode);
                                    break;
                                case 3:
-                                   Toast.makeText(RideRequestService.this, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
+//                                   Toast.makeText(RideRequestService.this, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
                                    Log.i(TAG, "onResponse: status 1. No drivers available.");
-                                   EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
+//                                   EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
                                    return;
                                case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
                                    EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
@@ -253,9 +253,9 @@ public class RideRequestService extends Service {
                             Log.d(TAG, "onDriverReject: Restarted successfully");
                             break;
                         case 3:
-                            Toast.makeText(RideRequestService.this, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
+//                            Toast.makeText(RideRequestService.this, "Sorry, all drivers are busy. Try again later.", Toast.LENGTH_LONG).show();
                             Log.i(TAG, "onResponse: status 1. No drivers available.");
-                            EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
+//                            EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));
                             break;
                         case 5: // When this request has "completed" or "canceled" status.Return status in the error_msg
                             EventBus.getDefault().post(new RequestFinished(pendingRide.details.requestID));

@@ -1,5 +1,6 @@
 package com.wisam.driver.ubclone;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -77,6 +78,13 @@ public class HistoryActivity extends AppCompatActivity {
             finish();
         }
 
+        final ProgressDialog progressDialog;
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage(getString(R.string.connecting));
+
+        progressDialog.show();
 
         RestServiceConstants constants = new RestServiceConstants();
         Retrofit retrofit = new Retrofit.Builder()
@@ -92,6 +100,8 @@ public class HistoryActivity extends AppCompatActivity {
         call.enqueue(new Callback<RequestsResponse>() {
             @Override
             public void onResponse(Call<RequestsResponse> call, Response<RequestsResponse> response) {
+                if (progressDialog.isShowing()) progressDialog.dismiss();
+
                 Log.d(TAG, "onResponse: raw: " + response.body());
                 if (response.isSuccessful() && response.body() != null){
                     List <HistoryEntry> rides = response.body().getRides();
@@ -111,8 +121,11 @@ public class HistoryActivity extends AppCompatActivity {
                         }
                     }
                     HistoryActivity.this.setHistoryEntries(history);
+                    if (rides.size() == 0) {
+                        Toast.makeText(HistoryActivity.this, R.string.no_requests_found, Toast.LENGTH_SHORT).show();
+                    }
                 } else if (response.code() == 401){
-                    Toast.makeText(HistoryActivity.this, "Please login to continue", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HistoryActivity.this, R.string.please_login_again, Toast.LENGTH_SHORT).show();
                     Log.i(TAG, "onCreate: User not logged in");
                     prefManager.setIsLoggedIn(false);
                     Intent intent = new Intent(HistoryActivity.this, LoginActivity.class);
@@ -120,13 +133,18 @@ public class HistoryActivity extends AppCompatActivity {
                     finish();
                 } else {
                     clearHistoryEntries();
-                    Toast.makeText(HistoryActivity.this, "Unknown error occurred", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HistoryActivity.this, R.string.unkown_error_occured, Toast.LENGTH_SHORT).show();
                 }
 
             }
 
             @Override
             public void onFailure(Call<RequestsResponse> call, Throwable t) {
+                if (progressDialog.isShowing()) progressDialog.dismiss();
+                Toast.makeText(HistoryActivity.this, R.string.failed_to_connect_to_the_server, Toast.LENGTH_SHORT).show();
+
+
+
 
             }
         });

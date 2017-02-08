@@ -555,6 +555,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         comingFromOnActivityResult = false;
 
 
+
         locationsCard = (CardView) findViewById(R.id.locations_card);
         detailsCard = (CardView) findViewById(R.id.details_card);
 //        statusCard = (CardView) findViewById(R.id.status_card);
@@ -606,6 +607,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         navigationView.setNavigationItemSelectedListener(this);
         // End Drawer
 
+
+
+        //For local testing.
+        prefManager.setBaseUrl("http://192.168.43.155:8080/");
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

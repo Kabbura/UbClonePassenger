@@ -13,6 +13,7 @@ import com.wisam.driver.POJO.DriversResponse;
 import com.wisam.driver.POJO.SimpleResponse;
 import com.wisam.driver.POJO.TimeResponse;
 import com.wisam.driver.events.DriverAccepted;
+import com.wisam.driver.events.DriverLocation;
 import com.wisam.driver.events.LogoutRequest;
 import com.wisam.driver.events.RequestFinished;
 import com.wisam.driver.events.RideStarted;
@@ -45,6 +46,9 @@ public class Ride {
     private Driver driver;
     ProgressDialog progressDialog;
 
+    public RestService getRestService() {
+        return service;
+    }
 
     public Ride(Context context) {
         //Creating Rest Services

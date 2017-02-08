@@ -133,4 +133,5 @@
     <string name="failed_to_get_location">فشل الحصول على اسم المكان. اختر مكان آخر وحاول مجددا</string>
     <string name="cancel_request_dialog_message">هل تود الغاء الطلب؟</string>
     <string name="no_requests_found">لا توجد طلبات</string>
+    <string name="ongoing_ride">طلب جاري</string>
 </resources>

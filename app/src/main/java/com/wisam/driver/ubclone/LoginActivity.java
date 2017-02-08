@@ -76,6 +76,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
 
         prefManager = new PrefManager(this);
+
+
+        //For local testing.
+        User user = new User("email", "name","female","000000","09123");
+        prefManager.setIsLoggedIn(true);
+        prefManager.setUser(user);
+
+        Intent intent2 = new Intent(LoginActivity.this, MapsActivity.class);
+        startActivity(intent2);
+        finish();
+
         // Open maps!
         if (prefManager.isLoggedIn()){
             Intent intent = new Intent(LoginActivity.this, MapsActivity.class);

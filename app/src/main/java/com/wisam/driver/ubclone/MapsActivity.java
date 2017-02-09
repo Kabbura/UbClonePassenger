@@ -1651,12 +1651,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDriverAccepted(DriverAccepted driverAccepted){
+        Log.d(TAG, "onDriverAccepted: A driver has accepted");
+        validateSession();
         if (!prefManager.getCurrentRide().requestID.equals(driverAccepted.getRequestID())) {
             return;
         }
 
-        Log.d(TAG, "onDriverAccepted: A driver has accepted");
-        validateSession();
         ride.setDriver(driverAccepted.getDriver());
         setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.accepted_request), driverAccepted.getDriver());
     }

@@ -146,7 +146,7 @@ public class Ride {
                                 details.now = true;
                             }
 
-                            //requestDriver(mapsActivity);
+                            requestDriver(mapsActivity);
                             if (progressDialog.isShowing()) progressDialog.dismiss();
                         }
                     } else {

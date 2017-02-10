@@ -609,8 +609,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-        //For local testing.
-        prefManager.setBaseUrl("http://192.168.43.155:8080/");
+//        prefManager.setBaseUrl("http://192.168.43.155:8080/");
+//        prefManager.setBaseUrl("http://wissamapps.esy.es/public/");
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

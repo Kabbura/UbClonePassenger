@@ -58,6 +58,7 @@ import com.wisam.driver.POJO.Driver;
 import com.wisam.driver.concepts.PriceSettings;
 import com.wisam.driver.concepts.Ride;
 import com.wisam.driver.concepts.RideLocation;
+import com.wisam.driver.concepts.TestPendingRequest;
 import com.wisam.driver.events.DriverAccepted;
 import com.wisam.driver.events.DriverCanceledUI;
 import com.wisam.driver.events.DriverLocation;
@@ -643,31 +644,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-
-
-
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl("https://maps.googleapis.com/maps/api/geocode/")
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-//
-//        RestService service = retrofit.create(RestService.class);
-//
-//        Call<AddressResponse> call = service.fetchAddress("15.592791,32.534134", GOOGLE_DIRECTIONS_API);
-//        call.enqueue(new Callback<AddressResponse>() {
-//            @Override
-//            public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
-//                if (response.body().getAddress() != null)
-//                Log.d(TAG, "onResponse: Geocoding: " + response.body().getAddress());
-//                else Log.d(TAG, "onResponse: Geocoding Null: " + response.raw());
-//            }
-//
-//            @Override
-//            public void onFailure(Call<AddressResponse> call, Throwable t) {
-//                Log.d(TAG, "onFailure: Geocoding Error: " + t.getMessage());
-//
-//            }
-//        });
+        TestPendingRequest testPendingRequest = new TestPendingRequest(this);
 
     }
 
@@ -1679,6 +1656,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.i(TAG, "onDriverUpdatedStatus: called");
         validateSession();
         switch (driverUpdatedStatus.getMessage()){
+            case RestServiceConstants.FINDING_DRIVER:
+                setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.finding_a_driver));
+                break;
             case RestServiceConstants.ON_THE_WAY:
                 setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, getString(R.string.on_the_way), prefManager.getCurrentRide().getDriver());
                 break;

@@ -27,8 +27,8 @@ import retrofit2.Response;
  */
 public class PendingRequest extends Ride {
     private final static String TAG = "PendingRequest";
-    private final static int CALL_WAIT_TIME = 36000;
-//    private final static int CALL_WAIT_TIME = 3600;
+//    private final static int CALL_WAIT_TIME = 36000;
+    private final static int CALL_WAIT_TIME = 3600;
     private final static int LOOKING_FOR_DRIVER = 0;
     private final static int AUTHENTICATION_FAILURE = 1;
     private final static int NO_DRIVER_FOUND = 3;

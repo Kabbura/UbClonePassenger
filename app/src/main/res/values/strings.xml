@@ -145,6 +145,7 @@
     <string name="cancel_request_dialog_message">Are you sure you want to cancel this request?</string>
     <string name="no_requests_found">No requests found</string>
     <string name="ongoing_ride">Ongoing ride</string>
+    <string name="requets_has_been_canceled">Request has been canceled.</string>
 
 
     <string-array name="gender_array">

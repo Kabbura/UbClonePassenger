@@ -11,6 +11,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.wisam.driver.POJO.Driver;
+import com.wisam.driver.events.ControlCanceledRequest;
 import com.wisam.driver.events.DriverAccepted;
 import com.wisam.driver.events.DriverCanceled;
 import com.wisam.driver.events.DriverLocation;
@@ -123,6 +124,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                         prefManager = new PrefManager(MyFirebaseMessagingService.this);
                                         prefManager.setBaseUrl(baseURL);
                                     }
+                    break;
+                case 6: // Control canceled
+                    EventBus.getDefault().post(new ControlCanceledRequest(remoteMessage.getData().get("request_id")));
+                    sendNotification(getString(R.string.requets_has_been_canceled));
                     break;
 
                 default:

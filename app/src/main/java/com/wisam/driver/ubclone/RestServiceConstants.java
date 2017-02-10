@@ -12,6 +12,7 @@ public class RestServiceConstants {
 //    public final static String BASE_URL = "http://wissamapps.esy.es/public/";
 
     public final static String
+            FINDING_DRIVER = "finding_driver",
             ON_THE_WAY = "on_the_way",
             ARRIVED_PICKUP = "arrived_pickup",
             PASSENGER_ONBOARD = "passenger_onboard",

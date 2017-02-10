@@ -16,6 +16,7 @@ import com.wisam.driver.POJO.Driver;
 import com.wisam.driver.POJO.DriverResponse;
 import com.wisam.driver.concepts.PendingRequest;
 import com.wisam.driver.concepts.Ride;
+import com.wisam.driver.events.ControlCanceledRequest;
 import com.wisam.driver.events.DriverAccepted;
 import com.wisam.driver.events.DriverCanceled;
 import com.wisam.driver.events.DriverCanceledUI;
@@ -31,6 +32,7 @@ import com.wisam.driver.exceptions.RideNotFoundException;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 
@@ -134,7 +136,9 @@ public class RideRequestService extends Service {
         if (rideDetails != null) {
             rideDetails.setStatus(PrefManager.FINDING_DRIVER);
             prefManager.updateOngoingRide(rideDetails);
-            return new PendingRequest(this, rideDetails);
+            PendingRequest pendingRequest = new PendingRequest(this, rideDetails);
+            pendingRequestList.add(pendingRequest);
+            return pendingRequest;
         }
         throw new RideNotFoundException("Request with ID " + requestId + " is not in the SharedPreferences.");
     }
@@ -160,6 +164,14 @@ public class RideRequestService extends Service {
         ride.details = prefManager.getRide(driverAccepted.getRequestID());
         ride.details.setStatus(PrefManager.DRIVER_ACCEPTED);
         ride.details.setDriver(driverAccepted.getDriver());
+        prefManager.setCurrentRide(ride.details);
+    }
+
+    private void updateCanceledRideInOngoingRidesList(DriverCanceled driverCanceled) {
+        Ride ride = new Ride(this);
+        ride.details = prefManager.getRide(driverCanceled.getRequestID());
+        ride.details.setStatus(PrefManager.FINDING_DRIVER);
+        ride.details.setDriver(new Driver("-","","-","-",""));
         prefManager.setCurrentRide(ride.details);
     }
 
@@ -246,12 +258,20 @@ public class RideRequestService extends Service {
         if (prefManager.getOngoingRides().size() == 0) stopForeground(true);
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDriverCanceled(DriverCanceled driverCanceled){
-        if (prefManager.getCurrentRide().requestID.equals(driverCanceled.getRequestID()))
-            EventBus.getDefault().post(new DriverCanceledUI(driverCanceled.getRequestID()));
+        Log.d(TAG, "onDriverCanceled: Called. " + driverCanceled.getRequestID());
+        onDriverReject(new DriverRejected(driverCanceled.getRequestID()));
+        updateCanceledRideInOngoingRidesList(driverCanceled);
+        EventBus.getDefault().post(new DriverUpdatedStatus(RestServiceConstants.FINDING_DRIVER,driverCanceled.getRequestID() ));
+    }
 
-        onRequestCanceled(new RequestFinished(driverCanceled.getRequestID()));
+    @Subscribe
+    public void onControlCanceledRequest(ControlCanceledRequest controlCanceledRequest){
+        if (prefManager.getCurrentRide().requestID.equals(controlCanceledRequest.getRequestID()))
+            EventBus.getDefault().post(new DriverCanceledUI(controlCanceledRequest.getRequestID()));
+
+        onRequestCanceled(new RequestFinished(controlCanceledRequest.getRequestID()));
     }
 
     @Subscribe

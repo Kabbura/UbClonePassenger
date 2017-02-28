@@ -27,8 +27,8 @@ import retrofit2.Response;
  */
 public class PendingRequest extends Ride {
     private final static String TAG = "PendingRequest";
-//    private final static int CALL_WAIT_TIME = 36000;
-    private final static int CALL_WAIT_TIME = 3600;
+    private final static int CALL_WAIT_TIME = 36000;
+//    private final static int CALL_WAIT_TIME = 3600;
     private final static int LOOKING_FOR_DRIVER = 0;
     private final static int AUTHENTICATION_FAILURE = 1;
     private final static int NO_DRIVER_FOUND = 3;
@@ -121,6 +121,7 @@ public class PendingRequest extends Ride {
     }
 
     private void switchStatusAndAct(Response<DriverResponse> response) {
+        Log.d(TAG, "switchStatusAndAct: Status: " + response.body().getStatus());
         switch (response.body().getStatus()){
             case LOOKING_FOR_DRIVER:
                 runPostDelayed();
@@ -174,5 +175,11 @@ public class PendingRequest extends Ride {
     public void restart() throws InvalidRideDetailsException {
         cancel();
         start();
+    }
+    public void callNowThenRestart() throws InvalidRideDetailsException {
+        cancel();
+        RestService service = getRestService();
+        driverRequestCall = createDriverRequestCall(service);
+        enqueueDriverRequestCall();
     }
 }

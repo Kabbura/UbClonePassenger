@@ -260,10 +260,17 @@ public class RideRequestService extends Service {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDriverCanceled(DriverCanceled driverCanceled){
-        Log.d(TAG, "onDriverCanceled: Called. " + driverCanceled.getRequestID());
-        onDriverReject(new DriverRejected(driverCanceled.getRequestID()));
-        updateCanceledRideInOngoingRidesList(driverCanceled);
-        EventBus.getDefault().post(new DriverUpdatedStatus(RestServiceConstants.FINDING_DRIVER,driverCanceled.getRequestID() ));
+        try {
+            Log.d(TAG, "onDriverCanceled: Called. " + driverCanceled.getRequestID());
+            PendingRequest pendingRequest = getPendingRequest(driverCanceled.getRequestID());
+            pendingRequest.callNowThenRestart();
+            updateCanceledRideInOngoingRidesList(driverCanceled);
+            EventBus.getDefault().post(new DriverUpdatedStatus(RestServiceConstants.FINDING_DRIVER,driverCanceled.getRequestID() ));
+        } catch (RideNotFoundException e) {
+            Log.w(TAG, "onDriverReject: Request with ID " + driverCanceled.getRequestID() + " not found. Aborting.");
+        } catch (InvalidRideDetailsException e) {
+            Log.e(TAG, "onDriverReject: Invalid ride details. " + e.getMessage());
+        }
     }
 
     @Subscribe

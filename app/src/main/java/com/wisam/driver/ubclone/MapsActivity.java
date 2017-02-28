@@ -644,7 +644,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-        TestPendingRequest testPendingRequest = new TestPendingRequest(this);
+//        TestPendingRequest testPendingRequest = new TestPendingRequest(this);
 
     }
 
@@ -1223,7 +1223,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (priceSet == PriceSet.SUCCESS ){
 //                ride.details.price="4";
                 if (pickupTextSet && destTextSet){
-                    ride.details.femaleOnly = femaleOnlyBox.isChecked();
+                    if (prefManager.getUser().getGender().equals("male")){
+                        ride.details.femaleOnly = false;
+                    } else {
+                        ride.details.femaleOnly = femaleOnlyBox.isChecked();
+
+                    }
                     ride.makeRequest(MapsActivity.this);
                 } else {
 //                    toast.setText(R.string.connecting);

@@ -73,7 +73,7 @@ public class RegisterActivity extends AppCompatActivity {
                     if (response.isSuccessful() && response.body() != null && response.body().getStatus() == 0){
                         User user = new User(email.getText().toString().toLowerCase(),
                                 fullname.getText().toString(),
-                                genderSpinner.getSelectedItem().toString(),
+                                (genderSpinner.getSelectedItem().toString().equals(getString(R.string.male))?"male":"female"),
                                 password.getText().toString(),
                                 phone.getText().toString());
                         prefManager.setIsLoggedIn(true);

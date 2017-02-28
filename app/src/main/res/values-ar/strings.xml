@@ -134,4 +134,5 @@
     <string name="cancel_request_dialog_message">هل تود الغاء الطلب؟</string>
     <string name="no_requests_found">لا توجد طلبات</string>
     <string name="ongoing_ride">طلب جاري</string>
+    <string name="requets_has_been_canceled">لقد تم إلغاء الطلب</string>
 </resources>

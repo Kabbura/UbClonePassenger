@@ -32,14 +32,20 @@ public class TestPendingRequest {
         prefManager = new PrefManager(mapsActivity);
 
         prefManager.setBaseUrl("http://192.168.43.155:8080/");
-        startNewRide(1000);
-
-        driverAcceptsRide("First driver", "9999", 10000);
-        driverCancelsRequest("9999", 15000);
+        startNewRide("9999", 1000);
+//        startNewRide("8888", 2000);
+//        startNewRide("7777", 3000);
+//
+//        driverAcceptsRide("7 driver", "7777", 8000);
+//        driverAcceptsRide("9 driver", "9999", 9000);
+//        driverAcceptsRide("8 driver", "8888", 12000);
+//        driverCancelsRequest("9999", 15000);
 //        driverAcceptsRide("Second driver", "9999", 12000);
 //        driverCancelsRequest("9999", 13000);
 
-        cancelRide(25000);
+        cancelRide("9999", 5000);
+
+        prefManager.setBaseUrl("http://wissamapps.esy.es/public/");
 
 
 
@@ -79,19 +85,19 @@ public class TestPendingRequest {
 
     }
 
-    private void cancelRide(int delay) {
+    private void cancelRide(final String requestId, int delay) {
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
                                     Log.d(TAG, "cancelRide: Called");
-                                    EventBus.getDefault().post(new RequestFinished("9999"));
+                                    EventBus.getDefault().post(new RequestFinished(requestId));
                                 } },
                 delay);
 
     }
 
-    private void startNewRide(int delay) {
+    private void startNewRide(final String requestId, int delay) {
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -111,10 +117,10 @@ public class TestPendingRequest {
 
                                     Intent intent = new Intent(mapsActivity, RideRequestService.class);
                                     mapsActivity.startService(intent);
-                                    details.requestID = "9999";
+                                    details.requestID = requestId;
                                     details.setStatus(PrefManager.FINDING_DRIVER);
                                     prefManager.setCurrentRide(details);
-                                    Log.d(TAG, "startNewRide: Request ID: 9999");
+                                    Log.d(TAG, "startNewRide: Request ID: " + requestId);
 
                                     EventBus.getDefault().post(new RideStarted(details, mapsActivity));
                                     mapsActivity.setUI(MapsActivity.UI_STATE.STATUS_MESSAGE, mapsActivity.getString(R.string.finding_a_driver));
